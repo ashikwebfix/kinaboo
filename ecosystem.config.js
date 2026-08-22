@@ -2,7 +2,7 @@ module.exports = {
   apps: [
     {
       name: 'kinaboo-backend',
-      script: './server/server.js',
+      script: 'server.js',
       cwd: './server',
       env_production: {
         NODE_ENV: 'production',
