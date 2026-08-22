@@ -67,6 +67,12 @@ const ProductDetails = () => {
         setMainImage(data.images && data.images.length > 0 ? data.images[0] : (data.image || 'https://placehold.co/400x400?text=No+Image'));
         trackViewContent(data);
 
+        // Default to first bundle tier if available
+        if (data.volumeBundles && data.volumeBundles.length > 0) {
+          const sortedTiers = [...data.volumeBundles].sort((a, b) => a.qty - b.qty);
+          setQty(sortedTiers[0].qty);
+        }
+
         // Initialize variations
         if (data.variations) {
           const initialVariations = {};
