@@ -125,9 +125,9 @@ const ThankYou = () => {
           <div style={{ marginBottom: '2rem' }}>
             <h3 style={{ fontSize: '1.1rem', fontWeight: '700', marginBottom: '1rem', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>Bill To / Ship To:</h3>
             <div style={{ color: 'var(--text-secondary)', lineHeight: '1.6' }}>
-              <strong style={{ color: 'var(--text-primary)', fontSize: '1.1rem' }}>{order.customerName}</strong><br/>
-              Phone: {order.customerPhone}<br/>
-              Address: {order.customerAddress}<br/>
+              <strong style={{ color: 'var(--text-primary)', fontSize: '1.1rem' }}>{order.name}</strong><br/>
+              Phone: {order.phone}<br/>
+              Address: {order.shippingAddress}<br/>
               {order.deliveryMethod && <span>Delivery Method: {order.deliveryMethod}<br/></span>}
               Payment: {order.paymentMethod === 'cod' ? 'Cash on Delivery (COD)' : order.paymentMethod}
             </div>
@@ -145,15 +145,15 @@ const ThankYou = () => {
                 </tr>
               </thead>
               <tbody>
-                {order.items && order.items.map((item, idx) => {
-                  const variations = typeof item.variations === 'string' ? JSON.parse(item.variations) : item.variations;
+                {order.orderItems && order.orderItems.map((item, idx) => {
+                  const variations = typeof item.selectedVariations === 'string' ? JSON.parse(item.selectedVariations) : item.selectedVariations;
                   const itemPrice = Number(item.price) - Number(item.bundleDiscount || 0);
-                  const itemTotal = itemPrice * item.quantity;
+                  const itemTotal = itemPrice * item.qty;
                   
                   return (
                     <tr key={idx} style={{ borderBottom: '1px solid var(--border-color)' }}>
                       <td style={{ padding: '1rem', color: 'var(--text-secondary)' }}>
-                        <strong style={{ color: 'var(--text-primary)' }}>{item.productName}</strong>
+                        <strong style={{ color: 'var(--text-primary)' }}>{item.product?.name || 'Product'}</strong>
                         {variations && Object.keys(variations).length > 0 && (
                           <div style={{ fontSize: '0.9rem', marginTop: '0.25rem' }}>
                             {Object.entries(variations).map(([k, v]) => `${k}: ${v}`).join(', ')}
@@ -165,7 +165,7 @@ const ThankYou = () => {
                           </div>
                         )}
                       </td>
-                      <td style={{ padding: '1rem', textAlign: 'center', color: 'var(--text-secondary)' }}>{item.quantity}</td>
+                      <td style={{ padding: '1rem', textAlign: 'center', color: 'var(--text-secondary)' }}>{item.qty}</td>
                       <td style={{ padding: '1rem', textAlign: 'right', color: 'var(--text-secondary)' }}>৳ {itemPrice.toFixed(2)}</td>
                       <td style={{ padding: '1rem', textAlign: 'right', color: 'var(--text-primary)', fontWeight: '500' }}>৳ {itemTotal.toFixed(2)}</td>
                     </tr>
@@ -180,7 +180,7 @@ const ThankYou = () => {
             <div style={{ width: '300px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.5rem 0', color: 'var(--text-secondary)' }}>
                 <span>Subtotal:</span>
-                <span>৳ {Number(order.subtotal).toFixed(2)}</span>
+                <span>৳ {(Number(order.totalPrice) + Number(order.discount) - Number(order.shippingCost)).toFixed(2)}</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.5rem 0', color: 'var(--text-secondary)' }}>
                 <span>Shipping:</span>
@@ -192,15 +192,15 @@ const ThankYou = () => {
                   <span>- ৳ {Number(order.discount).toFixed(2)}</span>
                 </div>
               )}
-              {Number(order.couponDiscount) > 0 && (
+              {Number(order.couponCode) && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.5rem 0', color: 'var(--text-secondary)' }}>
-                  <span>Coupon Discount:</span>
-                  <span>- ৳ {Number(order.couponDiscount).toFixed(2)}</span>
+                  <span>Coupon ({order.couponCode}):</span>
+                  <span>Applied</span>
                 </div>
               )}
               <div style={{ display: 'flex', justifyContent: 'space-between', padding: '1rem 0', borderTop: '2px solid var(--border-color)', marginTop: '0.5rem', fontWeight: '700', fontSize: '1.2rem', color: 'var(--text-primary)' }}>
                 <span>Total:</span>
-                <span>৳ {Number(order.total).toFixed(2)}</span>
+                <span>৳ {Number(order.totalPrice).toFixed(2)}</span>
               </div>
             </div>
           </div>
