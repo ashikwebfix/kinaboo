@@ -1,0 +1,12 @@
+node_modules/
+.DS_Store
+.env
+dist/
+build/
+uploads/
+run_dev.sh
+Start eCommerce.app/
+HOW_TO_RUN.md
+*.log
+package-lock.json
+yarn.lock

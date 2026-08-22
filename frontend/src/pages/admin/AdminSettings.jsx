@@ -10,6 +10,7 @@ const AdminSettings = () => {
   const [pathaoSettings, setPathaoSettings] = useState({ clientId: '', clientSecret: '', username: '', password: '', storeId: '', baseUrl: 'https://api-hermes.pathao.com' });
   const [generalSettings, setGeneralSettings] = useState({ maintenanceMode: false, maintenanceMessage: 'Site is under maintenance. We will be right back.' });
   const [storefrontUI, setStorefrontUI] = useState({
+    heroType: 'multi', singleHeroImage: '', singleHeroLink: '',
     heroBanners: [], promotionalBanners: [], trustBadges: [], superHourDeals: { productIds: [], endTime: '' },
     featuredProducts: { title: '', productIds: [] }, customSections: []
   });
@@ -244,12 +245,72 @@ const AdminSettings = () => {
                 Dynamically construct your homepage layout.
               </p>
 
-              {/* 1. Hero Banners */}
-              <div style={{ marginBottom: '3rem' }}>
+              {/* Hero Section Layout Toggle */}
+              <div style={{ marginBottom: '2rem', padding: '1.5rem', background: '#f9fafb', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
                 <h3 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <ImageIcon size={18} /> Hero Banners
+                  <LayoutTemplate size={18} /> Hero Layout Style
                 </h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                    <input 
+                      type="radio" 
+                      name="heroType" 
+                      checked={storefrontUI.heroType !== 'single'} 
+                      onChange={() => setStorefrontUI(prev => ({ ...prev, heroType: 'multi' }))}
+                      style={{ width: '18px', height: '18px' }}
+                    />
+                    <span style={{ fontSize: '0.95rem', fontWeight: 500 }}>Multi Image (Carousel + Promos)</span>
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                    <input 
+                      type="radio" 
+                      name="heroType" 
+                      checked={storefrontUI.heroType === 'single'} 
+                      onChange={() => setStorefrontUI(prev => ({ ...prev, heroType: 'single' }))}
+                      style={{ width: '18px', height: '18px' }}
+                    />
+                    <span style={{ fontSize: '0.95rem', fontWeight: 500 }}>Single Image (Full Width)</span>
+                  </label>
+                </div>
+              </div>
+
+              {storefrontUI.heroType === 'single' && (
+                <div style={{ marginBottom: '3rem' }}>
+                  <h3 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <ImageIcon size={18} /> Single Hero Image
+                  </h3>
+                  <div style={{ background: '#f9fafb', padding: '1.5rem', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem', maxWidth: '500px' }}>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 500, marginBottom: '0.25rem' }}>Image</label>
+                        {storefrontUI.singleHeroImage ? (
+                          <div style={{ position: 'relative', width: '100%', height: '150px', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
+                            <img src={storefrontUI.singleHeroImage} alt="Single Hero" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            <button type="button" onClick={() => setStorefrontUI(prev => ({ ...prev, singleHeroImage: '' }))} style={{ position:'absolute', top: 4, right: 4, background:'#fff', borderRadius:'50%', padding: 4, border:'none', cursor:'pointer' }}><XCircle size={16} color="#ef4444" /></button>
+                          </div>
+                        ) : (
+                          <button type="button" className="btn btn-secondary" onClick={() => setPickerType('single_hero')} style={{ width: '100%', height: '150px', display: 'flex', flexDirection: 'column', gap: '0.5rem', border: '2px dashed var(--border-color)', justifyContent: 'center' }}>
+                            <ImageIcon size={18} /> Select Image
+                          </button>
+                        )}
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 500, marginBottom: '0.25rem' }}>Link URL (Optional)</label>
+                        <input className="input-field" value={storefrontUI.singleHeroLink || ''} onChange={(e) => setStorefrontUI(prev => ({ ...prev, singleHeroLink: e.target.value }))} placeholder="/shop" style={{ background: '#fff' }} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* 1. Hero Banners */}
+              {storefrontUI.heroType !== 'single' && (
+                <>
+                  <div style={{ marginBottom: '3rem' }}>
+                    <h3 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <ImageIcon size={18} /> Hero Banners
+                    </h3>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                   {storefrontUI.heroBanners?.map((banner, index) => (
                     <div key={banner.id} style={{ background: '#f9fafb', padding: '1.5rem', borderRadius: '8px', border: '1px solid #e5e7eb', position: 'relative' }}>
                       <span style={{ position: 'absolute', top: '1rem', left: '-1rem', background: 'var(--text-primary)', color: '#fff', width: '24px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', fontSize: '0.8rem', fontWeight: 'bold' }}>{index + 1}</span>
@@ -335,6 +396,8 @@ const AdminSettings = () => {
                   )}
                 </div>
               </div>
+              </>
+              )}
 
               {/* 1.75 Trust Badges */}
               <div style={{ marginBottom: '3rem' }}>
@@ -712,6 +775,8 @@ const AdminSettings = () => {
             } else if (pickerType?.startsWith('promo_')) {
               const id = pickerType.split('_')[1];
               handleUpdatePromoBanner(id, 'image', selection);
+            } else if (pickerType === 'single_hero') {
+              setStorefrontUI(prev => ({ ...prev, singleHeroImage: selection }));
             }
             setPickerType(null);
           }}

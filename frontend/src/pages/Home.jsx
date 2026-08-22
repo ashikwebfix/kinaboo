@@ -134,78 +134,94 @@ const Home = () => {
       </Helmet>
       
       {/* Hero Section */}
-      <div style={{ display: 'flex', gap: '1.5rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
-        
-        {/* Left: Carousel */}
-        <div style={{ flex: '1 1 65%', minWidth: '300px', borderRadius: '16px', overflow: 'hidden', position: 'relative', height: '450px', background: '#f3f4f6', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}>
-          {(uiConfig?.heroBanners?.length > 0 ? uiConfig.heroBanners : slides).map((slide, idx) => (
-            <div 
-              key={slide.id}
-              style={{
-                position: 'absolute', inset: 0, 
-                opacity: currentSlide === idx ? 1 : 0, 
-                transition: 'opacity 0.8s ease-in-out',
-                zIndex: currentSlide === idx ? 1 : 0
-              }}
-            >
-              <img src={slide.image} alt={slide.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(0,0,0,0.7), transparent)', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '3rem' }}>
-                <span style={{ color: 'var(--accent-secondary)', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '1rem', display: 'block' }}>
-                  {slide.subtitle}
-                </span>
-                <h2 style={{ color: 'white', fontSize: 'clamp(2.5rem, 5vw, 4rem)', fontWeight: '800', lineHeight: '1.1', marginBottom: '2rem', maxWidth: '500px' }}>
-                  {slide.title}
-                </h2>
-                <button className="btn btn-primary" style={{ alignSelf: 'flex-start', padding: '1rem 2.5rem', fontSize: '1.1rem' }} onClick={() => window.location.href = slide.link || '/shop'}>
-                  এখুনি কিনুন
-                </button>
-              </div>
+      {uiConfig?.heroType === 'single' ? (
+        <div style={{ marginBottom: '4rem', borderRadius: '16px', overflow: 'hidden', position: 'relative', height: '500px', boxShadow: '0 10px 20px rgba(0,0,0,0.1)' }}>
+          {uiConfig?.singleHeroImage ? (
+            <a href={uiConfig?.singleHeroLink || '#'} style={{ display: 'block', width: '100%', height: '100%' }}>
+              <img src={uiConfig.singleHeroImage} alt="Hero Banner" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            </a>
+          ) : (
+            <div style={{ width: '100%', height: '100%', background: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <span style={{ color: 'var(--text-secondary)' }}>No hero image configured</span>
             </div>
-          ))}
-
-          {/* Carousel Controls */}
-          <button 
-            onClick={() => setCurrentSlide((prev) => (prev === 0 ? (uiConfig?.heroBanners?.length || slides.length) - 1 : prev - 1))}
-            style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', zIndex: 10, background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', cursor: 'pointer', backdropFilter: 'blur(4px)' }}
-          >
-            <ChevronLeft size={24} />
-          </button>
-          <button 
-            onClick={() => setCurrentSlide((prev) => (prev + 1) % (uiConfig?.heroBanners?.length || slides.length))}
-            style={{ position: 'absolute', right: '1rem', top: '50%', transform: 'translateY(-50%)', zIndex: 10, background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', cursor: 'pointer', backdropFilter: 'blur(4px)' }}
-          >
-            <ChevronRight size={24} />
-          </button>
+          )}
         </div>
+      ) : (
+        <>
+          <div style={{ display: 'flex', gap: '1.5rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
+            
+            {/* Left: Carousel */}
+            <div style={{ flex: '1 1 65%', minWidth: '300px', borderRadius: '16px', overflow: 'hidden', position: 'relative', height: '450px', background: '#f3f4f6', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}>
+              {(uiConfig?.heroBanners?.length > 0 ? uiConfig.heroBanners : slides).map((slide, idx) => (
+                <div 
+                  key={slide.id}
+                  style={{
+                    position: 'absolute', inset: 0, 
+                    opacity: currentSlide === idx ? 1 : 0, 
+                    transition: 'opacity 0.8s ease-in-out',
+                    zIndex: currentSlide === idx ? 1 : 0
+                  }}
+                >
+                  <img src={slide.image} alt={slide.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(0,0,0,0.7), transparent)', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '3rem' }}>
+                    <span style={{ color: 'var(--accent-secondary)', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '1rem', display: 'block' }}>
+                      {slide.subtitle}
+                    </span>
+                    <h2 style={{ color: 'white', fontSize: 'clamp(2.5rem, 5vw, 4rem)', fontWeight: '800', lineHeight: '1.1', marginBottom: '2rem', maxWidth: '500px' }}>
+                      {slide.title}
+                    </h2>
+                    <button className="btn btn-primary" style={{ alignSelf: 'flex-start', padding: '1rem 2.5rem', fontSize: '1.1rem' }} onClick={() => window.location.href = slide.link || '/shop'}>
+                      এখুনি কিনুন
+                    </button>
+                  </div>
+                </div>
+              ))}
 
-        {/* Right: Vertical Banner */}
-        <div style={{ flex: '1 1 30%', minWidth: '250px', borderRadius: '16px', overflow: 'hidden', position: 'relative', height: '450px', background: 'var(--accent-primary)', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center', padding: '2.5rem', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}>
-           <div style={{ position: 'absolute', inset: 0, opacity: 0.1, background: 'radial-gradient(circle at top right, white, transparent 70%)' }}></div>
-           <div style={{ position: 'relative', zIndex: 1 }}>
-             <h3 style={{ color: 'white', fontSize: '2rem', fontWeight: '800', marginBottom: '1rem', lineHeight: '1.2' }}>স্পেশাল অফার</h3>
-             <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: '1.1rem', marginBottom: '2rem' }}>নতুন সব পণ্যে ২০% ছাড়!</p>
-             <button style={{ background: 'var(--accent-secondary)', color: 'var(--text-primary)', border: 'none', padding: '0.875rem 2rem', borderRadius: '99px', fontWeight: '700', fontSize: '1.1rem', cursor: 'pointer', transition: 'transform 0.2s' }} onMouseOver={e => e.currentTarget.style.transform = 'scale(1.05)'} onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}>
-               অফারটি গ্রহণ করুন
-             </button>
-           </div>
-        </div>
-      </div>
+              {/* Carousel Controls */}
+              <button 
+                onClick={() => setCurrentSlide((prev) => (prev === 0 ? (uiConfig?.heroBanners?.length || slides.length) - 1 : prev - 1))}
+                style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', zIndex: 10, background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', cursor: 'pointer', backdropFilter: 'blur(4px)' }}
+              >
+                <ChevronLeft size={24} />
+              </button>
+              <button 
+                onClick={() => setCurrentSlide((prev) => (prev + 1) % (uiConfig?.heroBanners?.length || slides.length))}
+                style={{ position: 'absolute', right: '1rem', top: '50%', transform: 'translateY(-50%)', zIndex: 10, background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', cursor: 'pointer', backdropFilter: 'blur(4px)' }}
+              >
+                <ChevronRight size={24} />
+              </button>
+            </div>
 
-      {/* 3 Promotional Images Under Hero */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem', marginBottom: '4rem' }}>
-        {(uiConfig?.promotionalBanners?.length > 0 ? uiConfig.promotionalBanners : defaultPromos).map((promo, idx) => (
-          <div 
-            key={promo.id || idx} 
-            style={{ height: '220px', borderRadius: '16px', overflow: 'hidden', position: 'relative', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', cursor: 'pointer' }}
-            onClick={() => window.location.href = promo.link || '/shop'}
-          >
-             <img src={promo.image} alt={promo.title} style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s' }} onMouseOver={e => e.currentTarget.style.transform = 'scale(1.1)'} onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'} />
-             <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 60%)', display: 'flex', alignItems: 'flex-end', padding: '1.5rem', pointerEvents: 'none' }}>
-               <h3 style={{ color: 'white', fontWeight: '700', fontSize: '1.5rem', margin: 0, textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>{promo.title}</h3>
-             </div>
+            {/* Right: Vertical Banner */}
+            <div style={{ flex: '1 1 30%', minWidth: '250px', borderRadius: '16px', overflow: 'hidden', position: 'relative', height: '450px', background: 'var(--accent-primary)', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center', padding: '2.5rem', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}>
+               <div style={{ position: 'absolute', inset: 0, opacity: 0.1, background: 'radial-gradient(circle at top right, white, transparent 70%)' }}></div>
+               <div style={{ position: 'relative', zIndex: 1 }}>
+                 <h3 style={{ color: 'white', fontSize: '2rem', fontWeight: '800', marginBottom: '1rem', lineHeight: '1.2' }}>স্পেশাল অফার</h3>
+                 <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: '1.1rem', marginBottom: '2rem' }}>নতুন সব পণ্যে ২০% ছাড়!</p>
+                 <button style={{ background: 'var(--accent-secondary)', color: 'var(--text-primary)', border: 'none', padding: '0.875rem 2rem', borderRadius: '99px', fontWeight: '700', fontSize: '1.1rem', cursor: 'pointer', transition: 'transform 0.2s' }} onMouseOver={e => e.currentTarget.style.transform = 'scale(1.05)'} onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}>
+                   অফারটি গ্রহণ করুন
+                 </button>
+               </div>
+            </div>
           </div>
-        ))}
-      </div>
+
+          {/* 3 Promotional Images Under Hero */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem', marginBottom: '4rem' }}>
+            {(uiConfig?.promotionalBanners?.length > 0 ? uiConfig.promotionalBanners : defaultPromos).map((promo, idx) => (
+              <div 
+                key={promo.id || idx} 
+                style={{ height: '220px', borderRadius: '16px', overflow: 'hidden', position: 'relative', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', cursor: 'pointer' }}
+                onClick={() => window.location.href = promo.link || '/shop'}
+              >
+                 <img src={promo.image} alt={promo.title} style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s' }} onMouseOver={e => e.currentTarget.style.transform = 'scale(1.1)'} onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'} />
+                 <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 60%)', display: 'flex', alignItems: 'flex-end', padding: '1.5rem', pointerEvents: 'none' }}>
+                   <h3 style={{ color: 'white', fontWeight: '700', fontSize: '1.5rem', margin: 0, textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>{promo.title}</h3>
+                 </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
 
       {/* Trust Badges */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem', textAlign: 'center', borderTop: '1px solid var(--border-color)', borderBottom: '1px solid var(--border-color)', padding: '2rem 0', marginBottom: '4rem' }}>
