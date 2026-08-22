@@ -162,18 +162,19 @@ export const trackAddToWishlist = (product) => {
 export const trackBeginCheckout = (cartItems, totalPrice) => {
   if (!cartItems || cartItems.length === 0) return;
   const eventId = generateEventId();
+  const numValue = Number(totalPrice) || 0;
 
   // GTM
   pushToDataLayer({
     event: 'begin_checkout',
     event_id: eventId,
     ecommerce: {
-      value: totalPrice,
+      value: numValue,
       currency: 'BDT',
       items: cartItems.map(item => ({
         item_name: item.name,
         item_id: item.productId || item.id,
-        price: item.price,
+        price: Number(item.price),
         quantity: item.qty
       }))
     }
@@ -182,7 +183,7 @@ export const trackBeginCheckout = (cartItems, totalPrice) => {
   const fbData = {
     content_ids: cartItems.map(item => item.productId || item.id),
     content_type: 'product',
-    value: totalPrice,
+    value: numValue,
     currency: 'BDT',
     num_items: cartItems.length
   };
@@ -217,6 +218,7 @@ export const trackPurchase = (order, cartItems) => {
   
   // order.id is unique per purchase, so we can use it as the deduplication eventId!
   const eventId = 'purchase_' + order.id;
+  const numValue = Number(order.totalPrice) || 0;
 
   // GTM
   pushToDataLayer({
@@ -224,12 +226,12 @@ export const trackPurchase = (order, cartItems) => {
     event_id: eventId,
     ecommerce: {
       transaction_id: order.id,
-      value: order.totalPrice,
+      value: numValue,
       currency: 'BDT',
       items: cartItems.map(item => ({
         item_name: item.name,
         item_id: item.productId || item.id,
-        price: item.price,
+        price: Number(item.price),
         quantity: item.qty
       }))
     }
@@ -238,7 +240,7 @@ export const trackPurchase = (order, cartItems) => {
   const fbData = {
     content_ids: cartItems.map(item => item.productId || item.id),
     content_type: 'product',
-    value: order.totalPrice,
+    value: numValue,
     currency: 'BDT'
   };
 
