@@ -83,6 +83,7 @@ app.use('/api', (req, res) => {
   res.status(404).json({ message: 'API Route Not Found' });
 });
 
+/*
 // Serve frontend static files
 const frontendDistPath = path.join(__dirname, '../frontend/dist/client');
 app.use(express.static(frontendDistPath, { index: false }));
@@ -151,6 +152,7 @@ app.use(async (req, res) => {
     }
   }
 });
+*/
 
 const PORT = process.env.PORT || 5005;
 
