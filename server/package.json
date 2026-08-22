@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "prestart": "fuser -k 6710/tcp || true",
-    "start": "node server.js"
+    "start": "PORT=6710 node server.js"
   },
   "keywords": [],
   "author": "",
