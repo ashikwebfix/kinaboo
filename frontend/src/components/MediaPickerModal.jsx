@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Upload, CheckCircle2 } from 'lucide-react';
 
-const MediaPickerModal = ({ isOpen, onClose, onSelect, multiSelect = false, currentSelection = [] }) => {
+const EMPTY_ARRAY = [];
+
+const MediaPickerModal = ({ isOpen, onClose, onSelect, multiSelect = false, currentSelection = EMPTY_ARRAY }) => {
   const [media, setMedia] = useState([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
