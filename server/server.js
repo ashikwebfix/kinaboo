@@ -4,9 +4,12 @@ const dotenv = require('dotenv');
 const path = require('path');
 const { connectDB } = require('./config/db');
 
+dotenv.config({ path: path.join(__dirname, '.env') });
+
 // Mock browser globals for SSR using JSDOM
 const { JSDOM } = require('jsdom');
-const dom = new JSDOM('<!DOCTYPE html><html><head></head><body><div id="root"></div></body></html>', { url: 'http://localhost:6710/' });
+const siteUrl = process.env.SITE_URL;
+const dom = new JSDOM('<!DOCTYPE html><html><head></head><body><div id="root"></div></body></html>', { url: siteUrl });
 const win = dom.window;
 
 for (const key of Object.getOwnPropertyNames(win)) {
@@ -42,7 +45,6 @@ const Category = require('./models/Category');
 
 const { migrateProductSlugs } = require('./controllers/productController');
 
-require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 // Connect to database and run migrations
 connectDB().then(() => {
