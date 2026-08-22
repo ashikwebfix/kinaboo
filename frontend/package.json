@@ -9,7 +9,7 @@
     "build:server": "vite build --ssr src/entry-server.jsx --outDir dist/server",
     "build": "npm run build:client && npm run build:server",
     "prestart": "fuser -k 6711/tcp || true",
-    "start": "vite preview --port 6711 --host 0.0.0.0",
+    "start": "vite preview --outDir dist/client --port 6711 --host 0.0.0.0",
     "lint": "oxlint",
     "preview": "vite preview"
   },
