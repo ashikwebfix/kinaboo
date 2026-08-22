@@ -34,9 +34,6 @@ const Checkout = () => {
         const res = await fetch(import.meta.env.VITE_API_URL + '/api/settings/delivery_methods');
         const data = await res.json();
         setDeliveryMethods(data);
-        if (data && data.length > 0) {
-          setSelectedMethodId(data[0].id);
-        }
       } catch (error) {
         console.error("Error fetching delivery methods", error);
       }
@@ -128,6 +125,11 @@ const Checkout = () => {
 
   const handlePlaceOrder = async (e) => {
     e.preventDefault();
+
+    if (!selectedMethodId) {
+      alert('অনুগ্রহ করে ডেলিভারির মাধ্যম নির্বাচন করুন। (Please select a delivery method)');
+      return;
+    }
 
     if (!bdPhoneRegex.test(phone)) {
       toast.error('Please enter a valid Bangladeshi phone number');
@@ -231,11 +233,43 @@ const Checkout = () => {
             <section>
               <h2 style={{ fontSize: '1.25rem', fontWeight: 500, marginBottom: '1rem', color: '#1f2937' }}>ডেলিভারির ঠিকানা</h2>
               <div style={{ display: 'grid', gap: '1rem' }}>
-                <select className="input-field" value={selectedMethodId} onChange={e => setSelectedMethodId(e.target.value)} style={{ padding: '0.875rem', backgroundColor: '#fff' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem' }}>
                   {deliveryMethods.map(m => (
-                    <option key={m.id} value={m.id}>{m.name} ({m.charge} BDT)</option>
+                    <label 
+                      key={m.id} 
+                      style={{ 
+                        border: selectedMethodId === m.id ? '2px solid var(--accent-primary)' : '1px solid var(--border-color)', 
+                        borderRadius: '12px', 
+                        padding: '1rem', 
+                        cursor: 'pointer', 
+                        display: 'flex', 
+                        flexDirection: 'column',
+                        backgroundColor: selectedMethodId === m.id ? 'rgba(59, 130, 246, 0.05)' : '#fff',
+                        transition: 'all 0.2s ease',
+                        boxShadow: selectedMethodId === m.id ? '0 4px 12px rgba(59, 130, 246, 0.1)' : 'none'
+                      }}
+                    >
+                      <input 
+                        type="radio" 
+                        name="deliveryMethod" 
+                        value={m.id} 
+                        checked={selectedMethodId === m.id} 
+                        onChange={e => setSelectedMethodId(e.target.value)} 
+                        style={{ display: 'none' }} 
+                      />
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginBottom: '0.5rem' }}>
+                        <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{m.name}</span>
+                        <div style={{ 
+                          width: '18px', height: '18px', borderRadius: '50%', 
+                          border: selectedMethodId === m.id ? '5px solid var(--accent-primary)' : '2px solid var(--border-color)',
+                          backgroundColor: '#fff',
+                          transition: 'all 0.2s ease'
+                        }}></div>
+                      </div>
+                      <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', fontWeight: 500 }}>৳ {m.charge}</span>
+                    </label>
                   ))}
-                </select>
+                </div>
                 <textarea required className="input-field" rows="3" placeholder="সম্পূর্ণ ঠিকানা (বাড়ি, রাস্তা, এলাকা, শহর)" value={address} onChange={e => setAddress(e.target.value)} style={{ padding: '0.875rem', resize: 'none' }} />
               </div>
             </section>

@@ -56,7 +56,6 @@ const ExpressCheckoutModal = ({ product, qty = 1, selectedVariations = {}, onClo
         if (dmRes.ok) {
           const dmData = await dmRes.json();
           setDeliveryMethods(dmData);
-          if (dmData && dmData.length > 0) setSelectedMethodId(dmData[0].id);
         }
       } catch (error) {
         console.error("Error fetching delivery methods:", error);
@@ -115,6 +114,12 @@ const ExpressCheckoutModal = ({ product, qty = 1, selectedVariations = {}, onClo
 
   const handleQuickBuySubmit = async (e) => {
     e.preventDefault();
+
+    if (!selectedMethodId) {
+      alert('অনুগ্রহ করে ডেলিভারির মাধ্যম নির্বাচন করুন। (Please select a delivery method)');
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const selectedMethod = deliveryMethods.find(m => m.id === selectedMethodId);
@@ -292,11 +297,43 @@ const ExpressCheckoutModal = ({ product, qty = 1, selectedVariations = {}, onClo
           </div>
           <div>
             <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500, fontSize: '0.95rem' }}>Delivery Method</label>
-            <select className="input-field" value={selectedMethodId} onChange={e => setSelectedMethodId(e.target.value)} style={{ padding: '0.875rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '1rem' }}>
               {deliveryMethods.map(m => (
-                <option key={m.id} value={m.id}>{m.name} (+{m.charge} BDT)</option>
+                <label 
+                  key={m.id} 
+                  style={{ 
+                    border: selectedMethodId === m.id ? '2px solid var(--accent-primary)' : '1px solid var(--border-color)', 
+                    borderRadius: '12px', 
+                    padding: '1rem', 
+                    cursor: 'pointer', 
+                    display: 'flex', 
+                    flexDirection: 'column',
+                    backgroundColor: selectedMethodId === m.id ? 'rgba(59, 130, 246, 0.05)' : '#fff',
+                    transition: 'all 0.2s ease',
+                    boxShadow: selectedMethodId === m.id ? '0 4px 12px rgba(59, 130, 246, 0.1)' : 'none'
+                  }}
+                >
+                  <input 
+                    type="radio" 
+                    name="modalDeliveryMethod" 
+                    value={m.id} 
+                    checked={selectedMethodId === m.id} 
+                    onChange={e => setSelectedMethodId(e.target.value)} 
+                    style={{ display: 'none' }} 
+                  />
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginBottom: '0.5rem' }}>
+                    <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{m.name}</span>
+                    <div style={{ 
+                      width: '18px', height: '18px', borderRadius: '50%', 
+                      border: selectedMethodId === m.id ? '5px solid var(--accent-primary)' : '2px solid var(--border-color)',
+                      backgroundColor: '#fff',
+                      transition: 'all 0.2s ease'
+                    }}></div>
+                  </div>
+                  <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', fontWeight: 500 }}>৳ {m.charge}</span>
+                </label>
               ))}
-            </select>
+            </div>
           </div>
           <div>
             <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500, fontSize: '0.95rem' }}>Full Delivery Address</label>
