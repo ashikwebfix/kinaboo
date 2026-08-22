@@ -135,13 +135,13 @@ const Home = () => {
       
       {/* Hero Section */}
       {uiConfig?.heroType === 'single' ? (
-        <div style={{ marginBottom: '4rem', borderRadius: '16px', overflow: 'hidden', position: 'relative', height: '500px', boxShadow: '0 10px 20px rgba(0,0,0,0.1)' }}>
+        <div style={{ marginBottom: '4rem', borderRadius: '16px', overflow: 'hidden', position: 'relative', width: '100%', height: 'auto', boxShadow: '0 10px 20px rgba(0,0,0,0.1)' }}>
           {uiConfig?.singleHeroImage ? (
-            <a href={uiConfig?.singleHeroLink || '#'} style={{ display: 'block', width: '100%', height: '100%' }}>
-              <img src={uiConfig.singleHeroImage} alt="Hero Banner" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            <a href={uiConfig?.singleHeroLink || '#'} style={{ display: 'block', width: '100%', height: 'auto' }}>
+              <img src={uiConfig.singleHeroImage} alt="Hero Banner" style={{ width: '100%', height: 'auto', display: 'block' }} />
             </a>
           ) : (
-            <div style={{ width: '100%', height: '100%', background: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ width: '100%', height: '500px', background: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <span style={{ color: 'var(--text-secondary)' }}>No hero image configured</span>
             </div>
           )}

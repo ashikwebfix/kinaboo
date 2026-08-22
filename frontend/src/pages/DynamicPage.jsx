@@ -139,7 +139,7 @@ const ContactFormSection = ({ data }) => {
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '4rem', margin: '3rem 0' }}>
       <div>
-        <h2 className="heading-lg" style={{ marginBottom: '1.5rem' }}>{data.title || 'যোগাযোগ করুন'}</h2>
+        {data.title && <h2 className="heading-lg" style={{ marginBottom: '1.5rem' }}>{data.title}</h2>}
         <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', marginBottom: '2rem', lineHeight: '1.6' }}>
           {data.subtitle || 'যেকোনো প্রয়োজনে আমাদের সাথে যোগাযোগ করুন। আমাদের সাপোর্ট টিম সবসময় প্রস্তুত আপনাকে সাহায্য করতে।'}
         </p>

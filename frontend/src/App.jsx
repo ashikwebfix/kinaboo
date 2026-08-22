@@ -17,6 +17,7 @@ import Login from './pages/Login';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import ProductDetails from './pages/ProductDetails';
+import ThankYou from './pages/ThankYou';
 import DynamicPage from './pages/DynamicPage';
 import Profile from './pages/Profile';
 import Dashboard from './pages/admin/Dashboard';
@@ -100,6 +101,7 @@ function App() {
         <Route path="/profile" element={<CustomerLayout maintenanceMode={maintenanceMode} maintenanceMessage={maintenanceMessage} isAdmin={isAdmin}><Profile /></CustomerLayout>} />
         <Route path="/cart" element={<CustomerLayout maintenanceMode={maintenanceMode} maintenanceMessage={maintenanceMessage} isAdmin={isAdmin}><Cart /></CustomerLayout>} />
         <Route path="/checkout" element={maintenanceMode && !isAdmin ? <Maintenance message={maintenanceMessage} /> : <Checkout />} />
+        <Route path="/thank-you/:id" element={<CustomerLayout maintenanceMode={maintenanceMode} maintenanceMessage={maintenanceMessage} isAdmin={isAdmin}><ThankYou /></CustomerLayout>} />
         
         {/* Admin Routes */}
         <Route path="/admin/login" element={<AdminLogin />} />

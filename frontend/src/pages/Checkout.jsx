@@ -171,12 +171,8 @@ const Checkout = () => {
         const responseData = await res.json();
         trackPurchase(responseData, cartItems);
         clearCart();
-        alert('অর্ডার সফলভাবে সম্পন্ন হয়েছে! আমরা শীঘ্রই যোগাযোগ করব।');
-        if (userInfo) {
-          navigate('/profile');
-        } else {
-          navigate('/');
-        }
+        // Redirect to the Thank You Invoice page
+        navigate(`/thank-you/${responseData.id}`);
       } else {
         alert('অর্ডার সম্পন্ন করতে সমস্যা হয়েছে।');
       }

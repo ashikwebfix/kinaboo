@@ -182,10 +182,9 @@ const ExpressCheckoutModal = ({ product, qty = 1, selectedVariations = {}, onClo
           selectedVariations
         }]);
 
-        alert('Order placed successfully! We will contact you soon.');
         onClose();
-        if (userInfo) navigate('/profile');
-        else navigate('/');
+        // Redirect to the Thank You Invoice page
+        navigate(`/thank-you/${responseData.id}`);
       } else {
         alert('Failed to place order.');
       }
