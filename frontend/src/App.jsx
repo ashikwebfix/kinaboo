@@ -64,7 +64,7 @@ function App() {
     setMounted(true);
     const fetchMaintenance = async () => {
       try {
-        const res = await fetch((import.meta.env.VITE_API_URL || 'http://localhost:6710') + '/api/settings/general_settings');
+        const res = await fetch((import.meta.env.VITE_API_URL || '') + '/api/settings/general_settings');
         if (res.ok) {
           const data = await res.json();
           if (data && data.maintenanceMode) {
