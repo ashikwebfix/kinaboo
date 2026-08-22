@@ -1,0 +1,20 @@
+<svg width="200" height="60" viewBox="0 0 200 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="kinabooGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FF6A3D"/>
+      <stop offset="100%" stop-color="#FF3D77"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Bag Handle -->
+  <path d="M 18 24 C 18 10, 36 10, 36 24" stroke="url(#kinabooGrad)" stroke-width="4.5" fill="none" stroke-linecap="round" />
+  
+  <!-- Bag Body -->
+  <path d="M 8 24 L 46 24 L 42 50 C 41.5 53.5, 38.5 56, 35 56 L 19 56 C 15.5 56, 12.5 53.5, 12 50 L 8 24 Z" fill="url(#kinabooGrad)" />
+  
+  <!-- Smile -->
+  <path d="M 18 42 C 18 48, 36 48, 36 42" stroke="white" stroke-width="2.5" fill="none" stroke-linecap="round" />
+  
+  <!-- Text -->
+  <text x="54" y="44" font-family="'Plus Jakarta Sans', system-ui, sans-serif" font-weight="800" font-size="34" fill="#2B2D42" letter-spacing="-1">Kinaboo</text>
+</svg>
