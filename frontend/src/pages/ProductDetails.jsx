@@ -548,7 +548,7 @@ const ProductDetails = () => {
                       </div>
                       <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'center' }}>
                         <span style={{ textDecoration: 'line-through', color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '0.15rem' }}>{originalTotal.toFixed(2)} BDT</span>
-                        <span style={{ fontWeight: 700, fontSize: '1.1rem', color: '#ef4444' }}>({Math.round(finalTotal)} BDT)</span>
+                        <span style={{ fontWeight: 700, fontSize: '1.1rem', color: '#ef4444' }}>({Math.round(finalTotal)})</span>
                       </div>
                     </label>
                   );
@@ -656,7 +656,7 @@ const ProductDetails = () => {
                       <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>মোট দাম:</span>
                       <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'center' }}>
                         <span style={{ textDecoration: 'line-through', color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '0.2rem' }}>{originalTotal.toFixed(2)} BDT</span>
-                        <span style={{ color: '#ef4444', fontSize: '1.5rem', fontWeight: 700 }}>({Math.round(finalTotal)} BDT)</span>
+                        <span style={{ color: '#ef4444', fontSize: '1.5rem', fontWeight: 700 }}>({Math.round(finalTotal)})</span>
                       </div>
                     </div>
                     <button 
