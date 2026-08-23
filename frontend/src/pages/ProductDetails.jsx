@@ -310,12 +310,12 @@ const ProductDetails = () => {
       </Helmet>
       
       {/* Top Section: Split Layout */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '4rem', marginTop: '2rem', marginBottom: '4rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '4rem', marginTop: '2rem', marginBottom: '4rem', alignItems: 'start' }}>
         
         {/* Left: Images */}
-        <div>
-          <div style={{ width: '100%', aspectRatio: '1', borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--border-color)', marginBottom: '1rem' }}>
-            <img src={mainImage} alt={product.name} onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/400x400?text=No+Image'; }} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        <div className="desktop-sticky">
+          <div style={{ width: '100%', aspectRatio: '1', borderRadius: '16px', overflow: 'hidden', border: '1px solid var(--border-color)', marginBottom: '1rem', background: '#ffffff', boxShadow: '0 4px 20px rgba(0,0,0,0.03)', padding: '1rem' }}>
+            <img src={mainImage} alt={product.name} onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/400x400?text=No+Image'; }} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
           </div>
           <div style={{ display: 'flex', gap: '1rem', overflowX: 'auto' }}>
             {imagesList.map((img, idx) => (
@@ -323,11 +323,13 @@ const ProductDetails = () => {
                 key={idx} 
                 onClick={() => setMainImage(img)}
                 style={{ 
-                  width: '80px', height: '80px', borderRadius: '8px', overflow: 'hidden', cursor: 'pointer',
-                  border: mainImage === img ? '2px solid var(--accent-primary)' : '1px solid var(--border-color)'
+                  width: '80px', height: '80px', borderRadius: '12px', overflow: 'hidden', cursor: 'pointer',
+                  border: mainImage === img ? '2px solid var(--accent-primary)' : '1px solid var(--border-color)',
+                  background: '#ffffff', padding: '4px',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.02)', transition: 'all 0.2s'
                 }}
               >
-                <img src={img} alt={`Thumb ${idx}`} onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/400x400?text=No+Image'; }} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <img src={img} alt={`Thumb ${idx}`} onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/400x400?text=No+Image'; }} style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '8px' }} />
               </div>
             ))}
           </div>

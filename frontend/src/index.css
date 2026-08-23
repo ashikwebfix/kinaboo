@@ -810,3 +810,11 @@ a {
     gap: 1rem;
   }
 }
+
+@media (min-width: 769px) {
+  .desktop-sticky {
+    position: sticky;
+    top: 6rem;
+  }
+}
+
