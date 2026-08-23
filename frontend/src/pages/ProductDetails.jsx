@@ -397,43 +397,51 @@ const ProductDetails = () => {
 
           {/* Configurator Builder */}
           {product.configurator?.enabled && (
-            <div style={{ marginBottom: '2rem', background: '#f8fafc', padding: '1.5rem', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
-              <h3 style={{ fontSize: '1.2rem', fontWeight: '700', marginBottom: '1.5rem', color: 'var(--text-primary)' }}>Customize Your Mix</h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div style={{ marginBottom: '2.5rem', background: '#ffffff', padding: '1.75rem', borderRadius: '16px', border: '1px solid #f1f5f9', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
+                <div style={{ width: '4px', height: '24px', background: 'var(--accent-primary)', borderRadius: '4px' }}></div>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--text-primary)', margin: 0 }}>Customize Your Mix</h3>
+              </div>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                 {(product.configurator.ingredients || []).map(ing => {
                   const selQty = configSelections[ing.id] ?? (ing.minQuantity || 0);
                   const extraQty = Math.max(0, selQty - (ing.minQuantity || 0));
                   const ingPrice = (ing.basePrice || 0) + (extraQty * (ing.increasePricePerUnit || 0));
                   
                   return (
-                    <div key={ing.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: '1rem', borderBottom: '1px solid var(--border-color)' }}>
-                      <div>
-                        <div style={{ fontWeight: '600', fontSize: '1.05rem', color: 'var(--text-primary)' }}>{ing.name}</div>
-                        <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+                    <div key={ing.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', background: '#fafaf9', borderRadius: '12px', border: '1px solid #f5f5f4', transition: 'all 0.2s' }}>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontWeight: '600', fontSize: '1.05rem', color: 'var(--text-primary)', marginBottom: '0.2rem' }}>{ing.name}</div>
+                        <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
                           +{ing.increasePricePerUnit} BDT per additional {ing.unitLabel}
                         </div>
                       </div>
                       
                       <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', border: '1px solid var(--border-color)', borderRadius: '8px', overflow: 'hidden', background: '#fff' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden', background: '#fff', boxShadow: '0 1px 2px rgba(0,0,0,0.02)' }}>
                           <button 
-                            style={{ padding: '0.5rem 0.75rem', background: 'none', border: 'none', cursor: selQty <= (ing.minQuantity || 0) ? 'not-allowed' : 'pointer', color: selQty <= (ing.minQuantity || 0) ? '#cbd5e1' : 'var(--text-primary)' }}
+                            style={{ padding: '0.6rem 0.85rem', background: 'none', border: 'none', cursor: selQty <= (ing.minQuantity || 0) ? 'not-allowed' : 'pointer', color: selQty <= (ing.minQuantity || 0) ? '#d1d5db' : 'var(--text-primary)', fontSize: '1.1rem', transition: 'background 0.2s' }}
+                            onMouseOver={e => { if(selQty > (ing.minQuantity || 0)) e.target.style.background = '#f3f4f6' }}
+                            onMouseOut={e => e.target.style.background = 'none'}
                             onClick={() => {
                               if (selQty > (ing.minQuantity || 0)) {
                                 setConfigSelections(prev => ({ ...prev, [ing.id]: selQty - 1 }));
                               }
                             }}
                           >-</button>
-                          <div style={{ padding: '0.5rem 0.5rem', minWidth: '40px', textAlign: 'center', fontWeight: '600', fontSize: '0.95rem', borderLeft: '1px solid var(--border-color)', borderRight: '1px solid var(--border-color)' }}>
+                          <div style={{ padding: '0.5rem', minWidth: '45px', textAlign: 'center', fontWeight: '600', fontSize: '1rem', borderLeft: '1px solid #e5e7eb', borderRight: '1px solid #e5e7eb', color: 'var(--text-primary)' }}>
                             {selQty}
-                            <span style={{ fontSize: '0.75rem', fontWeight: '500', color: 'var(--text-secondary)', marginLeft: '2px' }}>{ing.unitLabel}</span>
+                            <span style={{ fontSize: '0.75rem', fontWeight: '500', color: 'var(--text-secondary)', marginLeft: '3px' }}>{ing.unitLabel}</span>
                           </div>
                           <button 
-                            style={{ padding: '0.5rem 0.75rem', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-primary)' }}
+                            style={{ padding: '0.6rem 0.85rem', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-primary)', fontSize: '1.1rem', transition: 'background 0.2s' }}
+                            onMouseOver={e => e.target.style.background = '#f3f4f6'}
+                            onMouseOut={e => e.target.style.background = 'none'}
                             onClick={() => setConfigSelections(prev => ({ ...prev, [ing.id]: selQty + 1 }))}
                           >+</button>
                         </div>
-                        <div style={{ fontWeight: '700', fontSize: '1.05rem', minWidth: '70px', textAlign: 'right', color: 'var(--accent-primary)' }}>
+                        <div style={{ fontWeight: '700', fontSize: '1.1rem', minWidth: '75px', textAlign: 'right', color: 'var(--accent-primary)' }}>
                           {ingPrice.toFixed(2)} ৳
                         </div>
                       </div>
@@ -443,18 +451,21 @@ const ProductDetails = () => {
               </div>
 
               {product.configurator.enableMixingQuantity && (
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '1.5rem', paddingTop: '1rem', borderTop: '2px dashed var(--border-color)' }}>
-                  <div style={{ fontWeight: '700', fontSize: '1.1rem' }}>Total Mixing Quantity</div>
-                  <div style={{ display: 'flex', alignItems: 'center', border: '1px solid var(--border-color)', borderRadius: '8px', overflow: 'hidden', background: '#fff' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '1.5rem', padding: '1.25rem', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <div style={{ fontWeight: '700', fontSize: '1.1rem', color: 'var(--text-primary)' }}>Total Mixing Quantity</div>
+                    <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Multiplier for the entire custom mix</div>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', border: '2px solid var(--accent-primary)', borderRadius: '8px', overflow: 'hidden', background: '#fff' }}>
                     <button 
-                      style={{ padding: '0.5rem 1rem', background: 'none', border: 'none', cursor: mixingQuantity <= 1 ? 'not-allowed' : 'pointer', color: mixingQuantity <= 1 ? '#cbd5e1' : 'var(--text-primary)' }}
+                      style={{ padding: '0.6rem 1rem', background: 'rgba(37, 99, 235, 0.05)', border: 'none', cursor: mixingQuantity <= 1 ? 'not-allowed' : 'pointer', color: mixingQuantity <= 1 ? '#94a3b8' : 'var(--accent-primary)', fontSize: '1.2rem', fontWeight: '600' }}
                       onClick={() => setMixingQuantity(prev => Math.max(1, prev - 1))}
                     >-</button>
-                    <div style={{ padding: '0.5rem 1rem', minWidth: '50px', textAlign: 'center', fontWeight: '700', fontSize: '1.1rem', borderLeft: '1px solid var(--border-color)', borderRight: '1px solid var(--border-color)' }}>
+                    <div style={{ padding: '0.5rem 1rem', minWidth: '55px', textAlign: 'center', fontWeight: '700', fontSize: '1.1rem', borderLeft: '2px solid var(--accent-primary)', borderRight: '2px solid var(--accent-primary)', color: 'var(--accent-primary)' }}>
                       {mixingQuantity}
                     </div>
                     <button 
-                      style={{ padding: '0.5rem 1rem', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-primary)' }}
+                      style={{ padding: '0.6rem 1rem', background: 'rgba(37, 99, 235, 0.05)', border: 'none', cursor: 'pointer', color: 'var(--accent-primary)', fontSize: '1.2rem', fontWeight: '600' }}
                       onClick={() => setMixingQuantity(prev => prev + 1)}
                     >+</button>
                   </div>
