@@ -64,13 +64,13 @@ const getProductById = async (req, res) => {
 
 const createProduct = async (req, res) => {
   try {
-    const { name, sku, price, sellPrice, description, longDescription, image, images, category, stock, allowSellWithoutStock, keypoints, variations, faq, imageTextSections, tags, status, volumeBundles } = req.body;
+    const { name, sku, price, sellPrice, description, longDescription, image, images, category, stock, allowSellWithoutStock, keypoints, variations, faq, imageTextSections, tags, status, volumeBundles, configurator } = req.body;
     
     const baseSlug = generateSlug(name);
     const slug = await ensureUniqueSlug(baseSlug);
     
     const product = await Product.create({
-      name, slug, sku, price, sellPrice, description, longDescription, image, images, category, stock, allowSellWithoutStock, keypoints, variations, faq, imageTextSections, tags, status, volumeBundles
+      name, slug, sku, price, sellPrice, description, longDescription, image, images, category, stock, allowSellWithoutStock, keypoints, variations, faq, imageTextSections, tags, status, volumeBundles, configurator
     });
     res.status(201).json(product);
   } catch (error) {
@@ -79,7 +79,7 @@ const createProduct = async (req, res) => {
 };
 
 const updateProduct = async (req, res) => {
-  const { name, sku, price, sellPrice, description, longDescription, image, images, category, stock, allowSellWithoutStock, keypoints, variations, faq, imageTextSections, tags, status, volumeBundles } = req.body;
+  const { name, sku, price, sellPrice, description, longDescription, image, images, category, stock, allowSellWithoutStock, keypoints, variations, faq, imageTextSections, tags, status, volumeBundles, configurator } = req.body;
   const product = await Product.findByPk(req.params.id);
 
   if (product) {
@@ -107,6 +107,7 @@ const updateProduct = async (req, res) => {
     product.tags = tags || product.tags;
     product.status = status || product.status;
     product.volumeBundles = volumeBundles !== undefined ? volumeBundles : product.volumeBundles;
+    product.configurator = configurator !== undefined ? configurator : product.configurator;
 
     await product.save();
     res.json(product);
