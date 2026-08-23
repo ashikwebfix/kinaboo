@@ -717,7 +717,7 @@ const ProductDetails = () => {
           
           if (isWrap) {
             return (
-              <div key={sec.id} style={{ marginBottom: '4rem' }}>
+              <div key={sec.id} style={{ marginBottom: '3rem', background: '#ffffff', padding: '2.5rem', borderRadius: '24px', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
                 <div style={{ float: isLeft ? 'left' : 'right', width: `${width}%`, minWidth: '250px', margin: isLeft ? '0 2rem 1rem 0' : '0 0 1rem 2rem', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}>
                   <img src={sec.image} alt="Feature" style={{ width: '100%', height: 'auto', display: 'block', objectFit: 'cover' }} />
                 </div>
@@ -727,7 +727,7 @@ const ProductDetails = () => {
             );
           } else {
             return (
-              <div key={sec.id} style={{ display: 'flex', flexWrap: 'wrap', gap: '3rem', alignItems: 'center', marginBottom: '4rem', flexDirection: isLeft ? 'row' : 'row-reverse' }}>
+              <div key={sec.id} style={{ display: 'flex', flexWrap: 'wrap', gap: '3rem', alignItems: 'center', marginBottom: '3rem', flexDirection: isLeft ? 'row' : 'row-reverse', background: '#ffffff', padding: '2.5rem', borderRadius: '24px', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
                 <div style={{ flex: `1 1 calc(${width}% - 1.5rem)`, minWidth: '300px', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}>
                   <img src={sec.image} alt="Feature" style={{ width: '100%', height: 'auto', display: 'block', objectFit: 'cover' }} />
                 </div>
@@ -759,7 +759,7 @@ const ProductDetails = () => {
           
           if (isWrap) {
             return (
-              <div key={sec.id} style={{ marginBottom: '4rem' }}>
+              <div key={sec.id} style={{ marginBottom: '3rem', background: '#ffffff', padding: '2.5rem', borderRadius: '24px', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
                 <div style={{ float: isLeft ? 'left' : 'right', width: `${width}%`, minWidth: '250px', margin: isLeft ? '0 2rem 1rem 0' : '0 0 1rem 2rem', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}>
                   <img src={sec.image} alt="Feature" style={{ width: '100%', height: 'auto', display: 'block', objectFit: 'cover' }} />
                 </div>
@@ -769,7 +769,7 @@ const ProductDetails = () => {
             );
           } else {
             return (
-              <div key={sec.id} style={{ display: 'flex', flexWrap: 'wrap', gap: '3rem', alignItems: 'center', marginBottom: '4rem', flexDirection: isLeft ? 'row' : 'row-reverse' }}>
+              <div key={sec.id} style={{ display: 'flex', flexWrap: 'wrap', gap: '3rem', alignItems: 'center', marginBottom: '3rem', flexDirection: isLeft ? 'row' : 'row-reverse', background: '#ffffff', padding: '2.5rem', borderRadius: '24px', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
                 <div style={{ flex: `1 1 calc(${width}% - 1.5rem)`, minWidth: '300px', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}>
                   <img src={sec.image} alt="Feature" style={{ width: '100%', height: 'auto', display: 'block', objectFit: 'cover' }} />
                 </div>
