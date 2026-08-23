@@ -23,9 +23,15 @@ const AdminProducts = () => {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
-      setProducts(data);
+      if (res.ok && Array.isArray(data)) {
+        setProducts(data);
+      } else {
+        console.error("API error or invalid data:", data);
+        setProducts([]);
+      }
     } catch (error) {
       console.error("Error fetching products:", error);
+      setProducts([]);
     } finally {
       setLoading(false);
     }

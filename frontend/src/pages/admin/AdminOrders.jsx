@@ -25,9 +25,15 @@ const AdminOrders = () => {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
-      setOrders(data);
+      if (res.ok && Array.isArray(data)) {
+        setOrders(data);
+      } else {
+        console.error("API error or invalid data:", data);
+        setOrders([]);
+      }
     } catch (error) {
       console.error("Error fetching orders:", error);
+      setOrders([]);
     } finally {
       setLoading(false);
     }
