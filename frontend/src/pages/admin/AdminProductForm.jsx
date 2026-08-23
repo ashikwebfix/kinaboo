@@ -34,6 +34,11 @@ const AdminProductForm = () => {
   const [tags, setTags] = useState([]);
   const [status, setStatus] = useState('published');
   const [volumeBundles, setVolumeBundles] = useState([]);
+  const [configurator, setConfigurator] = useState({
+    enabled: false,
+    enableMixingQuantity: true,
+    ingredients: []
+  });
 
   const token = JSON.parse(localStorage.getItem('userInfo') || '{}').token;
 
@@ -79,6 +84,7 @@ const AdminProductForm = () => {
       setTags(product.tags || []);
       setStatus(product.status || 'published');
       setVolumeBundles(product.volumeBundles || []);
+      setConfigurator(product.configurator || { enabled: false, enableMixingQuantity: true, ingredients: [] });
     } catch (error) {
       console.error("Error fetching product:", error);
     } finally {
@@ -90,7 +96,7 @@ const AdminProductForm = () => {
     e.preventDefault();
     
     const parsedData = {
-      name, sku, category, price: Number(price), stock: Number(stock), allowSellWithoutStock, image, images, variations, faq, description, longDescription, imageTextSections, tags, status, volumeBundles,
+      name, sku, category, price: Number(price), stock: Number(stock), allowSellWithoutStock, image, images, variations, faq, description, longDescription, imageTextSections, tags, status, volumeBundles, configurator,
       sellPrice: sellPrice ? Number(sellPrice) : null,
       keypoints: keypoints.split(',').map(s => s.trim()).filter(Boolean)
     };
@@ -160,6 +166,27 @@ const AdminProductForm = () => {
     const newBundles = [...volumeBundles];
     newBundles[idx][field] = val;
     setVolumeBundles(newBundles);
+  };
+
+  // --- Configurator Handlers ---
+  const addConfigIngredient = () => {
+    setConfigurator({
+      ...configurator,
+      ingredients: [
+        ...configurator.ingredients,
+        { id: Date.now().toString(), name: '', minQuantity: 0, basePrice: 0, increasePricePerUnit: 0, unitLabel: '' }
+      ]
+    });
+  };
+  const removeConfigIngredient = (idx) => {
+    const newIngredients = [...configurator.ingredients];
+    newIngredients.splice(idx, 1);
+    setConfigurator({ ...configurator, ingredients: newIngredients });
+  };
+  const updateConfigIngredient = (idx, field, val) => {
+    const newIngredients = [...configurator.ingredients];
+    newIngredients[idx][field] = val;
+    setConfigurator({ ...configurator, ingredients: newIngredients });
   };
 
   // --- FAQ Handlers ---
@@ -273,6 +300,75 @@ const AdminProductForm = () => {
                   </div>
                 </div>
               </div>
+            </div>
+            {/* Configurator Builder */}
+            <div style={{ padding: '1.5rem', border: '1px solid var(--border-color)', borderRadius: '8px', background: '#fff' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                <div>
+                  <h3 style={{ fontSize: '1.1rem', fontWeight: 600, margin: '0 0 0.5rem 0' }}>Custom Product Builder (Configurator)</h3>
+                  <p className="text-muted" style={{ margin: 0, fontSize: '0.85rem' }}>Allow users to mix ingredients and customize quantities directly on the product page.</p>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <label style={{ fontSize: '0.9rem', fontWeight: 500, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <input 
+                      type="checkbox" 
+                      checked={configurator.enabled} 
+                      onChange={(e) => setConfigurator({ ...configurator, enabled: e.target.checked })}
+                      style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                    /> Enable Configurator
+                  </label>
+                </div>
+              </div>
+              
+              {configurator.enabled && (
+                <div style={{ background: '#f8fafc', padding: '1.5rem', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
+                  <div style={{ marginBottom: '1.5rem' }}>
+                    <label style={{ fontSize: '0.9rem', fontWeight: 500, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <input 
+                        type="checkbox" 
+                        checked={configurator.enableMixingQuantity} 
+                        onChange={(e) => setConfigurator({ ...configurator, enableMixingQuantity: e.target.checked })}
+                        style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                      /> Enable "Total Mixing Quantity" multiplier at bottom
+                    </label>
+                  </div>
+
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                    <h4 style={{ fontSize: '1rem', fontWeight: 600, margin: 0 }}>Ingredients / Components</h4>
+                    <button type="button" className="btn btn-secondary" onClick={addConfigIngredient} style={{ padding: '0.4rem 0.75rem', fontSize: '0.85rem' }}><Plus size={16} /> Add Ingredient</button>
+                  </div>
+
+                  {configurator.ingredients.length === 0 && <p className="text-muted" style={{ fontSize: '0.9rem' }}>No ingredients added.</p>}
+
+                  {configurator.ingredients.map((ing, idx) => (
+                    <div key={ing.id} style={{ background: '#fff', padding: '1rem', borderRadius: '8px', marginBottom: '1rem', border: '1px solid var(--border-color)', position: 'relative' }}>
+                      <button type="button" onClick={() => removeConfigIngredient(idx)} style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer' }}><Trash2 size={18} /></button>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '1rem', paddingRight: '2rem' }}>
+                        <div>
+                          <label style={{display:'block',marginBottom:'.25rem',fontWeight:500, fontSize:'0.85rem'}}>Ingredient Name</label>
+                          <input type="text" className="input-field" value={ing.name} onChange={e => updateConfigIngredient(idx, 'name', e.target.value)} placeholder="e.g. Honey" required={configurator.enabled} />
+                        </div>
+                        <div>
+                          <label style={{display:'block',marginBottom:'.25rem',fontWeight:500, fontSize:'0.85rem'}}>Min Quantity</label>
+                          <input type="number" className="input-field" value={ing.minQuantity} onChange={e => updateConfigIngredient(idx, 'minQuantity', Number(e.target.value))} min="0" required={configurator.enabled} />
+                        </div>
+                        <div>
+                          <label style={{display:'block',marginBottom:'.25rem',fontWeight:500, fontSize:'0.85rem'}}>Unit Label</label>
+                          <input type="text" className="input-field" value={ing.unitLabel} onChange={e => updateConfigIngredient(idx, 'unitLabel', e.target.value)} placeholder="e.g. gm" />
+                        </div>
+                        <div>
+                          <label style={{display:'block',marginBottom:'.25rem',fontWeight:500, fontSize:'0.85rem'}}>Price (for Min Qty)</label>
+                          <input type="number" className="input-field" value={ing.basePrice} onChange={e => updateConfigIngredient(idx, 'basePrice', Number(e.target.value))} min="0" required={configurator.enabled} />
+                        </div>
+                        <div>
+                          <label style={{display:'block',marginBottom:'.25rem',fontWeight:500, fontSize:'0.85rem'}}>Increase Price/Unit</label>
+                          <input type="number" className="input-field" value={ing.increasePricePerUnit} onChange={e => updateConfigIngredient(idx, 'increasePricePerUnit', Number(e.target.value))} min="0" required={configurator.enabled} />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Variations Builder */}

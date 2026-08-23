@@ -16,6 +16,8 @@ const ProductDetails = () => {
   const [mainImage, setMainImage] = useState('');
   const [qty, setQty] = useState(1);
   const [selectedVariations, setSelectedVariations] = useState({});
+  const [configSelections, setConfigSelections] = useState({});
+  const [mixingQuantity, setMixingQuantity] = useState(1);
   const [faqOpen, setFaqOpen] = useState(null);
   const [relatedProducts, setRelatedProducts] = useState([]);
   
@@ -45,6 +47,8 @@ const ProductDetails = () => {
     setMainImage('');
     setQty(1);
     setSelectedVariations({});
+    setConfigSelections({});
+    setMixingQuantity(1);
     setFaqOpen(null);
     
     if (userInfo) {
@@ -82,6 +86,18 @@ const ProductDetails = () => {
           setSelectedVariations(initialVariations);
         }
 
+        // Initialize Configurator
+        if (data.configurator && data.configurator.enabled) {
+          const initialConfig = {};
+          if (data.configurator.ingredients) {
+            data.configurator.ingredients.forEach(ing => {
+              initialConfig[ing.id] = ing.minQuantity || 0;
+            });
+          }
+          setConfigSelections(initialConfig);
+          setMixingQuantity(1);
+        }
+
         // Fetch related products (same category)
         const allRes = await fetch(`${import.meta.env.VITE_API_URL}/api/products`);
         const allData = await allRes.json();
@@ -117,13 +133,27 @@ const ProductDetails = () => {
     fetchProduct();
   }, [slug]);
 
+  const getConfiguratorPrice = () => {
+    if (!product?.configurator?.enabled) return 0;
+    let price = 0;
+    (product.configurator.ingredients || []).forEach(ing => {
+      const selectedQty = configSelections[ing.id] ?? (ing.minQuantity || 0);
+      const extraQty = Math.max(0, selectedQty - (ing.minQuantity || 0));
+      price += (ing.basePrice || 0) + (extraQty * (ing.increasePricePerUnit || 0));
+    });
+    return price * (mixingQuantity || 1);
+  };
+
+  const getBasePrice = () => Number(product?.sellPrice || product?.price || 0);
+  const currentPrice = getBasePrice() + getConfiguratorPrice();
+
   const handleAddToCart = () => {
     let bundleDiscount = 0;
     if (product.volumeBundles && product.volumeBundles.length > 0) {
       const sortedTiers = [...product.volumeBundles].sort((a, b) => b.qty - a.qty);
       const appliedTier = sortedTiers.find(t => qty >= t.qty);
       if (appliedTier) {
-        const basePrice = Number(product.sellPrice || product.price);
+        const basePrice = currentPrice;
         if (appliedTier.discountType === 'percentage') {
           bundleDiscount = (basePrice * appliedTier.discountValue) / 100;
         } else {
@@ -132,7 +162,26 @@ const ProductDetails = () => {
       }
     }
 
-    addToCart({ ...product, qty, selectedVariations, bundleDiscount: Number(bundleDiscount.toFixed(2)) });
+    let finalVariations = { ...selectedVariations };
+    if (product.configurator?.enabled) {
+      const configParts = (product.configurator.ingredients || []).map(ing => {
+        const selQty = configSelections[ing.id] ?? (ing.minQuantity || 0);
+        return `${ing.name}: ${selQty}${ing.unitLabel || ''}`;
+      });
+      finalVariations['Mixer'] = configParts.join(', ');
+      if (product.configurator.enableMixingQuantity && mixingQuantity > 1) {
+        finalVariations['Mixing Qty'] = mixingQuantity.toString();
+      }
+    }
+
+    addToCart({ 
+      ...product, 
+      sellPrice: currentPrice, 
+      price: currentPrice, 
+      qty, 
+      selectedVariations: finalVariations, 
+      bundleDiscount: Number(bundleDiscount.toFixed(2)) 
+    });
     setIsAdded(true);
     setIsCartOpen(true);
     setTimeout(() => setIsAdded(false), 2000);
@@ -142,7 +191,7 @@ const ProductDetails = () => {
     if (!comboBundle || comboProducts.length === 0) return;
     
     // Calculate total original price
-    const mainPrice = Number(product.sellPrice || product.price);
+    const mainPrice = currentPrice;
     const comboPrice = comboProducts.reduce((acc, p) => acc + Number(p.sellPrice || p.price), 0);
     const totalOriginalPrice = mainPrice + comboPrice;
     
@@ -158,8 +207,24 @@ const ProductDetails = () => {
     const discountRatio = discountAmount / totalOriginalPrice;
     
     const bundleCartIdSuffix = `_bundle_${Date.now()}`;
+
+    let finalVariations = { ...selectedVariations };
+    if (product.configurator?.enabled) {
+      const configParts = (product.configurator.ingredients || []).map(ing => {
+        const selQty = configSelections[ing.id] ?? (ing.minQuantity || 0);
+        return `${ing.name}: ${selQty}${ing.unitLabel || ''}`;
+      });
+      finalVariations['Mixer'] = configParts.join(', ');
+      if (product.configurator.enableMixingQuantity && mixingQuantity > 1) {
+        finalVariations['Mixing Qty'] = mixingQuantity.toString();
+      }
+    }
+
     const discountedMainProduct = {
       ...product,
+      sellPrice: currentPrice,
+      price: currentPrice,
+      selectedVariations: finalVariations,
       cartId: `${product.id}${bundleCartIdSuffix}`,
       bundleDiscount: Number((mainPrice * discountRatio).toFixed(2)),
       name: `${product.name} (Bundle Deal)`
@@ -281,11 +346,13 @@ const ProductDetails = () => {
           <div style={{ display: 'flex', alignItems: 'end', gap: '1rem', marginBottom: '1.5rem' }}>
             {product.sellPrice ? (
               <>
-                <span style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--accent-primary)' }}>{Number(product.sellPrice).toFixed(2)} BDT</span>
-                <span style={{ fontSize: '1.25rem', textDecoration: 'line-through', color: 'var(--text-secondary)', marginBottom: '0.25rem' }}>{Number(product.price).toFixed(2)} BDT</span>
+                <span style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--accent-primary)' }}>{currentPrice.toFixed(2)} BDT</span>
+                {!product.configurator?.enabled && (
+                  <span style={{ fontSize: '1.25rem', textDecoration: 'line-through', color: 'var(--text-secondary)', marginBottom: '0.25rem' }}>{Number(product.price).toFixed(2)} BDT</span>
+                )}
               </>
             ) : (
-              <span style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--text-primary)' }}>{Number(product.price).toFixed(2)} BDT</span>
+              <span style={{ fontSize: '2rem', fontWeight: '700', color: 'var(--text-primary)' }}>{currentPrice.toFixed(2)} BDT</span>
             )}
           </div>
 
@@ -328,6 +395,74 @@ const ProductDetails = () => {
             </div>
           ))}
 
+          {/* Configurator Builder */}
+          {product.configurator?.enabled && (
+            <div style={{ marginBottom: '2rem', background: '#f8fafc', padding: '1.5rem', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+              <h3 style={{ fontSize: '1.2rem', fontWeight: '700', marginBottom: '1.5rem', color: 'var(--text-primary)' }}>Customize Your Mix</h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {(product.configurator.ingredients || []).map(ing => {
+                  const selQty = configSelections[ing.id] ?? (ing.minQuantity || 0);
+                  const extraQty = Math.max(0, selQty - (ing.minQuantity || 0));
+                  const ingPrice = (ing.basePrice || 0) + (extraQty * (ing.increasePricePerUnit || 0));
+                  
+                  return (
+                    <div key={ing.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: '1rem', borderBottom: '1px solid var(--border-color)' }}>
+                      <div>
+                        <div style={{ fontWeight: '600', fontSize: '1.05rem', color: 'var(--text-primary)' }}>{ing.name}</div>
+                        <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+                          +{ing.increasePricePerUnit} BDT per additional {ing.unitLabel}
+                        </div>
+                      </div>
+                      
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', border: '1px solid var(--border-color)', borderRadius: '8px', overflow: 'hidden', background: '#fff' }}>
+                          <button 
+                            style={{ padding: '0.5rem 0.75rem', background: 'none', border: 'none', cursor: selQty <= (ing.minQuantity || 0) ? 'not-allowed' : 'pointer', color: selQty <= (ing.minQuantity || 0) ? '#cbd5e1' : 'var(--text-primary)' }}
+                            onClick={() => {
+                              if (selQty > (ing.minQuantity || 0)) {
+                                setConfigSelections(prev => ({ ...prev, [ing.id]: selQty - 1 }));
+                              }
+                            }}
+                          >-</button>
+                          <div style={{ padding: '0.5rem 0.5rem', minWidth: '40px', textAlign: 'center', fontWeight: '600', fontSize: '0.95rem', borderLeft: '1px solid var(--border-color)', borderRight: '1px solid var(--border-color)' }}>
+                            {selQty}
+                            <span style={{ fontSize: '0.75rem', fontWeight: '500', color: 'var(--text-secondary)', marginLeft: '2px' }}>{ing.unitLabel}</span>
+                          </div>
+                          <button 
+                            style={{ padding: '0.5rem 0.75rem', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-primary)' }}
+                            onClick={() => setConfigSelections(prev => ({ ...prev, [ing.id]: selQty + 1 }))}
+                          >+</button>
+                        </div>
+                        <div style={{ fontWeight: '700', fontSize: '1.05rem', minWidth: '70px', textAlign: 'right', color: 'var(--accent-primary)' }}>
+                          {ingPrice.toFixed(2)} ৳
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {product.configurator.enableMixingQuantity && (
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '1.5rem', paddingTop: '1rem', borderTop: '2px dashed var(--border-color)' }}>
+                  <div style={{ fontWeight: '700', fontSize: '1.1rem' }}>Total Mixing Quantity</div>
+                  <div style={{ display: 'flex', alignItems: 'center', border: '1px solid var(--border-color)', borderRadius: '8px', overflow: 'hidden', background: '#fff' }}>
+                    <button 
+                      style={{ padding: '0.5rem 1rem', background: 'none', border: 'none', cursor: mixingQuantity <= 1 ? 'not-allowed' : 'pointer', color: mixingQuantity <= 1 ? '#cbd5e1' : 'var(--text-primary)' }}
+                      onClick={() => setMixingQuantity(prev => Math.max(1, prev - 1))}
+                    >-</button>
+                    <div style={{ padding: '0.5rem 1rem', minWidth: '50px', textAlign: 'center', fontWeight: '700', fontSize: '1.1rem', borderLeft: '1px solid var(--border-color)', borderRight: '1px solid var(--border-color)' }}>
+                      {mixingQuantity}
+                    </div>
+                    <button 
+                      style={{ padding: '0.5rem 1rem', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-primary)' }}
+                      onClick={() => setMixingQuantity(prev => prev + 1)}
+                    >+</button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Volume Bundles (Quantity Discounts) */}
           {product.volumeBundles && product.volumeBundles.length > 0 ? (
             <div style={{ marginBottom: '2rem' }}>
@@ -352,13 +487,13 @@ const ProductDetails = () => {
                     </div>
                   </div>
                   <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontWeight: 700, fontSize: '1.1rem', color: 'var(--accent-primary)' }}>{Number(product.sellPrice || product.price).toFixed(2)} BDT</div>
+                    <div style={{ fontWeight: 700, fontSize: '1.1rem', color: 'var(--accent-primary)' }}>{currentPrice.toFixed(2)} BDT</div>
                   </div>
                 </label>
 
                 {/* Bundle Rows */}
                 {[...product.volumeBundles].sort((a,b) => a.qty - b.qty).map((tier, idx) => {
-                  const basePrice = Number(product.sellPrice || product.price);
+                  const basePrice = currentPrice;
                   const originalTotal = basePrice * tier.qty;
                   let discountTotal = 0;
                   if (tier.discountType === 'percentage') {

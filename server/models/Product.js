@@ -87,6 +87,10 @@ const Product = sequelize.define('Product', {
     type: DataTypes.JSON,
     allowNull: true,
   },
+  configurator: {
+    type: DataTypes.JSON,
+    allowNull: true,
+  },
 });
 
 module.exports = Product;
