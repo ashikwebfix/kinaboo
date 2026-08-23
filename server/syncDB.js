@@ -13,18 +13,7 @@ const sequelize = new Sequelize(
   }
 );
 
-// Import models
-require('./models/User');
-require('./models/Product');
-require('./models/Order');
-require('./models/OrderItem');
-require('./models/Category');
-require('./models/DeliveryMethod');
-require('./models/DiscountBanner');
-require('./models/VolumeBundle');
-require('./models/Page');
-// Setup associations
-require('./models/associations');
+const Product = require('./models/Product');
 
 const syncDatabase = async () => {
   try {
@@ -32,9 +21,8 @@ const syncDatabase = async () => {
     await sequelize.authenticate();
     console.log('Connection successful.');
     
-    console.log('Syncing database (alter: true) to add missing columns...');
-    // This will safely add the new "configurator" column without deleting data
-    await sequelize.sync({ alter: true });
+    console.log('Syncing Product table (alter: true) to add missing configurator column...');
+    await Product.sync({ alter: true });
     
     console.log('Database synced successfully! The 500 error should now be fixed.');
     process.exit(0);
