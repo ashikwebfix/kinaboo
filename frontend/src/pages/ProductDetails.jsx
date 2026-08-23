@@ -546,9 +546,9 @@ const ProductDetails = () => {
                           </span>
                         </div>
                       </div>
-                      <div style={{ textAlign: 'right' }}>
-                        <div style={{ textDecoration: 'line-through', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{originalTotal.toFixed(2)} BDT</div>
-                        <div style={{ fontWeight: 700, fontSize: '1.1rem', color: 'var(--accent-primary)' }}>{finalTotal.toFixed(2)} BDT</div>
+                      <div style={{ textAlign: 'right', display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+                        <span style={{ textDecoration: 'line-through', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{originalTotal.toFixed(2)} BDT</span>
+                        <span style={{ fontWeight: 700, fontSize: '1.1rem', color: '#ef4444' }}>- ({Math.round(finalTotal)} BDT)</span>
                       </div>
                     </label>
                   );
@@ -654,9 +654,9 @@ const ProductDetails = () => {
                   <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '1rem' }}>
                     <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: '1rem' }}>
                       <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>মোট দাম:</span>
-                      <div style={{ textAlign: 'right' }}>
-                        <div style={{ textDecoration: 'line-through', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{originalTotal.toFixed(2)} BDT</div>
-                        <div style={{ color: 'var(--accent-primary)', fontSize: '1.5rem', fontWeight: 700 }}>{finalTotal.toFixed(2)} BDT</div>
+                      <div style={{ textAlign: 'right', display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+                        <span style={{ textDecoration: 'line-through', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{originalTotal.toFixed(2)} BDT</span>
+                        <span style={{ color: '#ef4444', fontSize: '1.5rem', fontWeight: 700 }}>- ({Math.round(finalTotal)} BDT)</span>
                       </div>
                     </div>
                     <button 
