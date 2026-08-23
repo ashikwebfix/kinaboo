@@ -292,4 +292,67 @@ const getOrderById = async (req, res) => {
   }
 };
 
-module.exports = { addOrderItems, getMyOrders, getOrders, updateOrderStatus, getOrderById };
+const bulkUpdateOrderStatus = async (req, res) => {
+  try {
+    const { ids, status } = req.body;
+    if (!ids || !Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({ message: 'No order IDs provided' });
+    }
+    if (!status) {
+      return res.status(400).json({ message: 'No status provided' });
+    }
+
+    const orders = await Order.findAll({ where: { id: ids } });
+    
+    for (const order of orders) {
+      order.status = status;
+      
+      const logEntry = {
+        status: status,
+        date: new Date().toISOString(),
+        note: `Bulk status update to ${status}`,
+        courierName: order.courierName,
+        trackingNumber: order.trackingNumber
+      };
+
+      let currentLogs = [];
+      if (Array.isArray(order.statusLogs)) {
+        currentLogs = [...order.statusLogs];
+      } else if (typeof order.statusLogs === 'string') {
+        try { currentLogs = JSON.parse(order.statusLogs); } catch(e) { currentLogs = []; }
+      }
+
+      currentLogs.push(logEntry);
+      order.statusLogs = currentLogs;
+      
+      await order.save();
+    }
+
+    res.json({ message: 'Orders updated successfully' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const bulkDeleteOrders = async (req, res) => {
+  try {
+    const { ids } = req.body;
+    if (!ids || !Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({ message: 'No order IDs provided' });
+    }
+
+    // Only allow deleting cancelled orders
+    const deleted = await Order.destroy({
+      where: {
+        id: ids,
+        status: 'Cancelled'
+      }
+    });
+
+    res.json({ message: `Successfully deleted ${deleted} cancelled orders` });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+module.exports = { addOrderItems, getMyOrders, getOrders, updateOrderStatus, getOrderById, bulkUpdateOrderStatus, bulkDeleteOrders };

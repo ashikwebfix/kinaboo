@@ -6,6 +6,11 @@ const AdminOrders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [selectedOrders, setSelectedOrders] = useState([]);
+  const [bulkStatus, setBulkStatus] = useState('');
+  const [actionLoading, setActionLoading] = useState(false);
   const navigate = useNavigate();
   const token = JSON.parse(localStorage.getItem('userInfo') || '{}').token;
 
@@ -45,6 +50,86 @@ const AdminOrders = () => {
     order.phone.includes(searchQuery)
   );
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, itemsPerPage]);
+
+  const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
+  const currentOrders = filteredOrders.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  const handleSelectAll = (e) => {
+    if (e.target.checked) {
+      setSelectedOrders(currentOrders.map(order => order.id));
+    } else {
+      setSelectedOrders([]);
+    }
+  };
+
+  const handleSelectOrder = (id) => {
+    setSelectedOrders(prev => 
+      prev.includes(id) ? prev.filter(orderId => orderId !== id) : [...prev, id]
+    );
+  };
+
+  const handleBulkStatusUpdate = async () => {
+    if (!bulkStatus || selectedOrders.length === 0) return;
+    if (!window.confirm(`Are you sure you want to update ${selectedOrders.length} orders to ${bulkStatus}?`)) return;
+
+    setActionLoading(true);
+    try {
+      const res = await fetch(import.meta.env.VITE_API_URL + '/api/orders/bulk/status', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ ids: selectedOrders, status: bulkStatus })
+      });
+      if (res.ok) {
+        setSelectedOrders([]);
+        setBulkStatus('');
+        fetchOrders();
+      } else {
+        alert('Failed to update status');
+      }
+    } catch (error) {
+      console.error(error);
+      alert('An error occurred');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedOrders.length === 0) return;
+    if (!window.confirm(`Are you sure you want to delete selected orders? (Only Cancelled orders will be deleted)`)) return;
+
+    setActionLoading(true);
+    try {
+      const res = await fetch(import.meta.env.VITE_API_URL + '/api/orders/bulk', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ ids: selectedOrders })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        alert(data.message);
+        setSelectedOrders([]);
+        fetchOrders();
+      } else {
+        alert('Failed to delete orders');
+      }
+    } catch (error) {
+      console.error(error);
+      alert('An error occurred');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   if (loading) return <div style={{ padding: '2rem' }}>Loading orders...</div>;
 
   return (
@@ -67,10 +152,40 @@ const AdminOrders = () => {
         </div>
       </header>
 
+      {selectedOrders.length > 0 && (
+        <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '8px', padding: '1rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ fontWeight: 600, color: '#1e40af' }}>{selectedOrders.length} Orders Selected</div>
+          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+            <select className="input-field" value={bulkStatus} onChange={(e) => setBulkStatus(e.target.value)} style={{ padding: '0.5rem', minWidth: '150px' }}>
+              <option value="">Select Status</option>
+              <option value="Pending">Pending</option>
+              <option value="Processing">Processing</option>
+              <option value="Shipped">Shipped</option>
+              <option value="Delivered">Delivered</option>
+              <option value="Cancelled">Cancelled</option>
+            </select>
+            <button className="btn btn-primary" onClick={handleBulkStatusUpdate} disabled={actionLoading || !bulkStatus} style={{ padding: '0.5rem 1rem' }}>
+              {actionLoading ? 'Updating...' : 'Update Status'}
+            </button>
+            <button onClick={handleBulkDelete} disabled={actionLoading} style={{ display: 'none', background: '#ef4444', color: 'white', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', fontWeight: 600, cursor: 'pointer' }}>
+              Delete Selected
+            </button>
+          </div>
+        </div>
+      )}
+
       <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid var(--border-color)', overflowX: 'auto', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', minWidth: '800px' }}>
           <thead>
             <tr style={{ background: '#f8fafc', borderBottom: '1px solid var(--border-color)' }}>
+              <th style={{ padding: '1.25rem 1rem', width: '50px', textAlign: 'center' }}>
+                <input 
+                  type="checkbox" 
+                  checked={currentOrders.length > 0 && selectedOrders.length === currentOrders.length}
+                  onChange={handleSelectAll}
+                  style={{ cursor: 'pointer', width: '16px', height: '16px' }}
+                />
+              </th>
               <th style={{ padding: '1.25rem 1rem', fontWeight: 600, color: 'var(--text-secondary)', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Order ID</th>
               <th style={{ padding: '1.25rem 1rem', fontWeight: 600, color: 'var(--text-secondary)', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Date</th>
               <th style={{ padding: '1.25rem 1rem', fontWeight: 600, color: 'var(--text-secondary)', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Customer</th>
@@ -80,10 +195,18 @@ const AdminOrders = () => {
             </tr>
           </thead>
           <tbody>
-            {filteredOrders.length > 0 ? filteredOrders.map(order => {
+            {currentOrders.length > 0 ? currentOrders.map(order => {
               const colors = getStatusColor(order.status);
               return (
-                <tr key={order.id} style={{ borderBottom: '1px solid var(--border-color)', transition: 'background 0.2s', ':hover': { background: '#f8fafc' } }}>
+                <tr key={order.id} style={{ borderBottom: '1px solid var(--border-color)', transition: 'background 0.2s', ':hover': { background: '#f8fafc' }, backgroundColor: selectedOrders.includes(order.id) ? '#f0f9ff' : 'transparent' }}>
+                  <td style={{ padding: '1.25rem 1rem', textAlign: 'center' }}>
+                    <input 
+                      type="checkbox" 
+                      checked={selectedOrders.includes(order.id)}
+                      onChange={() => handleSelectOrder(order.id)}
+                      style={{ cursor: 'pointer', width: '16px', height: '16px' }}
+                    />
+                  </td>
                   <td style={{ padding: '1.25rem 1rem', fontFamily: 'monospace', fontWeight: 500 }}>#{order.id.slice(0,6).toUpperCase()}</td>
                   <td style={{ padding: '1.25rem 1rem', color: 'var(--text-secondary)', fontSize: '0.95rem' }}>{new Date(order.createdAt).toLocaleDateString()}</td>
                   <td style={{ padding: '1.25rem 1rem' }}>
@@ -110,7 +233,7 @@ const AdminOrders = () => {
               );
             }) : (
               <tr>
-                <td colSpan="6" style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
+                <td colSpan="7" style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
                   No orders found.
                 </td>
               </tr>
@@ -118,6 +241,44 @@ const AdminOrders = () => {
           </tbody>
         </table>
       </div>
+
+      {totalPages > 1 && (
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+            <span>Show</span>
+            <select 
+              value={itemsPerPage} 
+              onChange={(e) => setItemsPerPage(Number(e.target.value))}
+              style={{ padding: '0.25rem 0.5rem', borderRadius: '4px', border: '1px solid var(--border-color)', background: '#fff' }}
+            >
+              <option value={10}>10</option>
+              <option value={20}>20</option>
+              <option value={50}>50</option>
+            </select>
+            <span>per page</span>
+          </div>
+          
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <button 
+              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              style={{ padding: '0.5rem 1rem', border: '1px solid var(--border-color)', background: currentPage === 1 ? '#f3f4f6' : '#fff', color: currentPage === 1 ? '#9ca3af' : 'var(--text-primary)', borderRadius: '6px', cursor: currentPage === 1 ? 'not-allowed' : 'pointer' }}
+            >
+              Previous
+            </button>
+            <span style={{ padding: '0.5rem 1rem', background: 'var(--accent-primary)', color: 'white', borderRadius: '6px', fontWeight: 500 }}>
+              {currentPage} of {totalPages}
+            </span>
+            <button 
+              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              style={{ padding: '0.5rem 1rem', border: '1px solid var(--border-color)', background: currentPage === totalPages ? '#f3f4f6' : '#fff', color: currentPage === totalPages ? '#9ca3af' : 'var(--text-primary)', borderRadius: '6px', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer' }}
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
