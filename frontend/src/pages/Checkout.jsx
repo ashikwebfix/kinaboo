@@ -136,6 +136,11 @@ const Checkout = () => {
       return;
     }
 
+    if (address.trim().length < 4) {
+      toast.error('অনুগ্রহ করে সম্পূর্ণ ঠিকানা দিন (কমপক্ষে ৪ অক্ষর)। (Please provide a full delivery address)');
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -238,15 +243,16 @@ const Checkout = () => {
                     <label 
                       key={m.id} 
                       style={{ 
-                        border: selectedMethodId === m.id ? '2px solid var(--accent-primary)' : '1px solid var(--border-color)', 
+                        border: selectedMethodId === m.id ? '2px solid var(--accent-primary)' : '1px solid #e2e8f0', 
                         borderRadius: '12px', 
                         padding: '1rem', 
                         cursor: 'pointer', 
                         display: 'flex', 
                         flexDirection: 'column',
-                        backgroundColor: selectedMethodId === m.id ? 'rgba(59, 130, 246, 0.05)' : '#fff',
-                        transition: 'all 0.2s ease',
-                        boxShadow: selectedMethodId === m.id ? '0 4px 12px rgba(59, 130, 246, 0.1)' : 'none'
+                        backgroundColor: selectedMethodId === m.id ? '#eff6ff' : '#ffffff',
+                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                        boxShadow: selectedMethodId === m.id ? '0 4px 12px rgba(59, 130, 246, 0.15)' : '0 1px 2px rgba(0, 0, 0, 0.05)',
+                        position: 'relative'
                       }}
                     >
                       <input 
@@ -255,22 +261,23 @@ const Checkout = () => {
                         value={m.id} 
                         checked={selectedMethodId === m.id} 
                         onChange={e => setSelectedMethodId(e.target.value)} 
-                        style={{ display: 'none' }} 
+                        style={{ position: 'absolute', opacity: 0, width: 0, height: 0 }} 
                       />
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginBottom: '0.5rem' }}>
-                        <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{m.name}</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '0.5rem' }}>
                         <div style={{ 
-                          width: '18px', height: '18px', borderRadius: '50%', 
-                          border: selectedMethodId === m.id ? '5px solid var(--accent-primary)' : '2px solid var(--border-color)',
+                          width: '20px', height: '20px', borderRadius: '50%', 
+                          border: selectedMethodId === m.id ? '6px solid var(--accent-primary)' : '2px solid #cbd5e1',
                           backgroundColor: '#fff',
-                          transition: 'all 0.2s ease'
+                          transition: 'all 0.2s ease',
+                          flexShrink: 0
                         }}></div>
+                        <span style={{ fontWeight: 600, color: '#1e293b', fontSize: '1.05rem' }}>{m.name}</span>
                       </div>
-                      <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', fontWeight: 500 }}>৳ {m.charge}</span>
+                      <span style={{ color: '#64748b', fontSize: '0.95rem', fontWeight: 500, paddingLeft: '32px' }}>৳ {m.charge}</span>
                     </label>
                   ))}
                 </div>
-                <textarea required className="input-field" rows="3" placeholder="সম্পূর্ণ ঠিকানা (বাড়ি, রাস্তা, এলাকা, শহর)" value={address} onChange={e => setAddress(e.target.value)} style={{ padding: '0.875rem', resize: 'none' }} />
+                <textarea required minLength={4} className="input-field" rows="3" placeholder="সম্পূর্ণ ঠিকানা (বাড়ি, রাস্তা, এলাকা, শহর)" value={address} onChange={e => setAddress(e.target.value)} style={{ padding: '0.875rem', resize: 'none' }} />
               </div>
             </section>
 
