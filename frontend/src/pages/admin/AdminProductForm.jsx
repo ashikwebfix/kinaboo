@@ -17,6 +17,7 @@ const AdminProductForm = () => {
 
   // Form State
   const [name, setName] = useState('');
+  const [slug, setSlug] = useState('');
   const [description, setDescription] = useState('');
   const [sku, setSku] = useState('');
   const [category, setCategory] = useState('');
@@ -67,6 +68,7 @@ const AdminProductForm = () => {
       const product = await res.json();
       
       setName(product.name);
+      setSlug(product.slug || '');
       setDescription(product.description || '');
       setSku(product.sku || '');
       setCategory(product.category);
@@ -96,7 +98,7 @@ const AdminProductForm = () => {
     e.preventDefault();
     
     const parsedData = {
-      name, sku, category, price: Number(price), stock: Number(stock), allowSellWithoutStock, image, images, variations, faq, description, longDescription, imageTextSections, tags, status, volumeBundles, configurator,
+      name, slug, sku, category, price: Number(price), stock: Number(stock), allowSellWithoutStock, image, images, variations, faq, description, longDescription, imageTextSections, tags, status, volumeBundles, configurator,
       sellPrice: sellPrice ? Number(sellPrice) : null,
       keypoints: keypoints.map(s => s.trim()).filter(Boolean)
     };
@@ -288,6 +290,15 @@ const AdminProductForm = () => {
                   <label style={{display:'block',marginBottom:'.5rem',fontWeight:600}}>SKU (Optional)</label>
                   <input className="input-field" value={sku} onChange={e => setSku(e.target.value)} placeholder="e.g. PROD-123" />
                 </div>
+              </div>
+
+              <div style={{ marginBottom: '1.5rem' }}>
+                <label style={{display:'block',marginBottom:'.5rem',fontWeight:600}}>URL Slug</label>
+                <div style={{display: 'flex', alignItems: 'center', border: '1px solid var(--border-color)', borderRadius: '8px', overflow: 'hidden', background: '#fff', marginBottom: '0.25rem'}}>
+                  <span style={{padding: '0.875rem 1rem', color: 'var(--text-secondary)', borderRight: '1px solid var(--border-color)', background: '#f8fafc', fontSize: '0.9rem'}}>/product/</span>
+                  <input className="input-field" value={slug} onChange={e => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'))} placeholder="Auto-generated from title if left blank" style={{border: 'none', borderRadius: 0, flex: 1}} />
+                </div>
+                <p style={{fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.25rem'}}>Changing the title will not change the URL automatically. Edit this field if you want to change the URL.</p>
               </div>
 
               <div style={{ marginBottom: '1rem' }}>

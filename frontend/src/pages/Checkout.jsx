@@ -350,29 +350,7 @@ const Checkout = () => {
             ))}
           </div>
 
-            {/* Promo Code Section */}
-            <div style={{ paddingTop: '1.5rem', borderTop: '1px solid var(--border-color)' }}>
-              <form onSubmit={handleApplyCoupon} style={{ display: 'flex', gap: '0.5rem' }}>
-                <input 
-                  className="input-field" 
-                  placeholder="ডিসকাউন্ট কোড" 
-                  value={couponCode} 
-                  onChange={e => setCouponCode(e.target.value)} 
-                  style={{ background: '#fff', flex: 1, padding: '0.75rem' }} 
-                  disabled={appliedDiscount !== null}
-                />
-                <button 
-                  type="submit" 
-                  className="btn btn-secondary" 
-                  style={{ background: appliedDiscount !== null ? '#e5e7eb' : '#fff' }}
-                  disabled={appliedDiscount !== null || !couponCode}
-                >
-                  প্রয়োগ করুন
-                </button>
-              </form>
-              {couponError && <p style={{ color: '#ef4444', fontSize: '0.85rem', marginTop: '0.5rem' }}>{couponError}</p>}
-              {couponSuccess && <p style={{ color: '#22c55e', fontSize: '0.85rem', marginTop: '0.5rem' }}>{couponSuccess}</p>}
-            </div>
+
 
             {/* Price Calculations */}
             <div style={{ paddingTop: '1.5rem', borderTop: '1px solid var(--border-color)', display: 'grid', gap: '0.75rem' }}>

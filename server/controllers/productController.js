@@ -64,13 +64,18 @@ const getProductById = async (req, res) => {
 
 const createProduct = async (req, res) => {
   try {
-    const { name, sku, price, sellPrice, description, longDescription, image, images, category, stock, allowSellWithoutStock, keypoints, variations, faq, imageTextSections, tags, status, volumeBundles, configurator } = req.body;
+    const { name, sku, price, sellPrice, description, longDescription, image, images, category, stock, allowSellWithoutStock, keypoints, variations, faq, imageTextSections, tags, status, volumeBundles, configurator, slug } = req.body;
     
-    const baseSlug = generateSlug(name);
-    const slug = await ensureUniqueSlug(baseSlug);
+    let finalSlug;
+    if (slug && slug.trim() !== '') {
+      finalSlug = await ensureUniqueSlug(slug.trim());
+    } else {
+      const baseSlug = generateSlug(name);
+      finalSlug = await ensureUniqueSlug(baseSlug);
+    }
     
     const product = await Product.create({
-      name, slug, sku, price, sellPrice, description, longDescription, image, images, category, stock, allowSellWithoutStock, keypoints, variations, faq, imageTextSections, tags, status, volumeBundles, configurator
+      name, slug: finalSlug, sku, price, sellPrice, description, longDescription, image, images, category, stock, allowSellWithoutStock, keypoints, variations, faq, imageTextSections, tags, status, volumeBundles, configurator
     });
     res.status(201).json(product);
   } catch (error) {
@@ -79,14 +84,12 @@ const createProduct = async (req, res) => {
 };
 
 const updateProduct = async (req, res) => {
-  const { name, sku, price, sellPrice, description, longDescription, image, images, category, stock, allowSellWithoutStock, keypoints, variations, faq, imageTextSections, tags, status, volumeBundles, configurator } = req.body;
+  const { name, sku, price, sellPrice, description, longDescription, image, images, category, stock, allowSellWithoutStock, keypoints, variations, faq, imageTextSections, tags, status, volumeBundles, configurator, slug } = req.body;
   const product = await Product.findByPk(req.params.id);
 
   if (product) {
-    // Regenerate slug if name changed
-    if (name && name !== product.name) {
-      const baseSlug = generateSlug(name);
-      product.slug = await ensureUniqueSlug(baseSlug, product.id);
+    if (slug && slug.trim() !== '' && slug.trim() !== product.slug) {
+      product.slug = await ensureUniqueSlug(slug.trim(), product.id);
     }
     
     product.name = name || product.name;

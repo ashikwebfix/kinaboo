@@ -347,25 +347,7 @@ const ExpressCheckoutModal = ({ product, qty = 1, selectedVariations = {}, onClo
             <textarea required minLength={4} className="input-field" rows="3" placeholder="House/Flat, Road, Area, City" value={qbAddress} onChange={e => setQbAddress(e.target.value)} style={{ padding: '0.875rem', resize: 'none' }} />
           </div>
 
-          <div style={{ background: '#f9fafb', padding: '1rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500, fontSize: '0.95rem' }}>Have a Coupon?</label>
-            {appliedCoupon ? (
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#dcfce7', color: '#166534', padding: '0.75rem', borderRadius: '8px', border: '1px solid #bbf7d0' }}>
-                <div style={{ fontWeight: 600 }}>{appliedCoupon.code} Applied (-{discountDisplay.toFixed(2)} BDT)</div>
-                <button type="button" onClick={removeCoupon} style={{ background: 'transparent', border: 'none', color: '#166534', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
-                  <X size={16} />
-                </button>
-              </div>
-            ) : (
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <input className="input-field" placeholder="Enter code" value={couponInput} onChange={e => setCouponInput(e.target.value)} style={{ padding: '0.75rem', flex: 1 }} />
-                <button type="button" className="btn btn-secondary" onClick={handleApplyCoupon} disabled={validatingCoupon} style={{ padding: '0.75rem 1rem' }}>
-                  {validatingCoupon ? '...' : 'Apply'}
-                </button>
-              </div>
-            )}
-            {couponError && <div style={{ color: '#ef4444', fontSize: '0.85rem', marginTop: '0.5rem' }}>{couponError}</div>}
-          </div>
+
 
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0' }}>
             <span style={{ fontSize: '1.1rem', fontWeight: 600 }}>Total</span>
