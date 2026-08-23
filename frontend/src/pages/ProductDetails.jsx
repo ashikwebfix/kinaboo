@@ -343,7 +343,7 @@ const ProductDetails = () => {
             <span className="text-muted" style={{ fontSize: '0.9rem', marginLeft: '0.5rem', color: 'var(--text-secondary)' }}>(124 Reviews)</span>
           </div>
 
-          <h1 style={{ fontSize: '2.5rem', fontWeight: '700', marginBottom: '1rem', color: 'var(--text-primary)' }}>{product.name}</h1>
+          <h1 className="product-detail-title" style={{ fontWeight: '700', marginBottom: '1rem', color: 'var(--text-primary)' }}>{product.name}</h1>
           
           <div style={{ display: 'flex', alignItems: 'end', gap: '1rem', marginBottom: '1.5rem' }}>
             {product.sellPrice ? (

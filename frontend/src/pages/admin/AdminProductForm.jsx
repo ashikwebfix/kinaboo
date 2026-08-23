@@ -26,7 +26,7 @@ const AdminProductForm = () => {
   const [allowSellWithoutStock, setAllowSellWithoutStock] = useState(false);
   const [image, setImage] = useState('');
   const [images, setImages] = useState([]);
-  const [keypoints, setKeypoints] = useState(''); 
+  const [keypoints, setKeypoints] = useState([]); 
   const [variations, setVariations] = useState([]);
   const [faq, setFaq] = useState([]);
   const [longDescription, setLongDescription] = useState('');
@@ -76,7 +76,7 @@ const AdminProductForm = () => {
       setAllowSellWithoutStock(product.allowSellWithoutStock || false);
       setImage(product.image || '');
       setImages(product.images || []);
-      setKeypoints(product.keypoints ? product.keypoints.join(', ') : '');
+      setKeypoints(product.keypoints || []);
       setVariations(product.variations || []);
       setFaq(product.faq || []);
       setLongDescription(product.longDescription || '');
@@ -98,7 +98,7 @@ const AdminProductForm = () => {
     const parsedData = {
       name, sku, category, price: Number(price), stock: Number(stock), allowSellWithoutStock, image, images, variations, faq, description, longDescription, imageTextSections, tags, status, volumeBundles, configurator,
       sellPrice: sellPrice ? Number(sellPrice) : null,
-      keypoints: keypoints.split(',').map(s => s.trim()).filter(Boolean)
+      keypoints: keypoints.map(s => s.trim()).filter(Boolean)
     };
 
     try {
@@ -116,6 +116,15 @@ const AdminProductForm = () => {
       console.error("Error saving product:", error);
       alert('Failed to save product.');
     }
+  };
+
+  // --- Keypoint Handlers ---
+  const addKeypoint = () => setKeypoints([...keypoints, '']);
+  const removeKeypoint = (idx) => setKeypoints(keypoints.filter((_, i) => i !== idx));
+  const updateKeypoint = (idx, val) => {
+    const newKps = [...keypoints];
+    newKps[idx] = val;
+    setKeypoints(newKps);
   };
 
   // --- Variation Handlers ---
@@ -469,8 +478,17 @@ const AdminProductForm = () => {
             </div>
 
             <div style={{ padding: '1.5rem', border: '1px solid var(--border-color)', borderRadius: '8px', background: '#fff' }}>
-              <label style={{display:'block',marginBottom:'.5rem',fontWeight:600}}>Keypoints (comma separated)</label>
-              <input className="input-field" value={keypoints} onChange={e => setKeypoints(e.target.value)} placeholder="e.g. 30-hour battery, Active Noise Cancelling" />
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 600, margin: 0 }}>Keypoints</h3>
+                <button type="button" className="btn btn-secondary" onClick={addKeypoint} style={{ padding: '0.5rem 1rem' }}><Plus size={16} /> Add Keypoint</button>
+              </div>
+              {keypoints.length === 0 && <p className="text-muted" style={{ fontSize: '0.9rem' }}>No keypoints added.</p>}
+              {keypoints.map((kp, idx) => (
+                <div key={idx} style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '0.5rem' }}>
+                  <input className="input-field" value={kp} onChange={e => updateKeypoint(idx, e.target.value)} placeholder="e.g. 30-hour battery" />
+                  <button type="button" onClick={() => removeKeypoint(idx)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '0.5rem' }}><Trash2 size={18} /></button>
+                </div>
+              ))}
             </div>
 
             {/* Image + Text Sections Builder */}
