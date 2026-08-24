@@ -164,7 +164,7 @@ const ProductCard = ({ product, showRating }) => {
           </div>
           
           <button 
-            title={product.stock <= 0 && !product.allowSellWithoutStock ? "স্টক শেষ" : "কার্টে যোগ করুন"}
+            title={product.stock <= 0 && !product.allowSellWithoutStock ? "Out of stock" : "Add to cart"}
             disabled={product.stock <= 0 && !product.allowSellWithoutStock}
             onMouseOver={e => !(product.stock <= 0 && !product.allowSellWithoutStock) && (e.currentTarget.style.color = isAdded ? 'var(--accent-primary)' : 'var(--accent-primary)')}
             onMouseOut={e => !(product.stock <= 0 && !product.allowSellWithoutStock) && (e.currentTarget.style.color = isAdded ? 'var(--accent-primary)' : 'var(--text-secondary)')}
@@ -200,14 +200,14 @@ const ProductCard = ({ product, showRating }) => {
             fontWeight: '700', fontSize: '0.85rem', textTransform: 'uppercase',
             marginTop: 'auto'
           }} 
-          title={(product.stock <= 0 && !product.allowSellWithoutStock) ? "স্টক শেষ" : "এখুনি কিনুন"}
+          title={(product.stock <= 0 && !product.allowSellWithoutStock) ? "Out of stock" : "Buy Now"}
           disabled={product.stock <= 0 && !product.allowSellWithoutStock}
           onClick={(e) => {
             e.preventDefault();
             if (!(product.stock <= 0 && !product.allowSellWithoutStock)) setShowExpressModal(true);
           }}
         >
-          <Zap size={16} fill={isHovered && !(product.stock <= 0 && !product.allowSellWithoutStock) ? "white" : "none"} /> {(product.stock <= 0 && !product.allowSellWithoutStock) ? "স্টক শেষ" : "এখুনি কিনুন"}
+          <Zap size={16} fill={isHovered && !(product.stock <= 0 && !product.allowSellWithoutStock) ? "white" : "none"} /> {(product.stock <= 0 && !product.allowSellWithoutStock) ? "Out of stock" : "Buy Now"}
         </button>
       </div>
 

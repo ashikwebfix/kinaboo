@@ -171,7 +171,7 @@ const Home = () => {
                       {slide.title}
                     </h2>
                     <button className="btn btn-primary" style={{ alignSelf: 'flex-start', padding: '1rem 2.5rem', fontSize: '1.1rem' }} onClick={() => window.location.href = slide.link || '/shop'}>
-                      এখুনি কিনুন
+                      Buy Now
                     </button>
                   </div>
                 </div>
