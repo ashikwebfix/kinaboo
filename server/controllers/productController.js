@@ -37,12 +37,17 @@ const getProducts = async (req, res) => {
     ];
   }
   
-  const products = await Product.findAll({ where });
+  const products = await Product.findAll({ 
+    where,
+    order: [['createdAt', 'DESC']]
+  });
   res.json(products);
 };
 
 const getAdminProducts = async (req, res) => {
-  const products = await Product.findAll();
+  const products = await Product.findAll({
+    order: [['createdAt', 'DESC']]
+  });
   res.json(products);
 };
 

@@ -19,10 +19,28 @@ const getMedia = (req, res) => {
       }
       return res.status(500).json({ message: 'Unable to scan files' });
     }
-    const fileUrls = files.filter(f => !f.startsWith('.')).map(file => ({
-      filename: file,
-      url: `${req.protocol}://${req.get('host')}/uploads/${file}`
-    }));
+    
+    const fileUrls = files
+      .filter(f => !f.startsWith('.'))
+      .map(file => {
+        try {
+          const stats = fs.statSync(path.join(directoryPath, file));
+          return {
+            filename: file,
+            url: `${req.protocol}://${req.get('host')}/uploads/${file}`,
+            mtime: stats.mtimeMs
+          };
+        } catch (e) {
+          return {
+            filename: file,
+            url: `${req.protocol}://${req.get('host')}/uploads/${file}`,
+            mtime: 0
+          };
+        }
+      })
+      .sort((a, b) => b.mtime - a.mtime)
+      .map(f => ({ filename: f.filename, url: f.url }));
+      
     res.json(fileUrls);
   });
 };
