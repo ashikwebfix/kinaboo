@@ -249,16 +249,18 @@ const ExpressCheckoutModal = ({ product, qty = 1, selectedVariations = {}, onClo
         
         <h2 className="heading-md" style={{ marginBottom: '2rem', textAlign: 'center', color: 'var(--text-primary)' }}>Express Checkout</h2>
         
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem', paddingBottom: '1.5rem', borderBottom: '1px solid var(--border-color)' }}>
-          <img src={mainImage} alt={product.name} style={{ width: '70px', height: '70px', borderRadius: '10px', objectFit: 'cover', border: '1px solid var(--border-color)' }} />
-          <div style={{ flex: 1 }}>
-            <div style={{ fontWeight: 600, fontSize: '1.1rem', marginBottom: '0.25rem' }}>{product.name}</div>
-            <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '0.25rem' }}>Qty: {qty}</div>
-            {bundleDiscountTotal > 0 && (
-              <div style={{ color: '#166534', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.25rem' }}>Combo Discount Applied: -{bundleDiscountTotal.toFixed(2)} BDT</div>
-            )}
-            <div style={{ color: 'var(--accent-primary)', fontWeight: 700, fontSize: '1.1rem' }}>
-              {subtotal.toFixed(2)} BDT
+        <div style={{ marginBottom: '1.5rem', paddingBottom: '1.5rem', borderBottom: '1px solid var(--border-color)' }}>
+          <div style={{ fontWeight: 600, fontSize: '1.1rem', marginBottom: '0.75rem', lineHeight: 1.3 }}>{product.name}</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <img src={mainImage} alt={product.name} style={{ width: '70px', height: '70px', borderRadius: '10px', objectFit: 'cover', border: '1px solid var(--border-color)' }} />
+            <div style={{ flex: 1 }}>
+              <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '0.25rem' }}>Qty: {qty}</div>
+              {bundleDiscountTotal > 0 && (
+                <div style={{ color: '#166534', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.25rem' }}>Combo Discount Applied: -{bundleDiscountTotal.toFixed(2)} BDT</div>
+              )}
+              <div style={{ color: 'var(--accent-primary)', fontWeight: 700, fontSize: '1.1rem' }}>
+                {subtotal.toFixed(2)} BDT
+              </div>
             </div>
           </div>
         </div>
@@ -303,7 +305,7 @@ const ExpressCheckoutModal = ({ product, qty = 1, selectedVariations = {}, onClo
           </div>
           <div>
             <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500, fontSize: '0.95rem' }}>Delivery Method</label>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '1rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               {deliveryMethods.map(m => (
                 <label 
                   key={m.id} 
@@ -313,7 +315,8 @@ const ExpressCheckoutModal = ({ product, qty = 1, selectedVariations = {}, onClo
                     padding: '1rem', 
                     cursor: 'pointer', 
                     display: 'flex', 
-                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
                     backgroundColor: selectedMethodId === m.id ? '#eff6ff' : '#ffffff',
                     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                     boxShadow: selectedMethodId === m.id ? '0 4px 12px rgba(59, 130, 246, 0.15)' : '0 1px 2px rgba(0, 0, 0, 0.05)',
@@ -328,7 +331,7 @@ const ExpressCheckoutModal = ({ product, qty = 1, selectedVariations = {}, onClo
                     onChange={e => setSelectedMethodId(e.target.value)} 
                     style={{ position: 'absolute', opacity: 0, width: 0, height: 0 }} 
                   />
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '0.5rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <div style={{ 
                       width: '20px', height: '20px', borderRadius: '50%', 
                       border: selectedMethodId === m.id ? '6px solid var(--accent-primary)' : '2px solid #cbd5e1',
@@ -336,9 +339,9 @@ const ExpressCheckoutModal = ({ product, qty = 1, selectedVariations = {}, onClo
                       transition: 'all 0.2s ease',
                       flexShrink: 0
                     }}></div>
-                    <span style={{ fontWeight: 600, color: '#1e293b', fontSize: '1.05rem' }}>{m.name}</span>
+                    <span style={{ fontWeight: 600, color: '#1e293b', fontSize: '1rem' }}>{m.name}</span>
                   </div>
-                  <span style={{ color: '#64748b', fontSize: '0.95rem', fontWeight: 500, paddingLeft: '32px' }}>৳ {m.charge}</span>
+                  <span style={{ color: '#64748b', fontSize: '1rem', fontWeight: 600, whiteSpace: 'nowrap' }}>৳ {m.charge}</span>
                 </label>
               ))}
             </div>
