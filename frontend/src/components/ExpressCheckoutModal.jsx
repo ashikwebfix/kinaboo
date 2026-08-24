@@ -305,7 +305,7 @@ const ExpressCheckoutModal = ({ product, qty = 1, selectedVariations = {}, onClo
           </div>
           <div>
             <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500, fontSize: '0.95rem' }}>Delivery Method</label>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
               {deliveryMethods.map(m => (
                 <label 
                   key={m.id} 
