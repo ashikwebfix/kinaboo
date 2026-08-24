@@ -60,9 +60,13 @@ function App() {
   const [maintenanceMode, setMaintenanceMode] = React.useState(false);
   const [maintenanceMessage, setMaintenanceMessage] = React.useState('');
   const [mounted, setMounted] = React.useState(false);
+  const [isAdmin, setIsAdmin] = React.useState(false);
 
   React.useEffect(() => {
     setMounted(true);
+    
+    const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+    setIsAdmin(userInfo?.isAdmin || userInfo?.role === 'superadmin' || userInfo?.role === 'admin');
     const fetchMaintenance = async () => {
       try {
         const res = await fetch((import.meta.env.VITE_API_URL || '') + '/api/settings/general_settings');
@@ -80,8 +84,6 @@ function App() {
     fetchMaintenance();
   }, []);
 
-  const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
-  const isAdmin = userInfo?.isAdmin || userInfo?.role === 'superadmin' || userInfo?.role === 'admin';
 
   return (
     <>

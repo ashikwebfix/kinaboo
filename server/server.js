@@ -84,7 +84,6 @@ app.use('/api', (req, res) => {
   res.status(404).json({ message: 'API Route Not Found' });
 });
 
-/*
 // Serve frontend static files
 const frontendDistPath = path.join(__dirname, '../frontend/dist/client');
 app.use(express.static(frontendDistPath, { index: false }));
@@ -98,6 +97,9 @@ app.use(async (req, res) => {
     let title = "পছন্দের পণ্য বেছে নিন | kinaboo.com";
     let description = "পছন্দের পণ্য বেছে নিন, হাতে পেয়ে টাকা দিন।";
     let image = `${process.env.SITE_URL || 'http://localhost:6711'}/favicon.svg`;
+    const fullUrl = `${process.env.SITE_URL || 'http://localhost:6711'}${req.originalUrl.split('?')[0]}`;
+    let ogType = "website";
+    let jsonLd = "";
 
     if (currentPath.startsWith('/product/')) {
       const slug = currentPath.split('/')[2];
@@ -112,6 +114,25 @@ app.use(async (req, res) => {
         let pImage = product.image;
         if (product.images && product.images.length > 0 && !pImage) pImage = product.images[0];
         if (pImage) image = pImage.startsWith('http') ? pImage : `${process.env.SITE_URL || 'http://localhost:6710'}${pImage.startsWith('/') ? '' : '/'}${pImage}`;
+        
+        ogType = "product";
+        const productJsonLd = {
+          "@context": "https://schema.org/",
+          "@type": "Product",
+          "name": product.name,
+          "image": image,
+          "description": description,
+          "sku": product.sku || product.id,
+          "offers": {
+            "@type": "Offer",
+            "url": fullUrl,
+            "priceCurrency": "BDT",
+            "price": product.sellPrice || product.price || 0,
+            "availability": product.stock > 0 || product.allowSellWithoutStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+            "itemCondition": "https://schema.org/NewCondition"
+          }
+        };
+        jsonLd = `<script type="application/ld+json">${JSON.stringify(productJsonLd)}</script>`;
       }
     } else if (currentPath === '/categories') {
       title = "Categories | kinaboo.com";
@@ -120,14 +141,17 @@ app.use(async (req, res) => {
 
     const ogTags = `
     <title>${title}</title>
+    <link rel="canonical" href="${fullUrl}" />
     <meta name="description" content="${description}" />
     <meta property="og:title" content="${title}" />
     <meta property="og:description" content="${description}" />
     <meta property="og:image" content="${image}" />
-    <meta property="og:type" content="website" />
-    <meta name="twitter:card" content="summary_large_image" />`;
+    <meta property="og:url" content="${fullUrl}" />
+    <meta property="og:type" content="${ogType}" />
+    <meta name="twitter:card" content="summary_large_image" />
+    ${jsonLd}`;
 
-    html = html.replace('<title>পছন্দের পণ্য বেছে নিন | kinaboo.com</title>', ogTags);
+    html = html.replace(/<!-- SEO_TAGS -->[\s\S]*?<title>.*?<\/title>/, ogTags);
     
     // SSR Rendering
     try {
@@ -153,7 +177,6 @@ app.use(async (req, res) => {
     }
   }
 });
-*/
 
 const PORT = process.env.PORT || 5005;
 

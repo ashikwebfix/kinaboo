@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "prestart": "fuser -k 6710/tcp || true",
+    "prestart": "lsof -ti:6710 | xargs kill -9 || true",
     "start": "PORT=6710 node server.js"
   },
   "keywords": [],
