@@ -16,6 +16,10 @@ const Product = sequelize.define('Product', {
     allowNull: true,
     unique: true,
   },
+  alternativeSlugs: {
+    type: DataTypes.JSON,
+    allowNull: true,
+  },
   sku: {
     type: DataTypes.STRING,
     allowNull: true,

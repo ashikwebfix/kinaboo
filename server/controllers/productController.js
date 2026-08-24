@@ -49,8 +49,16 @@ const getAdminProducts = async (req, res) => {
 const getProductById = async (req, res) => {
   const identifier = req.params.id;
   
-  // Try by slug first, then by UUID
-  let product = await Product.findOne({ where: { slug: identifier } });
+  // Try by slug first, then by alternativeSlugs, then by UUID
+  let product = await Product.findOne({ 
+    where: { 
+      [Op.or]: [
+        { slug: identifier },
+        { alternativeSlugs: { [Op.substring]: `"${identifier}"` } }
+      ]
+    } 
+  });
+  
   if (!product) {
     product = await Product.findByPk(identifier);
   }
@@ -64,7 +72,7 @@ const getProductById = async (req, res) => {
 
 const createProduct = async (req, res) => {
   try {
-    const { name, sku, price, sellPrice, description, longDescription, image, images, category, stock, allowSellWithoutStock, keypoints, variations, faq, imageTextSections, tags, status, volumeBundles, configurator, slug } = req.body;
+    const { name, sku, price, sellPrice, description, longDescription, image, images, category, stock, allowSellWithoutStock, keypoints, variations, faq, imageTextSections, tags, status, volumeBundles, configurator, slug, alternativeSlugs } = req.body;
     
     let finalSlug;
     if (slug && slug.trim() !== '') {
@@ -75,7 +83,7 @@ const createProduct = async (req, res) => {
     }
     
     const product = await Product.create({
-      name, slug: finalSlug, sku, price, sellPrice, description, longDescription, image, images, category, stock, allowSellWithoutStock, keypoints, variations, faq, imageTextSections, tags, status, volumeBundles, configurator
+      name, slug: finalSlug, alternativeSlugs, sku, price, sellPrice, description, longDescription, image, images, category, stock, allowSellWithoutStock, keypoints, variations, faq, imageTextSections, tags, status, volumeBundles, configurator
     });
     res.status(201).json(product);
   } catch (error) {
@@ -84,7 +92,7 @@ const createProduct = async (req, res) => {
 };
 
 const updateProduct = async (req, res) => {
-  const { name, sku, price, sellPrice, description, longDescription, image, images, category, stock, allowSellWithoutStock, keypoints, variations, faq, imageTextSections, tags, status, volumeBundles, configurator, slug } = req.body;
+  const { name, sku, price, sellPrice, description, longDescription, image, images, category, stock, allowSellWithoutStock, keypoints, variations, faq, imageTextSections, tags, status, volumeBundles, configurator, slug, alternativeSlugs } = req.body;
   const product = await Product.findByPk(req.params.id);
 
   if (product) {
@@ -93,6 +101,7 @@ const updateProduct = async (req, res) => {
     }
     
     product.name = name || product.name;
+    product.alternativeSlugs = alternativeSlugs !== undefined ? alternativeSlugs : product.alternativeSlugs;
     product.sku = sku !== undefined ? sku : product.sku;
     product.price = price || product.price;
     product.sellPrice = sellPrice !== undefined ? sellPrice : product.sellPrice;

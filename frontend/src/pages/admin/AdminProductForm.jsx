@@ -18,6 +18,7 @@ const AdminProductForm = () => {
   // Form State
   const [name, setName] = useState('');
   const [slug, setSlug] = useState('');
+  const [alternativeSlugs, setAlternativeSlugs] = useState([]);
   const [description, setDescription] = useState('');
   const [sku, setSku] = useState('');
   const [category, setCategory] = useState('');
@@ -69,6 +70,7 @@ const AdminProductForm = () => {
       
       setName(product.name);
       setSlug(product.slug || '');
+      setAlternativeSlugs(product.alternativeSlugs || []);
       setDescription(product.description || '');
       setSku(product.sku || '');
       setCategory(product.category);
@@ -98,7 +100,7 @@ const AdminProductForm = () => {
     e.preventDefault();
     
     const parsedData = {
-      name, slug, sku, category, price: Number(price), stock: Number(stock), allowSellWithoutStock, image, images, variations, faq, description, longDescription, imageTextSections, tags, status, volumeBundles, configurator,
+      name, slug, alternativeSlugs: alternativeSlugs.map(s => s.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-')).filter(Boolean), sku, category, price: Number(price), stock: Number(stock), allowSellWithoutStock, image, images, variations, faq, description, longDescription, imageTextSections, tags, status, volumeBundles, configurator,
       sellPrice: sellPrice ? Number(sellPrice) : null,
       keypoints: keypoints.map(s => s.trim()).filter(Boolean)
     };
@@ -118,6 +120,15 @@ const AdminProductForm = () => {
       console.error("Error saving product:", error);
       alert('Failed to save product.');
     }
+  };
+
+  // --- Alternative Slugs Handlers ---
+  const addAlternativeSlug = () => setAlternativeSlugs([...alternativeSlugs, '']);
+  const removeAlternativeSlug = (idx) => setAlternativeSlugs(alternativeSlugs.filter((_, i) => i !== idx));
+  const updateAlternativeSlug = (idx, val) => {
+    const newSlugs = [...alternativeSlugs];
+    newSlugs[idx] = val;
+    setAlternativeSlugs(newSlugs);
   };
 
   // --- Keypoint Handlers ---
@@ -293,12 +304,23 @@ const AdminProductForm = () => {
               </div>
 
               <div style={{ marginBottom: '1.5rem' }}>
-                <label style={{display:'block',marginBottom:'.5rem',fontWeight:600}}>URL Slug</label>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '.5rem' }}>
+                  <label style={{fontWeight:600, margin: 0}}>URL Slug</label>
+                  <button type="button" className="btn btn-secondary" onClick={addAlternativeSlug} style={{ padding: '0.2rem 0.5rem', fontSize: '0.8rem' }}><Plus size={14} /> Add Secondary URL</button>
+                </div>
                 <div style={{display: 'flex', alignItems: 'center', border: '1px solid var(--border-color)', borderRadius: '8px', overflow: 'hidden', background: '#fff', marginBottom: '0.25rem'}}>
                   <span style={{padding: '0.875rem 1rem', color: 'var(--text-secondary)', borderRight: '1px solid var(--border-color)', background: '#f8fafc', fontSize: '0.9rem'}}>/product/</span>
                   <input className="input-field" value={slug} onChange={e => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'))} placeholder="Auto-generated from title if left blank" style={{border: 'none', borderRadius: 0, flex: 1}} />
                 </div>
-                <p style={{fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.25rem'}}>Changing the title will not change the URL automatically. Edit this field if you want to change the URL.</p>
+                <p style={{fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.25rem', marginBottom: '0.5rem'}}>Changing the title will not change the URL automatically. Edit this field if you want to change the URL.</p>
+
+                {alternativeSlugs.map((altSlug, idx) => (
+                  <div key={idx} style={{display: 'flex', alignItems: 'center', border: '1px solid var(--border-color)', borderRadius: '8px', overflow: 'hidden', background: '#fff', marginBottom: '0.5rem'}}>
+                    <span style={{padding: '0.875rem 1rem', color: 'var(--text-secondary)', borderRight: '1px solid var(--border-color)', background: '#f8fafc', fontSize: '0.9rem'}}>/product/</span>
+                    <input className="input-field" value={altSlug} onChange={e => updateAlternativeSlug(idx, e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'))} placeholder="Enter secondary URL slug" style={{border: 'none', borderRadius: 0, flex: 1}} />
+                    <button type="button" onClick={() => removeAlternativeSlug(idx)} style={{ background: '#fef2f2', border: 'none', color: '#ef4444', padding: '0.875rem 1rem', cursor: 'pointer', borderLeft: '1px solid var(--border-color)' }}><Trash2 size={18} /></button>
+                  </div>
+                ))}
               </div>
 
               <div style={{ marginBottom: '1rem' }}>
