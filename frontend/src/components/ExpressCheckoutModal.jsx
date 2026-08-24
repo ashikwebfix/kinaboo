@@ -310,16 +310,11 @@ const ExpressCheckoutModal = ({ product, qty = 1, selectedVariations = {}, onClo
                 <label 
                   key={m.id} 
                   style={{ 
-                    border: selectedMethodId === m.id ? '2px solid var(--accent-primary)' : '1px solid #e2e8f0', 
-                    borderRadius: '12px', 
-                    padding: '1rem', 
                     cursor: 'pointer', 
                     display: 'flex', 
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    backgroundColor: selectedMethodId === m.id ? '#eff6ff' : '#ffffff',
-                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    boxShadow: selectedMethodId === m.id ? '0 4px 12px rgba(59, 130, 246, 0.15)' : '0 1px 2px rgba(0, 0, 0, 0.05)',
+                    padding: '0.5rem 0',
                     position: 'relative'
                   }}
                 >
