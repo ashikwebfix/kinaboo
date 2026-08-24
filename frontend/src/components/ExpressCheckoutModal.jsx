@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Truck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { getImgUrl } from '../utils/imgPath';
 import { trackBeginCheckout, trackPurchase } from '../utils/tracking';
 
 const ExpressCheckoutModal = ({ product, qty = 1, selectedVariations = {}, onClose }) => {
@@ -208,7 +209,7 @@ const ExpressCheckoutModal = ({ product, qty = 1, selectedVariations = {}, onClo
 
   if (!product) return null;
 
-  const mainImage = product.images && product.images.length > 0 ? product.images[0] : (product.image || 'https://placehold.co/80x80?text=No+Image');
+  const mainImage = getImgUrl(product.images && product.images.length > 0 ? product.images[0] : product.image);
   let bundleDiscountTotal = 0;
   if (product.volumeBundles && product.volumeBundles.length > 0) {
     const sortedTiers = [...product.volumeBundles].sort((a, b) => b.qty - a.qty);

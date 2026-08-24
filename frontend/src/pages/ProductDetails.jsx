@@ -7,6 +7,7 @@ import ProductCard from '../components/ProductCard';
 import ExpressCheckoutModal from '../components/ExpressCheckoutModal';
 import { Helmet } from 'react-helmet-async';
 import { trackViewContent } from '../utils/tracking';
+import { getImgUrl } from '../utils/imgPath';
 
 const ProductDetails = () => {
   const { slug } = useParams();
@@ -68,7 +69,7 @@ const ProductDetails = () => {
         
         const data = await res.json();
         setProduct(data);
-        setMainImage(data.images && data.images.length > 0 ? data.images[0] : (data.image || 'https://placehold.co/400x400?text=No+Image'));
+        setMainImage(getImgUrl(data.images && data.images.length > 0 ? data.images[0] : (data.image || 'https://placehold.co/400x400?text=No+Image')));
         trackViewContent(data);
 
         // Default to first bundle tier if available
@@ -254,7 +255,7 @@ const ProductDetails = () => {
   if (loading) return <div style={{ textAlign: 'center', padding: '4rem' }}><div className="text-muted">Loading product...</div></div>;
   if (!product) return <div style={{ textAlign: 'center', padding: '4rem' }}><div className="text-muted">Product not found.</div></div>;
 
-  const imagesList = product.images && product.images.length > 0 ? product.images : [product.image || 'https://placehold.co/400x400?text=No+Image'];
+  const imagesList = product.images && product.images.length > 0 ? product.images.map(getImgUrl) : [getImgUrl(product.image)];
 
   const productSchema = {
     "@context": "https://schema.org/",
@@ -530,7 +531,7 @@ const ProductDetails = () => {
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                         <input type="radio" name="qtySelect" checked={qty === tier.qty} onChange={() => setQty(tier.qty)} style={{ accentColor: 'var(--accent-primary)', width: '18px', height: '18px', flexShrink: 0 }} />
                         {tier.image && (
-                          <img src={tier.image} alt="Bundle" style={{ width: '44px', height: '44px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #e2e8f0', flexShrink: 0 }} />
+                          <img src={getImgUrl(tier.image)} alt="Bundle" style={{ width: '44px', height: '44px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #e2e8f0', flexShrink: 0 }} />
                         )}
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
@@ -624,7 +625,7 @@ const ProductDetails = () => {
                   <React.Fragment key={cp.id}>
                     <div style={{ fontSize: '1.5rem', color: 'var(--text-secondary)' }}>+</div>
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', width: '80px' }}>
-                      <img src={cp.image || 'https://placehold.co/400x400?text=No+Image'} alt={cp.name} style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '8px', border: '1px solid var(--border-color)' }} />
+                      <img src={getImgUrl(cp.image)} alt={cp.name} style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '8px', border: '1px solid var(--border-color)' }} />
                     </div>
                   </React.Fragment>
                 ))}
@@ -719,7 +720,7 @@ const ProductDetails = () => {
             return (
               <div key={sec.id} style={{ marginBottom: '3rem', background: '#ffffff', padding: '2.5rem', borderRadius: '24px', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
                 <div style={{ float: isLeft ? 'left' : 'right', width: `${width}%`, minWidth: '250px', margin: isLeft ? '0 2rem 1rem 0' : '0 0 1rem 2rem', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}>
-                  <img src={sec.image} alt="Feature" style={{ width: '100%', height: 'auto', display: 'block', objectFit: 'cover' }} />
+                  <img src={getImgUrl(sec.image)} alt="Feature" style={{ width: '100%', height: 'auto', display: 'block', objectFit: 'cover' }} />
                 </div>
                 <div className="rich-text-content" dangerouslySetInnerHTML={{ __html: sec.text }} style={{ fontSize: '1.1rem', lineHeight: '1.8', color: 'var(--text-secondary)' }} />
                 <div style={{ clear: 'both' }}></div>
@@ -729,7 +730,7 @@ const ProductDetails = () => {
             return (
               <div key={sec.id} style={{ display: 'flex', flexWrap: 'wrap', gap: '3rem', alignItems: 'center', marginBottom: '3rem', flexDirection: isLeft ? 'row' : 'row-reverse', background: '#ffffff', padding: '2.5rem', borderRadius: '24px', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
                 <div style={{ flex: `1 1 calc(${width}% - 1.5rem)`, minWidth: '300px', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}>
-                  <img src={sec.image} alt="Feature" style={{ width: '100%', height: 'auto', display: 'block', objectFit: 'cover' }} />
+                  <img src={getImgUrl(sec.image)} alt="Feature" style={{ width: '100%', height: 'auto', display: 'block', objectFit: 'cover' }} />
                 </div>
                 <div style={{ flex: `1 1 calc(${100 - width}% - 1.5rem)`, minWidth: '300px' }}>
                   <div className="rich-text-content" dangerouslySetInnerHTML={{ __html: sec.text }} style={{ fontSize: '1.1rem', lineHeight: '1.8', color: 'var(--text-secondary)' }} />
@@ -761,7 +762,7 @@ const ProductDetails = () => {
             return (
               <div key={sec.id} style={{ marginBottom: '3rem', background: '#ffffff', padding: '2.5rem', borderRadius: '24px', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
                 <div style={{ float: isLeft ? 'left' : 'right', width: `${width}%`, minWidth: '250px', margin: isLeft ? '0 2rem 1rem 0' : '0 0 1rem 2rem', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}>
-                  <img src={sec.image} alt="Feature" style={{ width: '100%', height: 'auto', display: 'block', objectFit: 'cover' }} />
+                  <img src={getImgUrl(sec.image)} alt="Feature" style={{ width: '100%', height: 'auto', display: 'block', objectFit: 'cover' }} />
                 </div>
                 <div className="rich-text-content" dangerouslySetInnerHTML={{ __html: sec.text }} style={{ fontSize: '1.1rem', lineHeight: '1.8', color: 'var(--text-secondary)' }} />
                 <div style={{ clear: 'both' }}></div>
@@ -771,7 +772,7 @@ const ProductDetails = () => {
             return (
               <div key={sec.id} style={{ display: 'flex', flexWrap: 'wrap', gap: '3rem', alignItems: 'center', marginBottom: '3rem', flexDirection: isLeft ? 'row' : 'row-reverse', background: '#ffffff', padding: '2.5rem', borderRadius: '24px', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
                 <div style={{ flex: `1 1 calc(${width}% - 1.5rem)`, minWidth: '300px', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}>
-                  <img src={sec.image} alt="Feature" style={{ width: '100%', height: 'auto', display: 'block', objectFit: 'cover' }} />
+                  <img src={getImgUrl(sec.image)} alt="Feature" style={{ width: '100%', height: 'auto', display: 'block', objectFit: 'cover' }} />
                 </div>
                 <div style={{ flex: `1 1 calc(${100 - width}% - 1.5rem)`, minWidth: '300px' }}>
                   <div className="rich-text-content" dangerouslySetInnerHTML={{ __html: sec.text }} style={{ fontSize: '1.1rem', lineHeight: '1.8', color: 'var(--text-secondary)' }} />

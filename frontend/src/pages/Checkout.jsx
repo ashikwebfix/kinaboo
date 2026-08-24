@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { getImgUrl } from '../utils/imgPath';
 import useCartStore from '../store/useCartStore';
 import { MapPin, User, ChevronLeft, Truck } from 'lucide-react';
 import { trackBeginCheckout, trackPurchase } from '../utils/tracking';
@@ -324,7 +325,7 @@ const Checkout = () => {
               <div key={item.cartId || item.id} style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                 <div style={{ position: 'relative' }}>
                   <div style={{ width: '64px', height: '64px', borderRadius: '8px', border: '1px solid rgba(0,0,0,0.1)', overflow: 'hidden', background: '#fff' }}>
-                    <img src={item.image || 'https://placehold.co/400x400?text=No+Image'} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <img src={getImgUrl(item.image)} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   </div>
                   <span style={{ position: 'absolute', top: '-8px', right: '-8px', background: 'rgba(113,113,122,0.9)', color: '#fff', fontSize: '0.75rem', width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', fontWeight: 500 }}>
                     {item.qty}

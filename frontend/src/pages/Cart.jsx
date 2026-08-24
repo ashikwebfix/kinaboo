@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { getImgUrl } from '../utils/imgPath';
 import { Trash2, ShoppingBag, Minus, Plus } from 'lucide-react';
 import useCartStore from '../store/useCartStore';
 
@@ -29,7 +30,7 @@ const Cart = () => {
             return (
               <div key={itemKey} className="glass" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1.5rem', borderRadius: '16px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-                  <img src={item.image || 'https://placehold.co/400x400?text=No+Image'} alt={item.name} style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '12px' }} />
+                  <img src={getImgUrl(item.image)} alt={item.name} style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '12px' }} />
                   <div>
                     <h3 style={{ fontSize: '1.25rem', fontWeight: '700', marginBottom: '0.25rem' }}>
                       <Link to={`/product/${item.slug || item.id}`} style={{ color: 'var(--text-primary)', textDecoration: 'none' }} className="hover-text-accent">

@@ -5,6 +5,7 @@ import useCartStore from '../store/useCartStore';
 import useFavoritesStore from '../store/useFavoritesStore';
 import toast from 'react-hot-toast';
 import ExpressCheckoutModal from './ExpressCheckoutModal';
+import { getImgUrl } from '../utils/imgPath';
 
 const ProductCard = ({ product, showRating }) => {
   const addToCart = useCartStore((state) => state.addToCart);
@@ -31,7 +32,7 @@ const ProductCard = ({ product, showRating }) => {
   const reviewsCount = 15 + (str.charCodeAt(str.length - 1) % 85);
 
   // Example placeholder for missing images to ensure design consistency
-  const imageUrl = product.image || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&q=80&w=800';
+  const imageUrl = getImgUrl(product.image || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&q=80&w=800');
 
   const discountPercent = product.sellPrice && product.price > product.sellPrice 
     ? Math.round(((product.price - product.sellPrice) / product.price) * 100) 

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { X, Trash2, Plus, Minus, ShoppingBag } from 'lucide-react';
+import { getImgUrl } from '../utils/imgPath';
 import useCartStore from '../store/useCartStore';
 
 const SideCart = () => {
@@ -74,7 +75,7 @@ const SideCart = () => {
 
                 return (
                   <div key={itemKey} style={{ display: 'flex', gap: '1rem', paddingBottom: '1rem', borderBottom: '1px solid #f1f5f9' }}>
-                    <img src={image} alt={item.name} style={{ width: '70px', height: '70px', objectFit: 'cover', borderRadius: '8px' }} />
+                    <img src={getImgUrl(image)} alt={item.name} style={{ width: '70px', height: '70px', objectFit: 'cover', borderRadius: '8px' }} />
                     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                       <div>
                         <h4 style={{ margin: '0 0 0.25rem 0', fontSize: '0.9rem', fontWeight: 600, lineHeight: 1.2 }}>{item.name}</h4>
