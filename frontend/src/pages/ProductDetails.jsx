@@ -38,7 +38,6 @@ const ProductDetails = () => {
   const [bundles, setBundles] = useState([]);
   const [comboBundle, setComboBundle] = useState(null);
   const [comboProducts, setComboProducts] = useState([]);
-  const [showSticky, setShowSticky] = useState(false);
 
   const userInfo = JSON.parse(localStorage.getItem('userInfo') || 'null');
 
@@ -134,18 +133,6 @@ const ProductDetails = () => {
     
     fetchProduct();
   }, [slug]);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 500) {
-        setShowSticky(true);
-      } else {
-        setShowSticky(false);
-      }
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   const getConfiguratorPrice = () => {
     if (!product?.configurator?.enabled) return 0;
@@ -843,61 +830,6 @@ const ProductDetails = () => {
         />
       )}
 
-      {/* Sticky Bottom Bar */}
-      {showSticky && (
-        <div style={{
-          position: 'fixed',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          background: '#fff',
-          padding: '1rem',
-          boxShadow: '0 -4px 20px rgba(0,0,0,0.1)',
-          zIndex: 50,
-          borderTop: '1px solid var(--border-color)',
-          display: 'flex',
-          justifyContent: 'center',
-          animation: 'slideUp 0.3s ease'
-        }}>
-          <div style={{ 
-            display: 'flex', 
-            gap: '1rem', 
-            width: '100%', 
-            maxWidth: '600px', /* Limit width so it doesn't look overly stretched on desktop */
-          }}>
-            <button 
-              className="btn" 
-              disabled={product.stock <= 0 && !product.allowSellWithoutStock}
-              onClick={handleAddToCart}
-              style={{ 
-                flex: 1, 
-                padding: '0.8rem', 
-                fontWeight: '600', 
-                fontSize: '1rem',
-                background: isAdded ? 'var(--accent-primary)' : 'var(--bg-secondary)', 
-                color: isAdded ? 'white' : 'var(--text-primary)', 
-                border: isAdded ? '2px solid var(--accent-primary)' : '2px solid var(--text-primary)',
-              }}
-            >
-              {(product.stock <= 0 && !product.allowSellWithoutStock) ? 'Out of stock' : (isAdded ? 'Added to cart ✓' : 'Add to cart')}
-            </button>
-            <button 
-              className="btn btn-primary" 
-              disabled={product.stock <= 0 && !product.allowSellWithoutStock}
-              onClick={handleBuyNow}
-              style={{ flex: 1, padding: '0.8rem', fontWeight: '600', fontSize: '1rem' }}
-            >
-              Buy Now
-            </button>
-          </div>
-          <style>{`
-            @keyframes slideUp {
-              from { transform: translateY(100%); }
-              to { transform: translateY(0); }
-            }
-          `}</style>
-        </div>
-      )}
     </div>
   );
 };
