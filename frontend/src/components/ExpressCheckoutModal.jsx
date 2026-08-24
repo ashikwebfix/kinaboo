@@ -121,6 +121,11 @@ const ExpressCheckoutModal = ({ product, qty = 1, selectedVariations = {}, onClo
       return;
     }
 
+    if (!bdPhoneRegex.test(qbPhone)) {
+      alert('অনুগ্রহ করে একটি সঠিক বাংলাদেশী মোবাইল নম্বর দিন। (Please enter a valid Bangladeshi mobile number)');
+      return;
+    }
+
     if (qbAddress.trim().length < 4) {
       alert('অনুগ্রহ করে সম্পূর্ণ ঠিকানা দিন (কমপক্ষে ৪ অক্ষর)। (Please provide a full delivery address)');
       return;
@@ -275,6 +280,8 @@ const ExpressCheckoutModal = ({ product, qty = 1, selectedVariations = {}, onClo
             <input 
               required 
               type="tel" 
+              pattern="^(?:\+88|88)?01[3-9]\d{8}$"
+              title="Please enter a valid 11-digit Bangladeshi mobile number starting with 01"
               className="input-field" 
               placeholder="e.g. 017XXXXXXXX" 
               value={qbPhone} 
