@@ -567,16 +567,22 @@ const AdminProductForm = () => {
                     </div>
                   </div>
                   
-                  <label style={{display:'block',marginBottom:'.25rem',fontWeight:500, fontSize:'0.9rem'}}>Section Image</label>
-                  {sec.image ? (
-                    <div style={{ position: 'relative', width: '150px', height: '150px', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--border-color)', marginBottom: '1rem' }}>
-                      <img src={sec.image} alt="Section" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <label style={{display:'block',marginBottom:'.25rem',fontWeight:500, fontSize:'0.9rem'}}>Section Media (Image/Video)</label>
+                  <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
+                    <input type="text" className="input-field" placeholder="Paste YouTube link or media URL" value={sec.image} onChange={e => updateImageTextSection(sec.id, 'image', e.target.value)} style={{ flex: 1 }} />
+                    <button type="button" className="btn btn-secondary" onClick={() => setPickerType(`section_${sec.id}`)}>Select from Media</button>
+                  </div>
+                  {sec.image && (
+                    <div style={{ position: 'relative', width: '250px', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--border-color)', marginBottom: '1rem' }}>
+                      {sec.image.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/) && sec.image.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/)[2].length === 11 ? (
+                        <iframe width="100%" height="150" src={`https://www.youtube.com/embed/${sec.image.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/)[2]}`} frameBorder="0" allowFullScreen></iframe>
+                      ) : /\.(mp4|webm|mkv|avi)(\?.*)?$/i.test(sec.image) ? (
+                        <video src={sec.image} controls style={{ width: '100%', maxHeight: '150px', objectFit: 'cover', display: 'block' }}></video>
+                      ) : (
+                        <img src={sec.image} alt="Section" style={{ width: '100%', height: '150px', objectFit: 'cover', display: 'block' }} />
+                      )}
                       <button type="button" onClick={() => updateImageTextSection(sec.id, 'image', '')} style={{ position:'absolute', top: 4, right: 4, background:'#fff', borderRadius:'50%', padding: 4, border:'none', cursor:'pointer' }}><XCircle size={16} color="#ef4444" /></button>
                     </div>
-                  ) : (
-                    <button type="button" className="btn btn-secondary" onClick={() => setPickerType(`section_${sec.id}`)} style={{ width: '150px', height: '150px', display: 'flex', flexDirection: 'column', gap: '0.5rem', border: '2px dashed var(--border-color)', marginBottom: '1rem', justifyContent: 'center' }}>
-                      <ImageIcon size={24} /> Add Image
-                    </button>
                   )}
 
                   <label style={{display:'block',marginBottom:'.25rem',fontWeight:500, fontSize:'0.9rem'}}>Section Content</label>

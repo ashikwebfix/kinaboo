@@ -280,6 +280,33 @@ const ProductDetails = () => {
     return tmp.textContent || tmp.innerText || "";
   };
 
+  const renderSectionMedia = (mediaUrl) => {
+    if (!mediaUrl) return null;
+    const isYouTube = mediaUrl.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/);
+    const ytId = isYouTube && isYouTube[2].length === 11 ? isYouTube[2] : null;
+    
+    if (ytId) {
+      return (
+        <div style={{ position: 'relative', width: '100%', paddingBottom: '56.25%', height: 0, borderRadius: '16px', overflow: 'hidden' }}>
+          <iframe 
+            style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
+            src={`https://www.youtube.com/embed/${ytId}`} 
+            frameBorder="0" 
+            allowFullScreen>
+          </iframe>
+        </div>
+      );
+    } else if (/\.(mp4|webm|mkv|avi)(\?.*)?$/i.test(mediaUrl)) {
+      return (
+        <video src={getImgUrl(mediaUrl)} controls style={{ width: '100%', height: 'auto', display: 'block', objectFit: 'cover', borderRadius: '16px' }}></video>
+      );
+    } else {
+      return (
+        <img src={getImgUrl(mediaUrl)} alt="Feature" style={{ width: '100%', height: 'auto', display: 'block', objectFit: 'cover', borderRadius: '16px' }} />
+      );
+    }
+  };
+
   const getOgImage = () => {
     const siteUrl = window.location.origin;
     if (!mainImage || mainImage.includes('placehold.co')) {
@@ -720,7 +747,7 @@ const ProductDetails = () => {
             return (
               <div key={sec.id} style={{ marginBottom: '3rem', background: '#ffffff', padding: '2.5rem', borderRadius: '24px', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
                 <div style={{ float: isLeft ? 'left' : 'right', width: `${width}%`, minWidth: '250px', margin: isLeft ? '0 2rem 1rem 0' : '0 0 1rem 2rem', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}>
-                  <img src={getImgUrl(sec.image)} alt="Feature" style={{ width: '100%', height: 'auto', display: 'block', objectFit: 'cover' }} />
+                  {renderSectionMedia(sec.image)}
                 </div>
                 <div className="rich-text-content" dangerouslySetInnerHTML={{ __html: sec.text }} style={{ fontSize: '1.1rem', lineHeight: '1.8', color: 'var(--text-secondary)' }} />
                 <div style={{ clear: 'both' }}></div>
@@ -730,7 +757,7 @@ const ProductDetails = () => {
             return (
               <div key={sec.id} style={{ display: 'flex', flexWrap: 'wrap', gap: '3rem', alignItems: 'center', marginBottom: '3rem', flexDirection: isLeft ? 'row' : 'row-reverse', background: '#ffffff', padding: '2.5rem', borderRadius: '24px', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
                 <div style={{ flex: `1 1 calc(${width}% - 1.5rem)`, minWidth: '300px', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}>
-                  <img src={getImgUrl(sec.image)} alt="Feature" style={{ width: '100%', height: 'auto', display: 'block', objectFit: 'cover' }} />
+                  {renderSectionMedia(sec.image)}
                 </div>
                 <div style={{ flex: `1 1 calc(${100 - width}% - 1.5rem)`, minWidth: '300px' }}>
                   <div className="rich-text-content" dangerouslySetInnerHTML={{ __html: sec.text }} style={{ fontSize: '1.1rem', lineHeight: '1.8', color: 'var(--text-secondary)' }} />
@@ -762,7 +789,7 @@ const ProductDetails = () => {
             return (
               <div key={sec.id} style={{ marginBottom: '3rem', background: '#ffffff', padding: '2.5rem', borderRadius: '24px', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
                 <div style={{ float: isLeft ? 'left' : 'right', width: `${width}%`, minWidth: '250px', margin: isLeft ? '0 2rem 1rem 0' : '0 0 1rem 2rem', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}>
-                  <img src={getImgUrl(sec.image)} alt="Feature" style={{ width: '100%', height: 'auto', display: 'block', objectFit: 'cover' }} />
+                  {renderSectionMedia(sec.image)}
                 </div>
                 <div className="rich-text-content" dangerouslySetInnerHTML={{ __html: sec.text }} style={{ fontSize: '1.1rem', lineHeight: '1.8', color: 'var(--text-secondary)' }} />
                 <div style={{ clear: 'both' }}></div>
@@ -772,7 +799,7 @@ const ProductDetails = () => {
             return (
               <div key={sec.id} style={{ display: 'flex', flexWrap: 'wrap', gap: '3rem', alignItems: 'center', marginBottom: '3rem', flexDirection: isLeft ? 'row' : 'row-reverse', background: '#ffffff', padding: '2.5rem', borderRadius: '24px', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
                 <div style={{ flex: `1 1 calc(${width}% - 1.5rem)`, minWidth: '300px', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}>
-                  <img src={getImgUrl(sec.image)} alt="Feature" style={{ width: '100%', height: 'auto', display: 'block', objectFit: 'cover' }} />
+                  {renderSectionMedia(sec.image)}
                 </div>
                 <div style={{ flex: `1 1 calc(${100 - width}% - 1.5rem)`, minWidth: '300px' }}>
                   <div className="rich-text-content" dangerouslySetInnerHTML={{ __html: sec.text }} style={{ fontSize: '1.1rem', lineHeight: '1.8', color: 'var(--text-secondary)' }} />
