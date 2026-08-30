@@ -8,7 +8,7 @@ dotenv.config({ path: path.join(__dirname, '.env') });
 
 // Mock browser globals for SSR using JSDOM
 const { JSDOM } = require('jsdom');
-const siteUrl = process.env.SITE_URL;
+const siteUrl = process.env.SITE_URL || 'http://localhost:6711';
 const dom = new JSDOM('<!DOCTYPE html><html><head></head><body><div id="root"></div></body></html>', { url: siteUrl });
 const win = dom.window;
 
