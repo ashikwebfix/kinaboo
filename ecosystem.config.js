@@ -8,9 +8,9 @@ module.exports = {
         NODE_ENV: 'production',
         PORT: 6710,
         DB_HOST: 'localhost',
-        DB_USER: 'kinabodb',
-        DB_PASS: 'k27Hj58XTa7mebJM',
-        DB_NAME: 'kinabodb',
+        DB_USER: 'root',
+        DB_PASS: 'ashik@khan',
+        DB_NAME: 'kinaboo',
         SITE_URL: 'https://kinaboo.com'
       },
     },
