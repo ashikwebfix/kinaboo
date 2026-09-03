@@ -563,18 +563,18 @@ const Navbar = () => {
                     {categories.slice(0, 10).map((cat) => (
                       <Link
                         key={cat.id || cat._id}
-                        to={`/shop?category=${encodeURIComponent(cat.name)}`}
+                        to={`/shop?category=${encodeURIComponent(cat.title || cat.name)}`}
                         className="category-menu-item"
                         onClick={() => setIsCategoryMenuOpen(false)}
                       >
                         {cat.image ? (
-                          <img src={cat.image} alt={cat.name} className="cat-menu-icon-img" />
+                          <img src={cat.image} alt={cat.title || cat.name} className="cat-menu-icon-img" />
                         ) : (
                           <div className="cat-menu-icon-fallback">
                             <Icons.Sparkles size={15} />
                           </div>
                         )}
-                        <span className="cat-menu-name">{cat.name}</span>
+                        <span className="cat-menu-name">{cat.title || cat.name}</span>
                         <Icons.ChevronRight size={14} className="cat-menu-arrow" />
                       </Link>
                     ))}
@@ -738,11 +738,11 @@ const Navbar = () => {
                 {categories.slice(0, 6).map((cat) => (
                   <Link
                     key={cat.id || cat._id}
-                    to={`/shop?category=${encodeURIComponent(cat.name)}`}
+                    to={`/shop?category=${encodeURIComponent(cat.title || cat.name)}`}
                     className="drawer-cat-pill"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    <span>{cat.name}</span>
+                    <span>{cat.title || cat.name}</span>
                   </Link>
                 ))}
               </div>
