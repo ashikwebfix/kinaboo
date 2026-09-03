@@ -10,15 +10,6 @@ const sequelize = new Sequelize(
     host: process.env.DB_HOST || '127.0.0.1',
     dialect: 'mysql',
     logging: false, // Set to console.log to see SQL queries
-    define: {
-      hooks: {
-        beforeDefine: (attributes, options) => {
-          if (!options.tableName && options.name && options.name.plural) {
-            options.tableName = options.name.plural.toLowerCase();
-          }
-        }
-      }
-    }
   }
 );
 

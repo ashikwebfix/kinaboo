@@ -57,6 +57,15 @@ const getSettingByKey = async (req, res) => {
           maintenanceMode: false,
           maintenanceMessage: 'Site is under maintenance. We will be right back.'
         });
+      } else if (req.params.key === 'pathao_settings') {
+        res.json({
+          clientId: '',
+          clientSecret: '',
+          username: '',
+          password: '',
+          storeId: '',
+          baseUrl: 'https://api-hermes.pathao.com'
+        });
       } else {
         res.status(404).json({ message: 'Setting not found' });
       }

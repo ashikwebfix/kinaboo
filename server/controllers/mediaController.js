@@ -3,7 +3,7 @@ const path = require('path');
 
 const uploadMedia = (req, res) => {
   if (req.file) {
-    const fileUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+    const fileUrl = `/uploads/${req.file.filename}`;
     res.status(201).json({ url: fileUrl, filename: req.file.filename });
   } else {
     res.status(400).json({ message: 'No file uploaded' });
@@ -27,13 +27,13 @@ const getMedia = (req, res) => {
           const stats = fs.statSync(path.join(directoryPath, file));
           return {
             filename: file,
-            url: `${req.protocol}://${req.get('host')}/uploads/${file}`,
+            url: `/uploads/${file}`,
             mtime: stats.mtimeMs
           };
         } catch (e) {
           return {
             filename: file,
-            url: `${req.protocol}://${req.get('host')}/uploads/${file}`,
+            url: `/uploads/${file}`,
             mtime: 0
           };
         }
