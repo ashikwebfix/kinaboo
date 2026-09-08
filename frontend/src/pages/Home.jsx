@@ -541,6 +541,26 @@ const Home = () => {
         </section>
       )}
 
+      {/* Trust Badges Section */}
+      <section className="trust-badges-section">
+        <div className="trust-badges-grid">
+          {(uiConfig?.trustBadges?.length > 0 ? uiConfig.trustBadges : defaultTrustBadges).map((badge, idx) => {
+            const IconComponent = IconMap[badge.icon] || Star;
+            return (
+              <div key={badge.id || idx} className="trust-card">
+                <div className="trust-icon-box">
+                  <IconComponent size={24} />
+                </div>
+                <div className="trust-content">
+                  <h4 className="trust-title">{badge.text}</h4>
+                  {badge.subtext && <p className="trust-subtitle">{badge.subtext}</p>}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
       {/* Explore Popular Categories Circle Showcase */}
       {uiConfig?.popularCategories?.enabled !== false && (
         <section className="popular-categories-section">
