@@ -143,6 +143,26 @@ const ProductDetails = () => {
   const [qbAddress, setQbAddress] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAdded, setIsAdded] = useState(false);
+  const [showStickyBottom, setShowStickyBottom] = useState(false);
+
+  useEffect(() => {
+    let lastScrollY = window.scrollY;
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      if (currentScrollY > 400) {
+        if (currentScrollY > lastScrollY) {
+          setShowStickyBottom(true);
+        } else if (currentScrollY < lastScrollY) {
+          setShowStickyBottom(false);
+        }
+      } else {
+        setShowStickyBottom(false);
+      }
+      lastScrollY = currentScrollY;
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
   const [deliveryMethods, setDeliveryMethods] = useState([]);
   const [selectedMethodId, setSelectedMethodId] = useState('');
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
@@ -554,7 +574,7 @@ const ProductDetails = () => {
       </nav>
 
       {/* Top Section: Split Layout */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '4rem', marginTop: '1rem', marginBottom: '4rem', alignItems: 'start' }}>
+      <div className="product-content-area">
         
         {/* Left: Images */}
         <div className="desktop-sticky">
@@ -935,9 +955,9 @@ const ProductDetails = () => {
 
           {/* Quantity Selector */}
           {!product.volumeBundles?.length && (
-            <div className="product-quantity-section" style={{ marginBottom: '0.65rem' }}>
-              <label className="product-quantity-label" style={{ display: 'block', fontWeight: '700', marginBottom: '0.35rem', fontSize: '0.9rem', color: 'var(--text-primary)' }}>
-                পরিমাণ (Quantity)
+            <div className="product-quantity-section" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '1rem', marginBottom: '0.65rem' }}>
+              <label className="product-quantity-label" style={{ fontWeight: '700', fontSize: '0.9rem', color: 'var(--text-primary)' }}>
+                Quantity
               </label>
 
               <div className="product-quantity-stepper">
@@ -979,7 +999,7 @@ const ProductDetails = () => {
               onClick={handleAddToCart}
             >
               <ShoppingBag size={19} />
-              <span>{(product.stock <= 0 && !product.allowSellWithoutStock) ? 'স্টক শেষ' : (isAdded ? 'যোগ করা হয়েছে ✓' : 'কার্টে যোগ করুন')}</span>
+              <span>{(product.stock <= 0 && !product.allowSellWithoutStock) ? 'Out of Stock' : (isAdded ? 'Added ✓' : 'Add to Cart')}</span>
             </button>
             
             <button 
@@ -988,9 +1008,10 @@ const ProductDetails = () => {
               onClick={handleBuyNow}
             >
               <Zap size={19} />
-              <span>এখুনি কিনুন</span>
+              <span>Buy Now</span>
             </button>
           </div>
+
 
           {/* Product Quick Info Bar (Delivery & Trust Signals - Single Line) */}
           <div className="product-quick-info-bar">
@@ -1007,7 +1028,7 @@ const ProductDetails = () => {
 
           {/* Low Stock Indicator */}
           {product.stock > 0 && product.stock <= 20 && (
-            <div style={{ marginBottom: '1.5rem', padding: '1rem', background: '#fff1f2', border: '1px solid #fecdd3', borderRadius: '12px' }}>
+            <div className="urgency-banner" style={{ padding: '1rem', background: '#fff1f2', border: '1px solid #fecdd3', borderRadius: '12px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.95rem', fontWeight: '600', color: '#be123c' }}>
                 <span>🔥 দ্রুত করুন! আর মাত্র {product.stock} টি স্টকে আছে।</span>
               </div>
@@ -1128,7 +1149,7 @@ const ProductDetails = () => {
           
           if (isWrap) {
             return (
-              <div key={sec.id} style={{ marginBottom: '3rem', background: '#ffffff', padding: '2.5rem', borderRadius: '24px', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
+              <div key={sec.id} className="product-feature-wrap">
                 <div style={{ float: isLeft ? 'left' : 'right', width: `${width}%`, minWidth: '250px', margin: isLeft ? '0 2rem 1rem 0' : '0 0 1rem 2rem', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}>
                   <img src={sec.image} alt="Feature" style={{ width: '100%', height: 'auto', display: 'block', objectFit: 'cover' }} />
                 </div>
@@ -1138,7 +1159,7 @@ const ProductDetails = () => {
             );
           } else {
             return (
-              <div key={sec.id} style={{ display: 'flex', flexWrap: 'wrap', gap: '3rem', alignItems: 'center', marginBottom: '3rem', flexDirection: isLeft ? 'row' : 'row-reverse', background: '#ffffff', padding: '2.5rem', borderRadius: '24px', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
+              <div key={sec.id} className="product-feature-flex" style={{ flexDirection: isLeft ? 'row' : 'row-reverse' }}>
                 <div style={{ flex: `1 1 calc(${width}% - 1.5rem)`, minWidth: '300px', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}>
                   <img src={sec.image} alt="Feature" style={{ width: '100%', height: 'auto', display: 'block', objectFit: 'cover' }} />
                 </div>
@@ -1170,7 +1191,7 @@ const ProductDetails = () => {
           
           if (isWrap) {
             return (
-              <div key={sec.id} style={{ marginBottom: '3rem', background: '#ffffff', padding: '2.5rem', borderRadius: '24px', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
+              <div key={sec.id} className="product-feature-wrap">
                 <div style={{ float: isLeft ? 'left' : 'right', width: `${width}%`, minWidth: '250px', margin: isLeft ? '0 2rem 1rem 0' : '0 0 1rem 2rem', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}>
                   <img src={sec.image} alt="Feature" style={{ width: '100%', height: 'auto', display: 'block', objectFit: 'cover' }} />
                 </div>
@@ -1180,7 +1201,7 @@ const ProductDetails = () => {
             );
           } else {
             return (
-              <div key={sec.id} style={{ display: 'flex', flexWrap: 'wrap', gap: '3rem', alignItems: 'center', marginBottom: '3rem', flexDirection: isLeft ? 'row' : 'row-reverse', background: '#ffffff', padding: '2.5rem', borderRadius: '24px', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
+              <div key={sec.id} className="product-feature-flex" style={{ flexDirection: isLeft ? 'row' : 'row-reverse' }}>
                 <div style={{ flex: `1 1 calc(${width}% - 1.5rem)`, minWidth: '300px', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)' }}>
                   <img src={sec.image} alt="Feature" style={{ width: '100%', height: 'auto', display: 'block', objectFit: 'cover' }} />
                 </div>
@@ -1321,6 +1342,27 @@ const ProductDetails = () => {
           )}
         </div>
       )}
+
+      {/* Mobile Sticky Bottom Actions */}
+      <div className={`sticky-bottom-actions ${showStickyBottom ? 'visible' : ''}`}>
+        <button 
+          className={`product-btn add-to-cart-btn ${isAdded ? 'added' : ''}`}
+          disabled={product?.stock <= 0 && !product?.allowSellWithoutStock}
+          onClick={handleAddToCart}
+        >
+          <ShoppingBag size={19} />
+          <span>{(product?.stock <= 0 && !product?.allowSellWithoutStock) ? 'Out of Stock' : (isAdded ? 'Added ✓' : 'Add to Cart')}</span>
+        </button>
+        
+        <button 
+          className="product-btn buy-now-btn" 
+          disabled={product?.stock <= 0 && !product?.allowSellWithoutStock}
+          onClick={handleBuyNow}
+        >
+          <Zap size={19} />
+          <span>Buy Now</span>
+        </button>
+      </div>
 
     </div>
   );
