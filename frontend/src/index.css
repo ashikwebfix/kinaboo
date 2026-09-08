@@ -8025,6 +8025,12 @@ a.drawer-contact-row {
   padding: 2.5rem;
 }
 
+.product-feature-flex ul,
+.product-feature-flex ol,
+.product-feature-flex li {
+  list-style: none;
+}
+
 @media (max-width: 768px) {
   .product-feature-wrap,
   .product-feature-flex {
