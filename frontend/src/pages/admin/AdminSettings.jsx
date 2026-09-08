@@ -953,6 +953,19 @@ const AdminSettings = () => {
                   <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 500, marginBottom: '0.25rem' }}>Section Title</label>
                   <input className="input-field" value={storefrontUI.featuredProducts?.title || ''} onChange={(e) => setStorefrontUI(prev => ({ ...prev, featuredProducts: { ...prev.featuredProducts, title: e.target.value } }))} placeholder="e.g. Recommended For You" style={{ background: '#fff', maxWidth: '400px' }} />
                 </div>
+                
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 500, marginBottom: '0.25rem' }}>Number of Products to Show</label>
+                  <input
+                    type="number"
+                    min="1"
+                    className="input-field"
+                    value={storefrontUI.featuredProducts?.limit || 12}
+                    onChange={(e) => setStorefrontUI(prev => ({ ...prev, featuredProducts: { ...prev.featuredProducts, limit: parseInt(e.target.value) || 12 } }))}
+                    style={{ background: '#fff', maxWidth: '150px' }}
+                  />
+                  <div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>Applies when showing latest products.</div>
+                </div>
 
                 {/* Slider Mode Toggle (Left & Right Slides) */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.85rem 1rem', background: '#fff', borderRadius: '8px', border: '1px solid #e5e7eb', flexWrap: 'wrap', gap: '0.75rem' }}>

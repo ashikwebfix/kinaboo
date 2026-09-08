@@ -970,10 +970,19 @@ const Home = () => {
           </div>
         ) : (
           (() => {
-            const featList = (products.length > 0
-              ? (uiConfig?.featuredProducts?.productIds?.length > 0 ? products.filter(p => uiConfig.featuredProducts.productIds.includes(p.id)) : products)
-              : defaultProducts
-            );
+            let featList = [];
+            if (products.length > 0) {
+              if (uiConfig?.featuredProducts?.productIds?.length > 0) {
+                featList = products.filter(p => uiConfig.featuredProducts.productIds.includes(p.id));
+              } else {
+                featList = [...products].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+              }
+            } else {
+              featList = defaultProducts;
+            }
+
+            const limit = uiConfig?.featuredProducts?.limit || 12;
+            featList = featList.slice(0, limit);
 
             const isSliderOn = uiConfig?.featuredProducts?.sliderEnabled !== false;
 
@@ -983,7 +992,7 @@ const Home = () => {
 
             return (
               <div className="featured-products-grid">
-                {featList.slice(0, 8).map((product) => (
+                {featList.map((product) => (
                   <ProductCard key={product.id} product={product} showRating={true} />
                 ))}
               </div>
