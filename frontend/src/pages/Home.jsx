@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { ShieldCheck, Truck, RotateCcw, ChevronLeft, ChevronRight, Smartphone, Shirt, Home as HomeIcon, Sparkles, Trophy, Gem, Star, Zap, Heart, ShoppingBag, PackageSearch, ArrowUpRight, Clock } from 'lucide-react';
+import { ShieldCheck, Truck, RotateCcw, ChevronLeft, ChevronRight, ChevronDown, Smartphone, Shirt, Home as HomeIcon, Sparkles, Trophy, Gem, Star, Zap, Heart, ShoppingBag, PackageSearch, ArrowUpRight, Clock } from 'lucide-react';
 import ProductCard from '../components/ProductCard';
 import { Helmet } from 'react-helmet-async';
 
@@ -143,6 +143,69 @@ function useScrollReveal(threshold = 0.1) {
 
   return [ref, inView];
 }
+
+
+const generateInitialLayout = (data) => {
+  if (data?.layout) return data.layout;
+  const layout = [];
+  if (data) {
+    layout.push({ id: 'hero-1', type: 'hero', active: true, data: { heroType: data.heroType || 'multi', singleHeroImage: data.singleHeroImage, singleHeroLink: data.singleHeroLink, heroBanners: data.heroBanners || [], promotionalBanners: data.promotionalBanners || [] } });
+    layout.push({ id: 'trust-1', type: 'trust_badges', active: true, data: { trustBadges: data.trustBadges || [] } });
+    if (data.popularCategories) layout.push({ id: 'popular-1', type: 'popular_categories', active: data.popularCategories.enabled !== false, data: data.popularCategories });
+    if (data.superHourDeals) layout.push({ id: 'super-1', type: 'super_hour', active: true, data: data.superHourDeals });
+    if (data.editorialShowcase) layout.push({ id: 'editorial-1', type: 'editorial', active: data.editorialShowcase.enabled !== false, data: data.editorialShowcase });
+    if (data.dealsSection) layout.push({ id: 'deals-1', type: 'deals', active: data.dealsSection.enabled !== false, data: data.dealsSection });
+    if (data.featuredProducts) layout.push({ id: 'featured-1', type: 'featured', active: true, data: data.featuredProducts });
+    if (data.promoBentoShowcase) layout.push({ id: 'bento-1', type: 'promo_bento', active: data.promoBentoShowcase.enabled !== false, data: data.promoBentoShowcase });
+    if (data.trendingProducts) layout.push({ id: 'trending-1', type: 'trending', active: data.trendingProducts.enabled !== false, data: data.trendingProducts });
+    if (data.customSections && data.customSections.length > 0) {
+      data.customSections.forEach((sec, i) => layout.push({ id: `custom-${i}`, type: 'custom', active: true, data: sec }));
+    }
+  }
+  return layout;
+};
+
+const FaqSection = ({ data, id }) => {
+  const [openIndex, setOpenIndex] = useState(0);
+  
+  return (
+    <section key={id} className="faq-section-container">
+      <div className="faq-left-col">
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: '#eef2ff', padding: '0.5rem 1rem', borderRadius: '20px', color: 'var(--accent-primary)', fontWeight: 600, fontSize: '0.85rem', marginBottom: '1.5rem' }}>
+          <Sparkles size={16} /> FAQ
+        </div>
+        <h2 style={{ fontSize: '2.5rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '1rem', lineHeight: 1.1 }}>{data.title || 'Frequently Asked Questions'}</h2>
+        <p style={{ fontSize: '1.1rem', color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: '2rem' }}>
+          {data.subtitle || 'Find answers to common questions about our products and services.'}
+        </p>
+        <button className="btn btn-primary" onClick={() => window.location.href = '/contact'} style={{ padding: '0.8rem 2rem', borderRadius: '30px' }}>Contact Support</button>
+      </div>
+      
+      <div className="faq-right-col">
+        {(data.items || []).map((item, index) => {
+          const isOpen = openIndex === index;
+          return (
+            <div 
+              key={item.id || index} 
+              style={{ background: '#fff', borderRadius: '16px', border: isOpen ? '2px solid var(--accent-primary)' : '1px solid #e5e7eb', overflow: 'hidden', transition: 'all 0.3s ease', cursor: 'pointer', boxShadow: isOpen ? '0 10px 25px -5px rgba(79, 70, 229, 0.1)' : 'none' }}
+              onClick={() => setOpenIndex(isOpen ? -1 : index)}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.5rem', fontWeight: 600, color: isOpen ? 'var(--accent-primary)' : 'var(--text-primary)', fontSize: '1.1rem' }}>
+                <span>{item.question}</span>
+                <span style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.3s ease', display: 'flex' }}>
+                  <ChevronDown size={20} />
+                </span>
+              </div>
+              <div style={{ maxHeight: isOpen ? '500px' : '0', opacity: isOpen ? 1 : 0, transition: 'all 0.3s ease', padding: isOpen ? '0 1.5rem 1.5rem' : '0 1.5rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+                {item.answer}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+};
 
 const Home = () => {
   const [editorialRef, editorialInView] = useScrollReveal(0.08);
@@ -310,6 +373,7 @@ const Home = () => {
         const catData = catRes ? await catRes.json().catch(() => []) : [];
 
         setProducts(Array.isArray(prodData) ? prodData : []);
+        if (configData) configData.layout = generateInitialLayout(configData);
         setUiConfig(configData);
         setCategories(Array.isArray(catData) && catData.length > 0 ? catData : defaultPopularCategories);
       } catch (error) {
@@ -398,778 +462,344 @@ const Home = () => {
         <meta name="twitter:card" content="summary_large_image" />
       </Helmet>
 
-      {/* Hero Section */}
-      {uiConfig?.heroType === 'single' ? (
-        <div style={{ marginBottom: '3.5rem', borderRadius: '20px', overflow: 'hidden', position: 'relative', width: '100%', height: 'auto', boxShadow: '0 10px 25px -5px rgba(43,45,66,0.1)' }}>
-          {uiConfig?.singleHeroImage ? (
-            <a href={uiConfig?.singleHeroLink || '#'} style={{ display: 'block', width: '100%', height: 'auto' }}>
-              <img src={uiConfig.singleHeroImage} alt="Hero Banner" style={{ width: '100%', height: 'auto', display: 'block' }} />
-            </a>
-          ) : (
-            <div style={{ width: '100%', height: '480px', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span style={{ color: 'var(--text-secondary)' }}>No hero image configured</span>
-            </div>
-          )}
-        </div>
-      ) : (
-        <section className="modern-hero-section">
-          {/* Top Hero Grid: Left Carousel (2 cols) + Right Special Offer Card (1 col) */}
-          <div className="modern-hero-grid">
 
-            {/* Left: Main Hero Carousel Card */}
-            <div className="hero-carousel-card">
-              {(uiConfig?.heroBanners?.length > 0 ? uiConfig.heroBanners : slides).map((slide, idx) => (
-                <div
-                  key={slide.id || idx}
-                  className={`hero-slide-item ${currentSlide === idx ? 'active' : ''}`}
-                >
-                  <img src={slide.image} alt={slide.title} className="hero-slide-image" />
-
-                  {/* Glassmorphic Layered Text Overlay */}
-                  <div className="hero-slide-overlay">
-                    <div className="hero-badge-pill">
-                      <span className="hero-pulse-dot"></span>
-                      <span>{slide.subtitle || '✨ New Season Drops'}</span>
-                    </div>
-
-                    <h2 className="hero-slide-title">
-                      {slide.title}
-                    </h2>
-
-                    <p className="hero-slide-subtitle">
-                      Discover authentic premium collection with fast delivery & guaranteed quality.
-                    </p>
-
-                    <div className="hero-action-row">
-                      <button
-                        className="hero-cta-btn-primary"
-                        onClick={() => window.location.href = slide.link || '/shop'}
-                      >
-                        <span>এখুনি কিনুন</span>
-                        <ChevronRight size={18} />
-                      </button>
-                      <button
-                        className="hero-cta-btn-secondary"
-                        onClick={() => window.location.href = '/shop'}
-                      >
-                        <span>সব পণ্য দেখুন</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-
-              {/* Carousel Controls */}
-              <button
-                className="hero-nav-arrow prev"
-                onClick={() => setCurrentSlide((prev) => (prev === 0 ? (uiConfig?.heroBanners?.length || slides.length) - 1 : prev - 1))}
-                aria-label="Previous Slide"
-              >
-                <ChevronLeft size={22} />
-              </button>
-
-              <button
-                className="hero-nav-arrow next"
-                onClick={() => setCurrentSlide((prev) => (prev + 1) % (uiConfig?.heroBanners?.length || slides.length))}
-                aria-label="Next Slide"
-              >
-                <ChevronRight size={22} />
-              </button>
-
-              {/* Slide Indicator Pills */}
-              <div className="hero-dots-container">
-                {(uiConfig?.heroBanners?.length > 0 ? uiConfig.heroBanners : slides).map((_, dotIdx) => (
-                  <button
-                    key={dotIdx}
-                    className={`hero-dot-pill ${currentSlide === dotIdx ? 'active' : ''}`}
-                    onClick={() => setCurrentSlide(dotIdx)}
-                    aria-label={`Go to slide ${dotIdx + 1}`}
-                  />
-                ))}
-              </div>
-            </div>
-
-            {/* Right: Modern Special Offer Card with Live Countdown Widget */}
-            <div className="hero-special-offer-card">
-              <div className="hero-offer-glow-1"></div>
-              <div className="hero-offer-glow-2"></div>
-
-              {/* Card Top */}
-              <div className="hero-offer-top">
-                <div className="hero-offer-badge">
-                  <span>⚡ LIMITED TIME OFFER</span>
-                </div>
-              </div>
-
-              {/* Card Center */}
-              <div className="hero-offer-center">
-                <h3 className="hero-offer-title">স্পেশাল মেগা অফার</h3>
-                <p className="hero-offer-subtitle">নতুন সব ট্রেন্ডি পণ্যে ফ্ল্যাট ২০% থেকে ৫০% পর্যন্ত আকর্ষণীয় ছাড়!</p>
-
-                {/* Live Mini Countdown Widget */}
-                <div className="hero-offer-timer-box">
-                  <div className="offer-timer-item">
-                    <span className="offer-timer-digit">{String(timeLeft.hours).padStart(2, '0')}</span>
-                    <span className="offer-timer-unit">Hours</span>
-                  </div>
-                  <span className="offer-timer-divider">:</span>
-                  <div className="offer-timer-item">
-                    <span className="offer-timer-digit">{String(timeLeft.minutes).padStart(2, '0')}</span>
-                    <span className="offer-timer-unit">Mins</span>
-                  </div>
-                  <span className="offer-timer-divider">:</span>
-                  <div className="offer-timer-item">
-                    <span className="offer-timer-digit">{String(timeLeft.seconds).padStart(2, '0')}</span>
-                    <span className="offer-timer-unit">Secs</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Card Bottom Button */}
-              <div className="hero-offer-bottom">
-                <button
-                  className="hero-offer-cta-btn"
-                  onClick={() => window.location.href = '/shop?sort=discount'}
-                >
-                  <span>অফারটি গ্রহণ করুন</span>
-                  <ChevronRight size={18} />
-                </button>
-              </div>
-            </div>
-
-          </div>
-        </section>
-      )}
-
-      {/* Trust Badges Section */}
-      <section className="trust-badges-section">
-        <div className="trust-badges-grid">
-          {(uiConfig?.trustBadges?.length > 0 ? uiConfig.trustBadges : defaultTrustBadges).map((badge, idx) => {
-            const IconComponent = IconMap[badge.icon] || Star;
+      {uiConfig?.layout?.map((section) => {
+        if (section.active === false) return null;
+        const data = section.data || {};
+        
+        switch (section.type) {
+          case 'hero':
             return (
-              <div key={badge.id || idx} className="trust-card">
-                <div className="trust-icon-box">
-                  <IconComponent size={24} />
-                </div>
-                <div className="trust-content">
-                  <h4 className="trust-title">{badge.text}</h4>
-                  {badge.subtext && <p className="trust-subtitle">{badge.subtext}</p>}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* Explore Popular Categories Circle Showcase */}
-      {uiConfig?.popularCategories?.enabled !== false && (
-        <section className="popular-categories-section">
-          <div className="popular-categories-header">
-            <h2 className="popular-categories-title">
-              {uiConfig?.popularCategories?.title || 'Explore Popular Categories'}
-            </h2>
-            <a href={uiConfig?.popularCategories?.viewAllLink || '/shop'} className="popular-categories-view-all">
-              <span>{uiConfig?.popularCategories?.viewAllText || 'View All'}</span>
-              <ChevronRight size={16} />
-            </a>
-          </div>
-
-          <div className="popular-categories-slider-wrap">
-            <button
-              type="button"
-              className="popular-categories-nav-btn prev"
-              onClick={() => scrollCategories('left')}
-              aria-label="Previous categories"
-            >
-              <ChevronLeft size={18} />
-            </button>
-
-            <div ref={categoryScrollRef} className="popular-categories-scroll">
-              {(() => {
-                // 1. Custom category items configured by admin
-                if (uiConfig?.popularCategories?.items && uiConfig.popularCategories.items.length > 0) {
-                  return uiConfig.popularCategories.items.map((cat, idx) => {
-                    const catName = cat.name || 'Category';
-                    const catImg = cat.image || defaultPopularCategories[idx % defaultPopularCategories.length]?.image;
-                    const catLink = cat.link || `/shop?category=${encodeURIComponent(catName)}`;
-
-                    return (
-                      <a
-                        key={cat.id || idx}
-                        href={catLink}
-                        className="popular-category-item"
-                      >
-                        <div className="popular-category-circle">
-                          <img
-                            src={catImg}
-                            alt={catName}
-                            className="popular-category-img"
-                            onError={(e) => {
-                              e.target.onerror = null;
-                              e.target.src = 'https://placehold.co/150x150?text=Category';
-                            }}
-                          />
-                        </div>
-                        <span className="popular-category-name" title={catName}>
-                          {catName}
-                        </span>
+              <div key={section.id}>
+                {data.heroType === 'single' ? (
+                  <div style={{ marginBottom: '3.5rem', borderRadius: '20px', overflow: 'hidden', position: 'relative', width: '100%', height: 'auto', boxShadow: '0 10px 25px -5px rgba(43,45,66,0.1)' }}>
+                    {data.singleHeroImage ? (
+                      <a href={data.singleHeroLink || '#'} style={{ display: 'block', width: '100%', height: 'auto' }}>
+                        <img src={data.singleHeroImage} alt="Hero Banner" style={{ width: '100%', height: 'auto', display: 'block' }} />
                       </a>
-                    );
-                  });
-                }
-
-                // 2. Filtered or sorted from database categories
-                const baseCats = categories.length > 0 ? categories : defaultPopularCategories;
-                const filteredCats = (uiConfig?.popularCategories?.selectedCategoryNames && uiConfig.popularCategories.selectedCategoryNames.length > 0)
-                  ? baseCats.filter(c => uiConfig.popularCategories.selectedCategoryNames.includes(c.name || c.title))
-                  : baseCats;
-
-                return filteredCats.map((cat, idx) => {
-                  const catName = cat.name || cat.title || 'Category';
-                  const catImg = cat.image || defaultPopularCategories[idx % defaultPopularCategories.length]?.image;
-
-                  return (
-                    <a
-                      key={cat.id || idx}
-                      href={`/shop?category=${encodeURIComponent(catName)}`}
-                      className="popular-category-item"
-                    >
-                      <div className="popular-category-circle">
-                        <img
-                          src={catImg}
-                          alt={catName}
-                          className="popular-category-img"
-                          onError={(e) => {
-                            e.target.onerror = null;
-                            e.target.src = 'https://placehold.co/150x150?text=Category';
-                          }}
-                        />
+                    ) : (
+                      <div style={{ width: '100%', height: '480px', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><span style={{ color: 'var(--text-secondary)' }}>No hero image configured</span></div>
+                    )}
+                  </div>
+                ) : (
+                  <section className="modern-hero-section">
+                    <div className="modern-hero-grid">
+                      <div className="hero-carousel-card">
+                        {(data.heroBanners?.length > 0 ? data.heroBanners : slides).map((slide, idx) => (
+                          <div key={slide.id || idx} className={`hero-slide-item ${currentSlide === idx ? 'active' : ''}`}>
+                            <img src={slide.image} alt={slide.title} className="hero-slide-image" />
+                            <div className="hero-slide-overlay">
+                              <div className="hero-badge-pill"><span className="hero-pulse-dot"></span><span>{slide.subtitle || '✨ New Season Drops'}</span></div>
+                              <h2 className="hero-slide-title">{slide.title}</h2>
+                              <p className="hero-slide-subtitle">Discover authentic premium collection with fast delivery & guaranteed quality.</p>
+                              <div className="hero-action-row">
+                                <button className="hero-cta-btn-primary" onClick={() => window.location.href = slide.link || '/shop'}><span>এখুনি কিনুন</span><ChevronRight size={18} /></button>
+                                <button className="hero-cta-btn-secondary" onClick={() => window.location.href = '/shop'}><span>সব পণ্য দেখুন</span></button>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                        <button className="hero-nav-arrow prev" onClick={() => setCurrentSlide((prev) => (prev === 0 ? (data.heroBanners?.length || slides.length) - 1 : prev - 1))}><ChevronLeft size={22} /></button>
+                        <button className="hero-nav-arrow next" onClick={() => setCurrentSlide((prev) => (prev + 1) % (data.heroBanners?.length || slides.length))}><ChevronRight size={22} /></button>
+                        <div className="hero-dots-container">
+                          {(data.heroBanners?.length > 0 ? data.heroBanners : slides).map((_, dotIdx) => (
+                            <button key={dotIdx} className={`hero-dot-pill ${currentSlide === dotIdx ? 'active' : ''}`} onClick={() => setCurrentSlide(dotIdx)} />
+                          ))}
+                        </div>
                       </div>
-                      <span className="popular-category-name" title={catName}>
-                        {catName}
-                      </span>
-                    </a>
-                  );
-                });
-              })()}
-            </div>
-
-            <button
-              type="button"
-              className="popular-categories-nav-btn next"
-              onClick={() => scrollCategories('right')}
-              aria-label="Next categories"
-            >
-              <ChevronRight size={18} />
-            </button>
-          </div>
-        </section>
-      )}
-
-      {/* Super Hour Deals - Ultra Luxury Modern Redesign */}
-      <section className="super-hour-container">
-        {/* Ambient Decorative Lighting */}
-        <div className="super-hour-glow-1"></div>
-        <div className="super-hour-glow-2"></div>
-        <div className="super-hour-glow-3"></div>
-
-        <div className="super-hour-header">
-          <div className="super-hour-header-left">
-            <div className="super-hour-tag">
-              <span className="super-hour-pulse-dot"></span>
-              <span>LIMITED TIME OFFER • ফ্ল্যাশ সেল</span>
-            </div>
-            <h2 className="super-hour-title">
-              <span className="super-hour-icon-wrap">⚡</span>
-              <span>সুপার আওয়ার ডিলস</span>
-            </h2>
-            <p className="super-hour-subtitle">
-              সময় শেষ হওয়ার আগেই আকর্ষণীয় ছাড়ে আপনার পছন্দের গ্যাজেট ও ফ্যাশন বুঝে নিন!
-            </p>
-          </div>
-
-          <div className="super-hour-header-right">
-            {/* Countdown Timer */}
-            <div className="super-hour-timer-card">
-              <div className="timer-label">
-                <Clock size={14} className="timer-icon" />
-                <span>অফার শেষ হতে বাকি</span>
-              </div>
-              <div className="timer-digits-row">
-                <div className="timer-digit-box">
-                  <span className="digit-val">{String(timeLeft.hours).padStart(2, '0')}</span>
-                  <span className="digit-label">ঘণ্টা</span>
-                </div>
-                <span className="timer-separator">:</span>
-                <div className="timer-digit-box">
-                  <span className="digit-val">{String(timeLeft.minutes).padStart(2, '0')}</span>
-                  <span className="digit-label">মিনিট</span>
-                </div>
-                <span className="timer-separator">:</span>
-                <div className="timer-digit-box pulse-sec">
-                  <span className="digit-val">{String(timeLeft.seconds).padStart(2, '0')}</span>
-                  <span className="digit-label">সেকেন্ড</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Navigation Controls */}
-            <div className="super-hour-nav-controls">
-              <button
-                type="button"
-                className="super-hour-nav-btn"
-                onClick={() => scrollCarousel('left')}
-                title="Previous"
-                aria-label="Previous deals"
-              >
-                <ChevronLeft size={22} />
-              </button>
-              <button
-                type="button"
-                className="super-hour-nav-btn"
-                onClick={() => scrollCarousel('right')}
-                title="Next"
-                aria-label="Next deals"
-              >
-                <ChevronRight size={22} />
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Carousel Slider */}
-        <div className="super-hour-slider-wrapper">
-          <div
-            ref={carouselRef}
-            className="super-hour-scroll"
-            onMouseDown={handleMouseDown}
-            onMouseLeave={handleMouseLeave}
-            onMouseUp={handleMouseUp}
-            onMouseMove={handleMouseMove}
-          >
-            {loading ? (
-              <div className="super-hour-loading">
-                <p>ডিল লোড হচ্ছে...</p>
-              </div>
-            ) : (
-              (products.length > 0
-                ? (uiConfig?.superHourDeals?.productIds?.length > 0 ? products.filter(p => uiConfig.superHourDeals.productIds.includes(p.id)) : products)
-                : defaultProducts
-              ).map((product) => (
-                <div key={product.id} className="super-hour-card-item">
-                  <ProductCard product={product} showRating={true} />
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* Editorial Fashion Showcase (Matching Design Reference) */}
-      {uiConfig?.editorialShowcase?.enabled !== false && (
-        <section ref={editorialRef} className={`editorial-showcase-section ${editorialInView ? 'in-view' : ''}`}>
-          <div className="editorial-header">
-            {/* Center Main Headline */}
-            <div className="editorial-title-wrap">
-              <h2 className="editorial-main-title">
-                {uiConfig?.editorialShowcase?.title || 'Elevate Your Style With Bold Fashion'}
-              </h2>
-            </div>
-          </div>
-
-          {/* 5-Column Dynamic Collage Grid */}
-          <div className="editorial-grid">
-
-            {/* Column 1: Orange Tall Top + Amber Bottom */}
-            <div className="editorial-col">
-              <a
-                href={uiConfig?.editorialShowcase?.card1Link || '/shop?category=Fashion'}
-                className="editorial-card shape-arch-top theme-orange"
-                style={{ height: '340px' }}
-              >
-                <img
-                  src={uiConfig?.editorialShowcase?.card1Img || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&q=80&w=800'}
-                  alt="Fashion Showcase 1"
-                  className="editorial-card-img"
-                />
-              </a>
-              <a
-                href={uiConfig?.editorialShowcase?.card2Link || '/shop?category=Fashion'}
-                className="editorial-card shape-rounded-lg theme-amber"
-                style={{ height: '140px' }}
-              >
-                <img
-                  src={uiConfig?.editorialShowcase?.card2Img || 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&q=80&w=800'}
-                  alt="Fashion Showcase 2"
-                  className="editorial-card-img"
-                />
-              </a>
-            </div>
-
-            {/* Column 2: Lime Green Emerald Coat Tall */}
-            <div className="editorial-col">
-              <a
-                href={uiConfig?.editorialShowcase?.card3Link || '/shop?category=Fashion'}
-                className="editorial-card shape-tab-left theme-lime"
-                style={{ height: '495px' }}
-              >
-                <img
-                  src={uiConfig?.editorialShowcase?.card3Img || 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=800'}
-                  alt="Fashion Showcase 3"
-                  className="editorial-card-img"
-                />
-              </a>
-            </div>
-
-            {/* Column 3 (Center): Center Card + Starburst + Explore Collections Button */}
-            <div className="editorial-col editorial-center-col">
-              <div className="starburst-icon-wrap">
-                <Sparkles size={28} />
-              </div>
-
-              <a
-                href={uiConfig?.editorialShowcase?.card4Link || '/shop'}
-                className="editorial-card shape-square-center theme-yellow"
-                style={{ width: '100%', height: '320px' }}
-              >
-                <img
-                  src={uiConfig?.editorialShowcase?.card4Img || 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=800'}
-                  alt="Fashion Showcase 4"
-                  className="editorial-card-img"
-                />
-              </a>
-
-              <a
-                href={uiConfig?.editorialShowcase?.centerBtnLink || '/shop'}
-                className="editorial-explore-btn"
-                style={{ textDecoration: 'none' }}
-              >
-                <span>{uiConfig?.editorialShowcase?.centerBtnText || 'Explore Collections'}</span>
-                <ArrowUpRight size={18} />
-              </a>
-            </div>
-
-            {/* Column 4: Sky Blue Tracksuit Tall */}
-            <div className="editorial-col">
-              <a
-                href={uiConfig?.editorialShowcase?.card5Link || '/shop?category=Fashion'}
-                className="editorial-card shape-tab-right theme-sky"
-                style={{ height: '495px' }}
-              >
-                <img
-                  src={uiConfig?.editorialShowcase?.card5Img || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=800'}
-                  alt="Fashion Showcase 5"
-                  className="editorial-card-img"
-                />
-              </a>
-            </div>
-
-            {/* Column 5: Top + Bottom */}
-            <div className="editorial-col">
-              <a
-                href={uiConfig?.editorialShowcase?.card6Link || '/shop?category=Fashion'}
-                className="editorial-card shape-tab-left theme-mint"
-                style={{ height: '340px' }}
-              >
-                <img
-                  src={uiConfig?.editorialShowcase?.card6Img || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=800'}
-                  alt="Fashion Showcase 6"
-                  className="editorial-card-img"
-                />
-              </a>
-              <a
-                href={uiConfig?.editorialShowcase?.card7Link || '/shop?category=Fashion'}
-                className="editorial-card shape-rounded-lg theme-forest"
-                style={{ height: '140px' }}
-              >
-                <img
-                  src={uiConfig?.editorialShowcase?.card7Img || 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=800'}
-                  alt="Fashion Showcase 7"
-                  className="editorial-card-img"
-                />
-              </a>
-            </div>
-
-          </div>
-        </section>
-      )}
-
-      {/* Category-Wise Deals: Deals You Can't Miss */}
-      {uiConfig?.dealsSection?.enabled !== false && (
-        <section className="deals-section">
-          <div className="deals-section-header">
-            <div className="deals-title-wrap">
-              <h2 className="deals-main-title">
-                <span>{uiConfig?.dealsSection?.title || '🔥 Deals You Can\'t Miss'}</span>
-              </h2>
-              <p className="deals-subtitle">
-                {uiConfig?.dealsSection?.subtitle || 'ক্যাটাগরি ভিত্তিক আকর্ষণীয় ছাড় ও সেরা হট ডিলসসমূহ'}
-              </p>
-            </div>
-
-            <button
-              className="btn btn-secondary"
-              style={{ padding: '0.5rem 1.5rem', fontWeight: '600' }}
-              onClick={() => window.location.href = `/shop?category=${encodeURIComponent(activeDealsCategory === 'All' ? '' : activeDealsCategory)}`}
-            >
-              {uiConfig?.dealsSection?.viewAllText || 'সব দেখুন'}
-            </button>
-          </div>
-
-          {/* Category Tabs Filter */}
-          <div className="deals-category-tabs">
-            {dealsCategories.map((catName) => (
-              <button
-                key={catName}
-                type="button"
-                className={`deals-tab-btn ${activeDealsCategory === catName ? 'active' : ''}`}
-                onClick={() => setActiveDealsCategory(catName)}
-              >
-                {catName === 'All' ? '⚡ All Deals' : catName}
-              </button>
-            ))}
-          </div>
-
-          {/* Product Grid */}
-          <div className="featured-products-grid">
-            {(() => {
-              const allAvailableProducts = products.length > 0 ? products : defaultProducts;
-              const assignedIds = uiConfig?.dealsSection?.productIds || [];
-              const sourcePool = assignedIds.length > 0
-                ? allAvailableProducts.filter(p => assignedIds.includes(p.id))
-                : allAvailableProducts;
-
-              const filteredList = sourcePool.filter(p => {
-                if (activeDealsCategory === 'All') return true;
-                return p.category?.toLowerCase() === activeDealsCategory.toLowerCase();
-              });
-
-              const limit = Number(uiConfig?.dealsSection?.limit) || 8;
-
-              return filteredList.slice(0, limit).map((product) => (
-                <ProductCard key={product.id} product={product} showRating={true} />
-              ));
-            })()}
-          </div>
-        </section>
-      )}
-
-      {/* Featured Products */}
-      <div id="featured" style={{ marginBottom: '4rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2rem' }}>
-          <div>
-            <h2 className="heading-lg" style={{ margin: 0 }}>{uiConfig?.featuredProducts?.title || 'ফিচারড প্রোডাক্ট'}</h2>
-            <div style={{ width: '80px', height: '4px', background: 'var(--accent-secondary)', marginTop: '0.75rem', borderRadius: '2px' }}></div>
-          </div>
-          <button className="btn btn-secondary" style={{ padding: '0.5rem 1.5rem' }} onClick={() => window.location.href = '/shop'}>সব দেখুন</button>
-        </div>
-
-        {loading ? (
-          <div style={{ textAlign: 'center', padding: '4rem' }}>
-            <div className="text-muted">Loading amazing products...</div>
-          </div>
-        ) : (
-          (() => {
-            let featList = [];
-            if (products.length > 0) {
-              if (uiConfig?.featuredProducts?.productIds?.length > 0) {
-                featList = products.filter(p => uiConfig.featuredProducts.productIds.includes(p.id));
-              } else {
-                featList = [...products].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
-              }
-            } else {
-              featList = defaultProducts;
-            }
-
-            const limit = uiConfig?.featuredProducts?.limit || 12;
-            featList = featList.slice(0, limit);
-
-            const isSliderOn = uiConfig?.featuredProducts?.sliderEnabled !== false;
-
-            if (isSliderOn) {
-              return <DualDirectionStepSlideshow products={featList} />;
-            }
-
-            return (
-              <div className="featured-products-grid">
-                {featList.map((product) => (
-                  <ProductCard key={product.id} product={product} showRating={true} />
-                ))}
+                      <div className="hero-special-offer-card">
+                        <div className="hero-offer-glow-1"></div><div className="hero-offer-glow-2"></div>
+                        <div className="hero-offer-top"><div className="hero-offer-badge"><span>⚡ LIMITED TIME OFFER</span></div></div>
+                        <div className="hero-offer-center">
+                          <h3 className="hero-offer-title">স্পেশাল মেগা অফার</h3>
+                          <p className="hero-offer-subtitle">নতুন সব ট্রেন্ডি পণ্যে ফ্ল্যাট ২০% থেকে ৫০% পর্যন্ত আকর্ষণীয় ছাড়!</p>
+                          <div className="hero-offer-timer-box">
+                            <div className="offer-timer-item"><span className="offer-timer-digit">{String(timeLeft.hours).padStart(2, '0')}</span><span className="offer-timer-unit">Hours</span></div><span className="offer-timer-divider">:</span>
+                            <div className="offer-timer-item"><span className="offer-timer-digit">{String(timeLeft.minutes).padStart(2, '0')}</span><span className="offer-timer-unit">Mins</span></div><span className="offer-timer-divider">:</span>
+                            <div className="offer-timer-item"><span className="offer-timer-digit">{String(timeLeft.seconds).padStart(2, '0')}</span><span className="offer-timer-unit">Secs</span></div>
+                          </div>
+                        </div>
+                        <div className="hero-offer-bottom"><button className="hero-offer-cta-btn" onClick={() => window.location.href = '/shop?sort=discount'}><span>অফারটি গ্রহণ করুন</span><ChevronRight size={18} /></button></div>
+                      </div>
+                    </div>
+                  </section>
+                )}
               </div>
             );
-          })()
-        )}
-      </div>
 
-      {/* 3-Column Promotional Bento Banner Showcase */}
-      {uiConfig?.promoBentoShowcase?.enabled !== false && (
-        <section ref={bentoRef} className={`bento-banners-section ${bentoInView ? 'in-view' : ''}`} style={{ marginBottom: '3.5rem' }}>
-          <div className="bento-banners-grid">
+          case 'trust_badges':
+            return (
+              <section key={section.id} className="trust-badges-section">
+                <div className="trust-badges-grid">
+                  {(data.trustBadges?.length > 0 ? data.trustBadges : defaultTrustBadges).map((badge, idx) => {
+                    const IconComponent = IconMap[badge.icon] || Star;
+                    return (
+                      <div key={badge.id || idx} className="trust-card">
+                        <div className="trust-icon-box"><IconComponent size={24} /></div>
+                        <div className="trust-content"><h4 className="trust-title">{badge.text}</h4>{badge.subtext && <p className="trust-subtitle">{badge.subtext}</p>}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </section>
+            );
 
-            {/* Left Column: Large Square Banner (Headphones & Keyboard) */}
-            <div className="bento-col-left">
-              <a
-                href={uiConfig?.promoBentoShowcase?.card1Link || '/shop?category=Electronics'}
-                className="bento-banner-card card-large"
-              >
-                <img
-                  src={uiConfig?.promoBentoShowcase?.card1Img || 'https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&q=80&w=800'}
-                  alt="Headphones & Electronics"
-                  className="bento-banner-img"
-                  onError={(e) => {
-                    e.target.onerror = null;
-                    e.target.src = 'https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&q=80&w=800';
-                  }}
-                />
-              </a>
-            </div>
+          case 'popular_categories':
+            return (
+              <section key={section.id} className="popular-categories-section">
+                <div className="popular-categories-header">
+                  <h2 className="popular-categories-title">{data.title || 'Explore Popular Categories'}</h2>
+                  <a href={data.viewAllLink || '/shop'} className="popular-categories-view-all"><span>{data.viewAllText || 'View All'}</span><ChevronRight size={16} /></a>
+                </div>
+                <div className="popular-categories-slider-wrap">
+                  <button type="button" className="popular-categories-nav-btn prev" onClick={() => scrollCategories('left')}><ChevronLeft size={18} /></button>
+                  <div ref={categoryScrollRef} className="popular-categories-scroll">
+                    {(() => {
+                      if (data.items && data.items.length > 0) {
+                        return data.items.map((cat, idx) => {
+                          const catName = cat.name || 'Category';
+                          const catImg = cat.image || defaultPopularCategories[idx % defaultPopularCategories.length]?.image;
+                          const catLink = cat.link || `/shop?category=${encodeURIComponent(catName)}`;
+                          return (
+                            <a key={cat.id || idx} href={catLink} className="popular-category-item">
+                              <div className="popular-category-circle"><img src={catImg} alt={catName} className="popular-category-img" onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/150x150?text=Category'; }} /></div>
+                              <span className="popular-category-name" title={catName}>{catName}</span>
+                            </a>
+                          );
+                        });
+                      }
+                      const baseCats = categories.length > 0 ? categories : defaultPopularCategories;
+                      const filteredCats = (data.selectedCategoryNames && data.selectedCategoryNames.length > 0) ? baseCats.filter(c => data.selectedCategoryNames.includes(c.name || c.title)) : baseCats;
+                      return filteredCats.map((cat, idx) => {
+                        const catName = cat.name || cat.title || 'Category';
+                        const catImg = cat.image || defaultPopularCategories[idx % defaultPopularCategories.length]?.image;
+                        return (
+                          <a key={cat.id || idx} href={`/shop?category=${encodeURIComponent(catName)}`} className="popular-category-item">
+                            <div className="popular-category-circle"><img src={catImg} alt={catName} className="popular-category-img" onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/150x150?text=Category'; }} /></div>
+                            <span className="popular-category-name" title={catName}>{catName}</span>
+                          </a>
+                        );
+                      });
+                    })()}
+                  </div>
+                  <button type="button" className="popular-categories-nav-btn next" onClick={() => scrollCategories('right')}><ChevronRight size={18} /></button>
+                </div>
+              </section>
+            );
 
-            {/* Middle Column: 2 Stacked Horizontal Banners */}
-            <div className="bento-col-middle">
-              <a
-                href={uiConfig?.promoBentoShowcase?.card2Link || '/shop?category=Appliances'}
-                className="bento-banner-card card-horizontal"
-              >
-                <img
-                  src={uiConfig?.promoBentoShowcase?.card2Img || 'https://images.unsplash.com/photo-1626806787461-102c1bfaaea1?auto=format&fit=crop&q=80&w=800'}
-                  alt="Home & Appliances"
-                  className="bento-banner-img"
-                  onError={(e) => {
-                    e.target.onerror = null;
-                    e.target.src = 'https://images.unsplash.com/photo-1626806787461-102c1bfaaea1?auto=format&fit=crop&q=80&w=800';
-                  }}
-                />
-              </a>
+          case 'super_hour':
+            return (
+              <section key={section.id} className="super-hour-container">
+                <div className="super-hour-glow-1"></div><div className="super-hour-glow-2"></div><div className="super-hour-glow-3"></div>
+                <div className="super-hour-header">
+                  <div className="super-hour-header-left">
+                    <div className="super-hour-tag"><span className="super-hour-pulse-dot"></span><span>LIMITED TIME OFFER • ফ্ল্যাশ সেল</span></div>
+                    <h2 className="super-hour-title"><span className="super-hour-icon-wrap">⚡</span><span>সুপার আওয়ার ডিলস</span></h2>
+                    <p className="super-hour-subtitle">সময় শেষ হওয়ার আগেই আকর্ষণীয় ছাড়ে আপনার পছন্দের গ্যাজেট ও ফ্যাশন বুঝে নিন!</p>
+                  </div>
+                  <div className="super-hour-header-right">
+                    <div className="super-hour-timer-card">
+                      <div className="timer-label"><Clock size={14} className="timer-icon" /><span>অফার শেষ হতে বাকি</span></div>
+                      <div className="timer-digits-row">
+                        <div className="timer-digit-box"><span className="digit-val">{String(timeLeft.hours).padStart(2, '0')}</span><span className="digit-label">ঘণ্টা</span></div><span className="timer-separator">:</span>
+                        <div className="timer-digit-box"><span className="digit-val">{String(timeLeft.minutes).padStart(2, '0')}</span><span className="digit-label">মিনিট</span></div><span className="timer-separator">:</span>
+                        <div className="timer-digit-box pulse-sec"><span className="digit-val">{String(timeLeft.seconds).padStart(2, '0')}</span><span className="digit-label">সেকেন্ড</span></div>
+                      </div>
+                    </div>
+                    <div className="super-hour-nav-controls">
+                      <button type="button" className="super-hour-nav-btn" onClick={() => scrollCarousel('left')}><ChevronLeft size={22} /></button>
+                      <button type="button" className="super-hour-nav-btn" onClick={() => scrollCarousel('right')}><ChevronRight size={22} /></button>
+                    </div>
+                  </div>
+                </div>
+                <div className="super-hour-slider-wrapper">
+                  <div ref={carouselRef} className="super-hour-scroll" onMouseDown={handleMouseDown} onMouseLeave={handleMouseLeave} onMouseUp={handleMouseUp} onMouseMove={handleMouseMove}>
+                    {loading ? <div className="super-hour-loading"><p>ডিল লোড হচ্ছে...</p></div> : (products.length > 0 ? (data.productIds?.length > 0 ? products.filter(p => data.productIds.includes(p.id)) : products) : defaultProducts).map((product) => (
+                      <div key={product.id} className="super-hour-card-item"><ProductCard product={product} showRating={true} /></div>
+                    ))}
+                  </div>
+                </div>
+              </section>
+            );
 
-              <a
-                href={uiConfig?.promoBentoShowcase?.card3Link || '/shop?category=Groceries'}
-                className="bento-banner-card card-horizontal"
-              >
-                <img
-                  src={uiConfig?.promoBentoShowcase?.card3Img || 'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&q=80&w=800'}
-                  alt="Daily Essentials"
-                  className="bento-banner-img"
-                  onError={(e) => {
-                    e.target.onerror = null;
-                    e.target.src = 'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&q=80&w=800';
-                  }}
-                />
-              </a>
-            </div>
+          case 'editorial':
+            return (
+              <section key={section.id} ref={editorialRef} className={`editorial-showcase-section ${editorialInView ? 'in-view' : ''}`}>
+                <div className="editorial-header"><div className="editorial-title-wrap"><h2 className="editorial-main-title">{data.title || 'Elevate Your Style With Bold Fashion'}</h2></div></div>
+                <div className="editorial-grid">
+                  <div className="editorial-col">
+                    <a href={data.card1Link || '/shop?category=Fashion'} className="editorial-card shape-arch-top theme-orange" style={{ height: '340px' }}><img src={data.card1Img || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&q=80&w=800'} alt="Fashion 1" className="editorial-card-img" /></a>
+                    <a href={data.card2Link || '/shop?category=Fashion'} className="editorial-card shape-rounded-lg theme-amber" style={{ height: '140px' }}><img src={data.card2Img || 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&q=80&w=800'} alt="Fashion 2" className="editorial-card-img" /></a>
+                  </div>
+                  <div className="editorial-col">
+                    <a href={data.card3Link || '/shop?category=Fashion'} className="editorial-card shape-tab-left theme-lime" style={{ height: '495px' }}><img src={data.card3Img || 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=800'} alt="Fashion 3" className="editorial-card-img" /></a>
+                  </div>
+                  <div className="editorial-col editorial-center-col">
+                    <div className="starburst-icon-wrap"><Sparkles size={28} /></div>
+                    <a href={data.card4Link || '/shop'} className="editorial-card shape-square-center theme-yellow" style={{ width: '100%', height: '320px' }}><img src={data.card4Img || 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=800'} alt="Fashion 4" className="editorial-card-img" /></a>
+                    <a href={data.centerBtnLink || '/shop'} className="editorial-explore-btn" style={{ textDecoration: 'none' }}><span>{data.centerBtnText || 'Explore Collections'}</span><ArrowUpRight size={18} /></a>
+                  </div>
+                  <div className="editorial-col">
+                    <a href={data.card5Link || '/shop?category=Fashion'} className="editorial-card shape-tab-right theme-sky" style={{ height: '495px' }}><img src={data.card5Img || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=800'} alt="Fashion 5" className="editorial-card-img" /></a>
+                  </div>
+                  <div className="editorial-col">
+                    <a href={data.card6Link || '/shop?category=Fashion'} className="editorial-card shape-tab-left theme-mint" style={{ height: '340px' }}><img src={data.card6Img || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=800'} alt="Fashion 6" className="editorial-card-img" /></a>
+                    <a href={data.card7Link || '/shop?category=Fashion'} className="editorial-card shape-rounded-lg theme-forest" style={{ height: '140px' }}><img src={data.card7Img || 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=800'} alt="Fashion 7" className="editorial-card-img" /></a>
+                  </div>
+                </div>
+              </section>
+            );
 
-            {/* Right Column: Tall Vertical Portrait Banner (Cosmetics & Skincare) */}
-            <div className="bento-col-right">
-              <a
-                href={uiConfig?.promoBentoShowcase?.card4Link || '/shop?category=Health+%26+Beauty'}
-                className="bento-banner-card card-tall"
-              >
-                <img
-                  src={uiConfig?.promoBentoShowcase?.card4Img || 'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&q=80&w=800'}
-                  alt="Cosmetics & Skincare"
-                  className="bento-banner-img"
-                  onError={(e) => {
-                    e.target.onerror = null;
-                    e.target.src = 'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&q=80&w=800';
-                  }}
-                />
-              </a>
-            </div>
-
-          </div>
-        </section>
-      )}
-
-      {/* Trending / New Arrival Products (After Bento Banners Grid) */}
-      {uiConfig?.trendingProducts?.enabled !== false && (
-        <div id="trending-products" style={{ marginBottom: '4rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2rem' }}>
-            <div>
-              <h2 className="heading-lg" style={{ margin: 0 }}>
-                {uiConfig?.trendingProducts?.title || 'নতুন কালেকশন'}
-              </h2>
-              <div style={{ width: '80px', height: '4px', background: 'var(--accent-secondary)', marginTop: '0.75rem', borderRadius: '2px' }}></div>
-            </div>
-            <button
-              className="btn btn-secondary"
-              style={{ padding: '0.5rem 1.5rem' }}
-              onClick={() => window.location.href = (uiConfig?.trendingProducts?.buttonLink || '/shop')}
-            >
-              {uiConfig?.trendingProducts?.buttonText || 'সব দেখুন'}
-            </button>
-          </div>
-
-          {loading ? (
-            <div style={{ textAlign: 'center', padding: '4rem' }}>
-              <div className="text-muted">Loading amazing products...</div>
-            </div>
-          ) : (
-            (() => {
-              const catFilter = uiConfig?.trendingProducts?.category;
-              let basePool = products.length > 0 ? products : defaultProducts;
-
-              if (catFilter) {
-                basePool = basePool.filter(p => p.category?.toLowerCase() === catFilter.toLowerCase());
-              }
-
-              const trendList = (basePool.length > 0
-                ? (uiConfig?.trendingProducts?.productIds?.length > 0
-                  ? basePool.filter(p => uiConfig.trendingProducts.productIds.includes(p.id))
-                  : (uiConfig?.featuredProducts?.productIds?.length > 0
-                    ? basePool.filter(p => !uiConfig.featuredProducts.productIds.includes(p.id))
-                    : basePool)
-                )
-                : defaultProducts
-              );
-
-              const isSliderOn = uiConfig?.trendingProducts?.sliderEnabled === true;
-
-              if (isSliderOn) {
-                return <DualDirectionStepSlideshow products={trendList} />;
-              }
-
-              const displayLimit = Number(uiConfig?.trendingProducts?.limit) || 8;
-
-              return (
-                <div className="featured-products-grid">
-                  {trendList.slice(0, displayLimit).map((product) => (
-                    <ProductCard key={`trend-${product.id}`} product={product} showRating={true} />
+          case 'deals':
+            return (
+              <section key={section.id} className="deals-section">
+                <div className="deals-section-header">
+                  <div className="deals-title-wrap">
+                    <h2 className="deals-main-title"><span>{data.title || '🔥 Deals You Can\'t Miss'}</span></h2>
+                    <p className="deals-subtitle">{data.subtitle || 'ক্যাটাগরি ভিত্তিক আকর্ষণীয় ছাড় ও সেরা হট ডিলসসমূহ'}</p>
+                  </div>
+                  <button className="btn btn-secondary" style={{ padding: '0.5rem 1.5rem', fontWeight: '600' }} onClick={() => window.location.href = `/shop?category=${encodeURIComponent(activeDealsCategory === 'All' ? '' : activeDealsCategory)}`}>{data.viewAllText || 'সব দেখুন'}</button>
+                </div>
+                <div className="deals-category-tabs">
+                  {dealsCategories.map((catName) => (
+                    <button key={catName} type="button" className={`deals-tab-btn ${activeDealsCategory === catName ? 'active' : ''}`} onClick={() => setActiveDealsCategory(catName)}>{catName === 'All' ? '⚡ All Deals' : catName}</button>
                   ))}
                 </div>
+                <div className="featured-products-grid">
+                  {(() => {
+                    const allAvailableProducts = products.length > 0 ? products : defaultProducts;
+                    const assignedIds = data.productIds || [];
+                    const sourcePool = assignedIds.length > 0 ? allAvailableProducts.filter(p => assignedIds.includes(p.id)) : allAvailableProducts;
+                    const filteredList = sourcePool.filter(p => { if (activeDealsCategory === 'All') return true; return p.category?.toLowerCase() === activeDealsCategory.toLowerCase(); });
+                    return filteredList.slice(0, Number(data.limit) || 8).map((product) => <ProductCard key={product.id} product={product} showRating={true} />);
+                  })()}
+                </div>
+              </section>
+            );
+
+          case 'featured':
+            return (
+              <div key={section.id} id="featured" style={{ marginBottom: '4rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2rem' }}>
+                  <div><h2 className="heading-lg" style={{ margin: 0 }}>{data.title || 'ফিচারড প্রোডাক্ট'}</h2><div style={{ width: '80px', height: '4px', background: 'var(--accent-secondary)', marginTop: '0.75rem', borderRadius: '2px' }}></div></div>
+                  <button className="btn btn-secondary" style={{ padding: '0.5rem 1.5rem' }} onClick={() => window.location.href = '/shop'}>সব দেখুন</button>
+                </div>
+                {loading ? <div style={{ textAlign: 'center', padding: '4rem' }}><div className="text-muted">Loading amazing products...</div></div> : (() => {
+                  let featList = [];
+                  if (products.length > 0) {
+                    if (data.productIds?.length > 0) featList = products.filter(p => data.productIds.includes(p.id));
+                    else featList = [...products].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+                  } else { featList = defaultProducts; }
+                  featList = featList.slice(0, data.limit || 12);
+                  if (data.sliderEnabled !== false) return <DualDirectionStepSlideshow products={featList} />;
+                  return <div className="featured-products-grid">{featList.map((product) => <ProductCard key={product.id} product={product} showRating={true} />)}</div>;
+                })()}
+              </div>
+            );
+
+          case 'promo_bento':
+            return (
+              <section key={section.id} ref={bentoRef} className={`bento-banners-section ${bentoInView ? 'in-view' : ''}`} style={{ marginBottom: '3.5rem' }}>
+                <div className="bento-banners-grid">
+                  <div className="bento-col-left"><a href={data.card1Link || '/shop'} className="bento-banner-card card-large"><img src={data.card1Img || 'https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&q=80&w=800'} alt="Bento 1" className="bento-banner-img" onError={(e) => e.target.src = 'https://placehold.co/400x400'}/></a></div>
+                  <div className="bento-col-middle">
+                    <a href={data.card2Link || '/shop'} className="bento-banner-card card-horizontal"><img src={data.card2Img || 'https://images.unsplash.com/photo-1626806787461-102c1bfaaea1?auto=format&fit=crop&q=80&w=800'} alt="Bento 2" className="bento-banner-img" onError={(e) => e.target.src = 'https://placehold.co/400x200'}/></a>
+                    <a href={data.card3Link || '/shop'} className="bento-banner-card card-horizontal"><img src={data.card3Img || 'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&q=80&w=800'} alt="Bento 3" className="bento-banner-img" onError={(e) => e.target.src = 'https://placehold.co/400x200'}/></a>
+                  </div>
+                  <div className="bento-col-right"><a href={data.card4Link || '/shop'} className="bento-banner-card card-tall"><img src={data.card4Img || 'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&q=80&w=800'} alt="Bento 4" className="bento-banner-img" onError={(e) => e.target.src = 'https://placehold.co/200x400'}/></a></div>
+                </div>
+              </section>
+            );
+
+          case 'trending':
+            return (
+              <div key={section.id} id="trending-products" style={{ marginBottom: '4rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2rem' }}>
+                  <div><h2 className="heading-lg" style={{ margin: 0 }}>{data.title || 'নতুন কালেকশন'}</h2><div style={{ width: '80px', height: '4px', background: 'var(--accent-secondary)', marginTop: '0.75rem', borderRadius: '2px' }}></div></div>
+                  <button className="btn btn-secondary" style={{ padding: '0.5rem 1.5rem' }} onClick={() => window.location.href = (data.buttonLink || '/shop')}>{data.buttonText || 'সব দেখুন'}</button>
+                </div>
+                {loading ? <div style={{ textAlign: 'center', padding: '4rem' }}><div className="text-muted">Loading amazing products...</div></div> : (() => {
+                  let basePool = products.length > 0 ? products : defaultProducts;
+                  if (data.category) basePool = basePool.filter(p => p.category?.toLowerCase() === data.category.toLowerCase());
+                  const trendList = (basePool.length > 0 ? (data.productIds?.length > 0 ? basePool.filter(p => data.productIds.includes(p.id)) : basePool) : defaultProducts);
+                  if (data.sliderEnabled) return <DualDirectionStepSlideshow products={trendList} />;
+                  return <div className="featured-products-grid">{trendList.slice(0, Number(data.limit) || 8).map((product) => <ProductCard key={`trend-${product.id}`} product={product} showRating={true} />)}</div>;
+                })()}
+              </div>
+            );
+
+          case 'faq':
+            return <FaqSection key={section.id} data={data} id={section.id} />;
+
+          case 'custom':
+            const sectionProducts = (products.length > 0 ? products : defaultProducts).filter(p => !data.category || p.category?.toLowerCase() === data.category?.toLowerCase()).slice(0, data.limit || 12);
+            return (
+              <div key={section.id} style={{ marginBottom: '4rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2rem' }}>
+                  <div><h2 className="heading-lg" style={{ margin: 0 }}>{data.title}</h2><div style={{ width: '80px', height: '4px', background: 'var(--accent-secondary)', marginTop: '0.75rem', borderRadius: '2px' }}></div></div>
+                  <button className="btn btn-secondary" style={{ padding: '0.5rem 1.5rem' }} onClick={() => window.location.href = `/shop?category=${encodeURIComponent(data.category || '')}`}>সব দেখুন</button>
+                </div>
+                {data.displayMode !== 'grid' && sectionProducts.length > 3 ? (
+                  <DualDirectionStepSlideshow products={sectionProducts} />
+                ) : (
+                  <div className="featured-products-grid">{sectionProducts.slice(0, data.limit || 8).map((product) => <ProductCard key={product.id} product={product} showRating={true} />)}</div>
+                )}
+              </div>
+            );
+
+          case 'product_grid':
+            return (() => {
+              let gridList = products.length > 0 ? [...products] : [...defaultProducts];
+              
+              if (data.productIds && data.productIds.length > 0) {
+                 gridList = gridList.filter(p => data.productIds.includes(p.id));
+              }
+
+              switch (data.queryType) {
+                case 'latest':
+                  gridList.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+                  break;
+                case 'oldest':
+                  gridList.sort((a, b) => new Date(a.createdAt || 0) - new Date(b.createdAt || 0));
+                  break;
+                case 'price_low_high':
+                  gridList.sort((a, b) => (a.salePrice || a.price || 0) - (b.salePrice || b.price || 0));
+                  break;
+                case 'price_high_low':
+                  gridList.sort((a, b) => (b.salePrice || b.price || 0) - (a.salePrice || a.price || 0));
+                  break;
+                case 'highest_rated':
+                  gridList.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+                  break;
+                default:
+                  break;
+              }
+
+              const displayList = gridList.slice(0, data.limit || 8);
+
+              return (
+                <div key={section.id} style={{ marginBottom: '4rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2rem' }}>
+                    <div>
+                      <h2 className="heading-lg" style={{ margin: 0 }}>{data.title || 'Products'}</h2>
+                      <div style={{ width: '80px', height: '4px', background: 'var(--accent-secondary)', marginTop: '0.75rem', borderRadius: '2px' }}></div>
+                    </div>
+                    <button className="btn btn-secondary" style={{ padding: '0.5rem 1.5rem' }} onClick={() => window.location.href = '/shop'}>সব দেখুন</button>
+                  </div>
+                  {data.sliderEnabled ? (
+                    <DualDirectionStepSlideshow products={displayList} />
+                  ) : (
+                    <div className="featured-products-grid">
+                      {displayList.map((product) => <ProductCard key={`pg-${product.id}`} product={product} showRating={true} />)}
+                    </div>
+                  )}
+                </div>
               );
-            })()
-          )}
-        </div>
-      )}
+            })();
 
-      {/* Dynamic Custom Sections */}
-      {uiConfig?.customSections?.map((section) => {
-        const sectionProducts = (products.length > 0 ? products : defaultProducts)
-          .filter(p => !section.category || p.category?.toLowerCase() === section.category?.toLowerCase())
-          .slice(0, section.limit || 12);
-
-        const isCustomSlider = section.displayMode !== 'grid';
-
-        return (
-          <div key={section.id} style={{ marginBottom: '4rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2rem' }}>
-              <div>
-                <h2 className="heading-lg" style={{ margin: 0 }}>{section.title}</h2>
-                <div style={{ width: '80px', height: '4px', background: 'var(--accent-secondary)', marginTop: '0.75rem', borderRadius: '2px' }}></div>
-              </div>
-              <button className="btn btn-secondary" style={{ padding: '0.5rem 1.5rem' }} onClick={() => window.location.href = `/shop?category=${encodeURIComponent(section.category || '')}`}>সব দেখুন</button>
-            </div>
-
-            {isCustomSlider && sectionProducts.length > 3 ? (
-              <DualDirectionStepSlideshow products={sectionProducts} />
-            ) : (
-              <div className="featured-products-grid">
-                {sectionProducts.slice(0, section.limit || 8).map((product) => (
-                  <ProductCard key={product.id} product={product} showRating={true} />
-                ))}
-              </div>
-            )}
-          </div>
-        );
+          default:
+            return null;
+        }
       })}
 
     </div>
