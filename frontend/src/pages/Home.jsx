@@ -119,11 +119,10 @@ const DualDirectionStepSlideshow = ({ products }) => {
 
 function useScrollReveal(threshold = 0.1) {
   const [inView, setInView] = useState(false);
-  const ref = useRef(null);
+  const [element, setElement] = useState(null);
 
   useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
+    if (!element) return;
 
     if (typeof window === 'undefined' || !('IntersectionObserver' in window)) {
       setInView(true);
@@ -133,17 +132,16 @@ function useScrollReveal(threshold = 0.1) {
     const observer = new IntersectionObserver(([entry]) => {
       if (entry.isIntersecting) {
         setInView(true);
-        observer.unobserve(el);
+        observer.unobserve(element);
       }
     }, { threshold, rootMargin: '0px 0px -40px 0px' });
 
-    observer.observe(el);
+    observer.observe(element);
     return () => observer.disconnect();
-  }, [threshold]);
+  }, [element, threshold]);
 
-  return [ref, inView];
+  return [setElement, inView];
 }
-
 
 const generateInitialLayout = (data) => {
   if (data?.layout) return data.layout;
