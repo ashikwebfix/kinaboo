@@ -184,9 +184,9 @@ const Navbar = () => {
                 <span>{generalSettings?.trackOrderLabel || 'Track Order'}</span>
               </Link>
               <span className="top-bar-separator"></span>
-              <a href={`tel:${(generalSettings?.phone || '+8801700000000').replace(/[\s-]+/g, '')}`} className="top-bar-link">
+              <a href={`tel:${(generalSettings?.phone || '01354557477').replace(/[\s-]+/g, '')}`} className="top-bar-link">
                 <Icons.PhoneCall size={13} />
-                <span>{generalSettings?.phone || '+880 1700-000000'}</span>
+                <span>{generalSettings?.phone || '01354-557477'}</span>
               </a>
               <span className="top-bar-separator"></span>
               <Link to="/profile" className="top-bar-link">
@@ -752,9 +752,9 @@ const Navbar = () => {
           {/* Support Info */}
           <div className="drawer-footer-support">
             <p className="drawer-section-title" style={{ margin: 0 }}>Need Help?</p>
-            <a href={`tel:${(generalSettings?.phone || '+8801700000000').replace(/[\s-]+/g, '')}`} className="drawer-contact-row">
+            <a href={`tel:${(generalSettings?.phone || '01354557477').replace(/[\s-]+/g, '')}`} className="drawer-contact-row">
               <Icons.PhoneCall size={16} />
-              <span>{generalSettings?.phone || '+880 1700-000000'}</span>
+              <span>{generalSettings?.phone || '01354-557477'}</span>
             </a>
             <div className="drawer-contact-row">
               <Icons.Truck size={16} />
