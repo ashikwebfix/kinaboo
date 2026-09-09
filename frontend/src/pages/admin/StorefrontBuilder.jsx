@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Plus, Trash2, GripVertical, ChevronDown, ChevronUp, Eye, EyeOff, LayoutTemplate, Image as ImageIcon, XCircle, Star } from 'lucide-react';
+import { Plus, Trash2, GripVertical, ChevronDown, ChevronUp, Eye, EyeOff, LayoutTemplate, Image as ImageIcon, XCircle } from 'lucide-react';
+import MediaPickerModal from '../../components/MediaPickerModal';
 
 const SECTION_TYPES = [
   { value: 'hero', label: 'Hero (Main Banner & Promos)' },
@@ -48,7 +49,22 @@ const getDefaultData = (type) => {
   }
 };
 
-const SortableItem = ({ id, section, index, updateSection, removeSection, setPickerType, allProducts, allCategories }) => {
+const ImageSelector = ({ value, onChange, onPick }) => {
+  return value ? (
+    <div style={{ position: 'relative', width: '100px', height: '100px', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
+      <img src={value} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+      <button type="button" onClick={() => onChange('')} style={{ position:'absolute', top: 2, right: 2, background:'#fff', borderRadius:'50%', padding: 2, border:'none', cursor:'pointer' }}>
+        <XCircle size={14} color="#ef4444" />
+      </button>
+    </div>
+  ) : (
+    <button type="button" className="btn btn-secondary" onClick={onPick} style={{ width: '100px', height: '100px', display: 'flex', flexDirection: 'column', gap: '0.25rem', border: '2px dashed var(--border-color)', padding: 0, justifyContent: 'center' }}>
+      <ImageIcon size={18} /> Add Image
+    </button>
+  );
+};
+
+const SortableItem = ({ id, section, updateSection, removeSection, setPickerType, allCategories }) => {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
   const [expanded, setExpanded] = useState(false);
 
@@ -115,8 +131,10 @@ const SortableItem = ({ id, section, index, updateSection, removeSection, setPic
 
               {data.heroType === 'single' ? (
                 <div>
-                  <label>Single Hero Image URL</label>
-                  <input className="input-field" value={data.singleHeroImage || ''} onChange={e => updateData('singleHeroImage', e.target.value)} />
+                  <label style={{ display: 'block', marginBottom: '0.5rem' }}>Single Hero Image</label>
+                  <div style={{ marginBottom: '1rem' }}>
+                    <ImageSelector value={data.singleHeroImage || ''} onChange={val => updateData('singleHeroImage', val)} onPick={() => setPickerType(`${id}:singleHeroImage`)} />
+                  </div>
                   <label>Link URL</label>
                   <input className="input-field" value={data.singleHeroLink || ''} onChange={e => updateData('singleHeroLink', e.target.value)} />
                 </div>
@@ -125,9 +143,10 @@ const SortableItem = ({ id, section, index, updateSection, removeSection, setPic
                   <h4>Main Banners</h4>
                   {(data.heroBanners || []).map((b, i) => (
                     <div key={b.id || i} style={{ border: '1px solid #ddd', padding: '1rem', marginBottom: '1rem' }}>
-                       <input className="input-field" placeholder="Image URL" value={b.image} onChange={e => {
-                         const nb = [...data.heroBanners]; nb[i].image = e.target.value; updateData('heroBanners', nb);
-                       }} />
+                       <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem' }}>Banner Image</label>
+                       <ImageSelector value={b.image} onChange={val => {
+                         const nb = [...data.heroBanners]; nb[i].image = val; updateData('heroBanners', nb);
+                       }} onPick={() => setPickerType(`${id}:heroBanners:${i}:image`)} />
                        <input className="input-field" placeholder="Link" value={b.link} onChange={e => {
                          const nb = [...data.heroBanners]; nb[i].link = e.target.value; updateData('heroBanners', nb);
                        }} style={{marginTop: '0.5rem'}}/>
@@ -139,10 +158,11 @@ const SortableItem = ({ id, section, index, updateSection, removeSection, setPic
                   <h4 style={{marginTop: '2rem'}}>Promotional Mini Banners</h4>
                   {(data.promotionalBanners || []).map((b, i) => (
                     <div key={b.id || i} style={{ border: '1px solid #ddd', padding: '1rem', marginBottom: '1rem' }}>
-                       <input className="input-field" placeholder="Image URL" value={b.image} onChange={e => {
-                         const nb = [...data.promotionalBanners]; nb[i].image = e.target.value; updateData('promotionalBanners', nb);
-                       }} />
-                       <button type="button" onClick={() => updateData('promotionalBanners', data.promotionalBanners.filter((_, idx) => idx !== i))} style={{color:'red'}}>Remove</button>
+                       <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.85rem' }}>Promo Image</label>
+                       <ImageSelector value={b.image} onChange={val => {
+                         const nb = [...data.promotionalBanners]; nb[i].image = val; updateData('promotionalBanners', nb);
+                       }} onPick={() => setPickerType(`${id}:promotionalBanners:${i}:image`)} />
+                       <button type="button" onClick={() => updateData('promotionalBanners', data.promotionalBanners.filter((_, idx) => idx !== i))} style={{color:'red', marginTop: '0.5rem'}}>Remove</button>
                     </div>
                   ))}
                   <button type="button" className="btn btn-secondary" onClick={() => updateData('promotionalBanners', [...(data.promotionalBanners||[]), {id: Date.now(), image:'', link:'/'}])}>Add Promo</button>
@@ -271,8 +291,10 @@ const SortableItem = ({ id, section, index, updateSection, removeSection, setPic
               </div>
               {[1,2,3,4,5,6,7].map(i => (
                 <div key={i} style={{border: '1px solid #ddd', padding: '1rem'}}>
-                  <label>Card {i} Image URL</label>
-                  <input className="input-field" value={data[`card${i}Img`] || ''} onChange={e => updateData(`card${i}Img`, e.target.value)} />
+                  <label style={{ display: 'block', marginBottom: '0.5rem' }}>Card {i} Image</label>
+                  <div style={{ marginBottom: '1rem' }}>
+                    <ImageSelector value={data[`card${i}Img`] || ''} onChange={val => updateData(`card${i}Img`, val)} onPick={() => setPickerType(`${id}:card${i}Img`)} />
+                  </div>
                   <label>Card {i} Link</label>
                   <input className="input-field" value={data[`card${i}Link`] || ''} onChange={e => updateData(`card${i}Link`, e.target.value)} />
                 </div>
@@ -284,8 +306,10 @@ const SortableItem = ({ id, section, index, updateSection, removeSection, setPic
             <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem'}}>
               {[1,2,3,4].map(i => (
                 <div key={i} style={{border: '1px solid #ddd', padding: '1rem'}}>
-                  <label>Bento Card {i} Image URL</label>
-                  <input className="input-field" value={data[`card${i}Img`] || ''} onChange={e => updateData(`card${i}Img`, e.target.value)} />
+                  <label style={{ display: 'block', marginBottom: '0.5rem' }}>Bento Card {i} Image</label>
+                  <div style={{ marginBottom: '1rem' }}>
+                    <ImageSelector value={data[`card${i}Img`] || ''} onChange={val => updateData(`card${i}Img`, val)} onPick={() => setPickerType(`${id}:card${i}Img`)} />
+                  </div>
                   <label>Card {i} Link</label>
                   <input className="input-field" value={data[`card${i}Link`] || ''} onChange={e => updateData(`card${i}Link`, e.target.value)} />
                 </div>
@@ -299,8 +323,46 @@ const SortableItem = ({ id, section, index, updateSection, removeSection, setPic
   );
 };
 
-export default function StorefrontBuilder({ layout, onChange, setPickerType, allProducts, allCategories }) {
+export default function StorefrontBuilder({ layout, onChange, allProducts, allCategories }) {
   const [newSectionType, setNewSectionType] = useState('hero');
+  const [localPickerType, setLocalPickerType] = useState(null);
+
+  const handleMediaSelect = (selection) => {
+    if (!localPickerType) return;
+    const [sectionId, ...path] = localPickerType.split(':');
+    
+    const sectionIndex = layout.findIndex(s => s.id === sectionId);
+    if (sectionIndex === -1) {
+      setLocalPickerType(null);
+      return;
+    }
+    
+    const section = layout[sectionIndex];
+    const data = { ...section.data };
+    
+    if (path.length === 1) {
+      data[path[0]] = selection;
+    } else if (path.length === 3) {
+      const [arrayName, indexStr, propName] = path;
+      const idx = parseInt(indexStr);
+      const arr = [...data[arrayName]];
+      arr[idx] = { ...arr[idx], [propName]: selection };
+      data[arrayName] = arr;
+    } else if (path.length === 2 && path[0] === 'items') {
+       // popularCategories items
+       const [arrayName, indexStr] = path;
+       const idx = parseInt(indexStr);
+       const arr = [...data[arrayName]];
+       arr[idx] = { ...arr[idx], image: selection };
+       data[arrayName] = arr;
+    }
+    
+    const newLayout = [...layout];
+    newLayout[sectionIndex] = { ...section, data };
+    onChange(newLayout);
+    
+    setLocalPickerType(null);
+  };
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -362,8 +424,7 @@ export default function StorefrontBuilder({ layout, onChange, setPickerType, all
               section={section}
               updateSection={updateSection}
               removeSection={removeSection}
-              setPickerType={setPickerType}
-              allProducts={allProducts}
+              setPickerType={setLocalPickerType}
               allCategories={allCategories}
             />
           ))}
@@ -376,6 +437,13 @@ export default function StorefrontBuilder({ layout, onChange, setPickerType, all
           <p>No sections added yet. Add a section above to start building your storefront.</p>
         </div>
       )}
+
+      <MediaPickerModal
+        isOpen={!!localPickerType}
+        onClose={() => setLocalPickerType(null)}
+        multiSelect={false}
+        onSelect={handleMediaSelect}
+      />
     </div>
   );
 }
