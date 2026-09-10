@@ -1104,35 +1104,7 @@ const ProductDetails = () => {
             </div>
           )}
 
-          {/* CRO Trust Area */}
-          <div className="product-trust-card">
-            <div className="trust-grid">
-              <div className="trust-item">
-                <div className="trust-icon-box">
-                  <Lock size={20} />
-                </div>
-                <span className="trust-label">নিরাপদ পেমেন্ট</span>
-              </div>
-              <div className="trust-item">
-                <div className="trust-icon-box">
-                  <Truck size={20} />
-                </div>
-                <span className="trust-label">ফ্রি ও ফাস্ট শিপিং</span>
-              </div>
-              <div className="trust-item">
-                <div className="trust-icon-box">
-                  <RotateCcw size={20} />
-                </div>
-                <span className="trust-label">সহজ রিটার্ন</span>
-              </div>
-              <div className="trust-item">
-                <div className="trust-icon-box">
-                  <HeadphonesIcon size={20} />
-                </div>
-                <span className="trust-label">২৪/৭ সাপোর্ট</span>
-              </div>
-            </div>
-          </div>
+
         </div>
       </div>
 
@@ -1250,6 +1222,36 @@ const ProductDetails = () => {
           </div>
         </div>
       )}
+
+      {/* CRO Trust Area (Before Footer) */}
+      <div className="product-trust-card" style={{ maxWidth: '1200px', margin: '2rem auto 4rem auto', width: '100%', padding: '1.5rem' }}>
+        <div className="trust-grid">
+          <div className="trust-item">
+            <div className="trust-icon-box" style={{ width: '56px', height: '56px' }}>
+              <Lock size={24} />
+            </div>
+            <span className="trust-label" style={{ fontSize: '0.85rem', marginTop: '0.5rem' }}>নিরাপদ পেমেন্ট</span>
+          </div>
+          <div className="trust-item">
+            <div className="trust-icon-box" style={{ width: '56px', height: '56px' }}>
+              <Truck size={24} />
+            </div>
+            <span className="trust-label" style={{ fontSize: '0.85rem', marginTop: '0.5rem' }}>ফ্রি ও ফাস্ট শিপিং</span>
+          </div>
+          <div className="trust-item">
+            <div className="trust-icon-box" style={{ width: '56px', height: '56px' }}>
+              <RotateCcw size={24} />
+            </div>
+            <span className="trust-label" style={{ fontSize: '0.85rem', marginTop: '0.5rem' }}>সহজ রিটার্ন</span>
+          </div>
+          <div className="trust-item">
+            <div className="trust-icon-box" style={{ width: '56px', height: '56px' }}>
+              <HeadphonesIcon size={24} />
+            </div>
+            <span className="trust-label" style={{ fontSize: '0.85rem', marginTop: '0.5rem' }}>২৪/৭ সাপোর্ট</span>
+          </div>
+        </div>
+      </div>
 
       {/* Quick Buy Modal */}
       {isQuickBuyOpen && (

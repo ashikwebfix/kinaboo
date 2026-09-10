@@ -213,7 +213,7 @@ const AdminOrders = () => {
                       style={{ cursor: 'pointer', width: '16px', height: '16px' }}
                     />
                   </td>
-                  <td style={{ padding: '1.25rem 1rem', fontFamily: 'monospace', fontWeight: 500 }}>#{order.id.slice(0,6).toUpperCase()}</td>
+                  <td style={{ padding: '1.25rem 1rem', fontFamily: 'var(--font-main)', fontWeight: 600, letterSpacing: '0.04em' }}>#{order.id.slice(0,6).toUpperCase()}</td>
                   <td style={{ padding: '1.25rem 1rem', color: 'var(--text-secondary)', fontSize: '0.95rem' }}>{new Date(order.createdAt).toLocaleDateString()}</td>
                   <td style={{ padding: '1.25rem 1rem' }}>
                     <div style={{ fontWeight: 500 }}>{order.name}</div>
