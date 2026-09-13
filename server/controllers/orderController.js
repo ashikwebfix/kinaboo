@@ -170,7 +170,7 @@ const addOrderItems = async (req, res) => {
                   {
                     event_name: 'Purchase',
                     event_time: Math.floor(Date.now() / 1000),
-                    event_id: `purchase_${order.id}`,
+                    event_id: parseInt(order.id.replace(/-/g, '').substring(0, 12), 16).toString(),
                     action_source: 'website',
                     event_source_url: `${process.env.FRONTEND_URL || 'http://localhost:6711'}/checkout`,
                     user_data: {
