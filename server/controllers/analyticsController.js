@@ -233,9 +233,17 @@ const sendCAPIEvent = async (req, res) => {
       return res.status(200).json({ success: false, message: 'Tracking settings not configured' });
     }
     
-    const { fbPixelId, fbCapiToken, fbTestEventCode } = trackingSetting.value;
+    // Get array of pixels, falling back to legacy fields if array is empty
+    let pixels = trackingSetting.value.fbPixels || [];
+    if (pixels.length === 0 && trackingSetting.value.fbPixelId && trackingSetting.value.fbCapiToken) {
+      pixels = [{
+        pixelId: trackingSetting.value.fbPixelId,
+        capiToken: trackingSetting.value.fbCapiToken,
+        testEventCode: trackingSetting.value.fbTestEventCode
+      }];
+    }
     
-    if (!fbPixelId || !fbCapiToken) {
+    if (pixels.length === 0) {
       return res.status(200).json({ success: false, message: 'Facebook CAPI not fully configured' });
     }
 
@@ -245,35 +253,47 @@ const sendCAPIEvent = async (req, res) => {
       finalClientIp = '1.1.1.1'; // FB requires a valid IP format, mock it for local dev
     }
 
-    const payload = {
-      data: [
-        {
-          event_name: eventName,
-          event_time: Math.floor(Date.now() / 1000),
-          event_id: eventId,
-          event_source_url: eventSourceUrl,
-          action_source: 'website',
-          user_data: {
-            client_ip_address: finalClientIp,
-            client_user_agent: userAgent || req.headers['user-agent'],
-            ...(fbp && { fbp }),
-            ...(fbc && { fbc })
-          },
-          custom_data: eventData
-        }
-      ]
-    };
+    // Send CAPI to all pixels in parallel
+    const promises = pixels.map(async (pixel) => {
+      if (!pixel.pixelId || !pixel.capiToken) return { success: false, reason: 'Missing Pixel ID or Token' };
+      
+      const payload = {
+        data: [
+          {
+            event_name: eventName,
+            event_time: Math.floor(Date.now() / 1000),
+            event_id: eventId,
+            event_source_url: eventSourceUrl,
+            action_source: 'website',
+            user_data: {
+              client_ip_address: finalClientIp,
+              client_user_agent: userAgent || req.headers['user-agent'],
+              ...(fbp && { fbp }),
+              ...(fbc && { fbc })
+            },
+            custom_data: eventData
+          }
+        ]
+      };
 
-    if (fbTestEventCode && fbTestEventCode.trim() !== '') {
-      payload.test_event_code = fbTestEventCode.trim();
-    }
+      if (pixel.testEventCode && pixel.testEventCode.trim() !== '') {
+        payload.test_event_code = pixel.testEventCode.trim();
+      }
 
-    const response = await axios.post(`https://graph.facebook.com/v17.0/${fbPixelId}/events?access_token=${fbCapiToken}`, payload);
+      try {
+        const response = await axios.post(`https://graph.facebook.com/v17.0/${pixel.pixelId}/events?access_token=${pixel.capiToken}`, payload);
+        return { success: true, pixelId: pixel.pixelId, data: response.data };
+      } catch (err) {
+        return { success: false, pixelId: pixel.pixelId, error: err.response?.data || err.message };
+      }
+    });
+
+    const results = await Promise.allSettled(promises);
     
-    res.json({ success: true, fbResponse: response.data });
+    res.json({ success: true, results });
   } catch (error) {
-    console.error('CAPI Error:', error.response?.data || error.message);
-    res.status(500).json({ message: 'Failed to send CAPI event', error: error.response?.data || error.message });
+    console.error('CAPI Error:', error.message);
+    res.status(500).json({ message: 'Failed to send CAPI event', error: error.message });
   }
 };
 

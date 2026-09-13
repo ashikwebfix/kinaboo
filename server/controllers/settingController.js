@@ -25,8 +25,10 @@ const getSettingByKey = async (req, res) => {
       } else if (req.params.key === 'tracking_settings') {
         res.json({
           gtmId: '',
-          fbPixelId: '',
-          fbCapiToken: ''
+          googleAnalyticsId: '',
+          fbPixels: [],
+          fbPixelId: '', // Legacy
+          fbCapiToken: '' // Legacy
         });
       } else if (req.params.key === 'storefront_ui') {
         res.json({

@@ -46,10 +46,44 @@ const TrackingInjector = () => {
       document.body.insertBefore(noscript, document.body.firstChild);
     }
 
+    // Inject Google Analytics (gtag.js)
+    if (settings.googleAnalyticsId && !document.getElementById('ga-script')) {
+      window.dataLayer = window.dataLayer || [];
+      if (!window.gtag) {
+        window.gtag = function(){window.dataLayer.push(arguments);}
+      }
+      
+      const script = document.createElement('script');
+      script.id = 'ga-script';
+      script.async = true;
+      script.src = `https://www.googletagmanager.com/gtag/js?id=${settings.googleAnalyticsId}`;
+      document.head.appendChild(script);
+
+      const initScript = document.createElement('script');
+      initScript.id = 'ga-init-script';
+      initScript.innerHTML = `
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '${settings.googleAnalyticsId}');
+      `;
+      document.head.appendChild(initScript);
+    }
+
+    // Prepare Pixels array, including legacy fields for backward compatibility
+    let pixels = settings.fbPixels || [];
+    if (pixels.length === 0 && settings.fbPixelId) {
+      pixels = [{ pixelId: settings.fbPixelId }];
+    }
+
     // Inject Facebook Pixel
-    if (settings.fbPixelId && !document.getElementById('fb-pixel-script')) {
+    if (pixels.length > 0 && !document.getElementById('fb-pixel-script')) {
       const script = document.createElement('script');
       script.id = 'fb-pixel-script';
+      
+      // Build the init calls for all pixels
+      const initCalls = pixels.filter(p => p.pixelId).map(p => `fbq('init', '${p.pixelId}');`).join('\n        ');
+      
       script.innerHTML = `
         !function(f,b,e,v,n,t,s)
         {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
@@ -59,7 +93,7 @@ const TrackingInjector = () => {
         t.src=v;s=b.getElementsByTagName(e)[0];
         s.parentNode.insertBefore(t,s)}(window, document,'script',
         'https://connect.facebook.net/en_US/fbevents.js');
-        fbq('init', '${settings.fbPixelId}');
+        ${initCalls}
       `;
       document.head.appendChild(script);
     }

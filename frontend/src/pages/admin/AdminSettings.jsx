@@ -29,7 +29,7 @@ const generateInitialLayout = (data) => {
 const AdminSettings = () => {
   const [deliveryMethods, setDeliveryMethods] = useState([]);
   const [headerMenu, setHeaderMenu] = useState([]);
-  const [trackingSettings, setTrackingSettings] = useState({ gtmId: '', fbPixelId: '', fbCapiToken: '', fbTestEventCode: '' });
+  const [trackingSettings, setTrackingSettings] = useState({ gtmId: '', googleAnalyticsId: '', fbPixels: [], fbPixelId: '', fbCapiToken: '', fbTestEventCode: '' });
   const [pathaoSettings, setPathaoSettings] = useState({ clientId: '', clientSecret: '', username: '', password: '', storeId: '', baseUrl: 'https://api-hermes.pathao.com' });
   const [generalSettings, setGeneralSettings] = useState({ maintenanceMode: false, maintenanceMessage: 'Site is under maintenance. We will be right back.' });
   const [storefrontUI, setStorefrontUI] = useState({
@@ -141,6 +141,10 @@ const AdminSettings = () => {
   const handleAddPromoBanner = () => setStorefrontUI(prev => ({ ...prev, promotionalBanners: [...(prev.promotionalBanners || []), { id: Date.now().toString(), image: '', title: '', link: '/' }] }));
   const handleUpdatePromoBanner = (id, field, value) => setStorefrontUI(prev => ({ ...prev, promotionalBanners: (prev.promotionalBanners || []).map(b => String(b.id) === String(id) ? { ...b, [field]: value } : b) }));
   const handleRemovePromoBanner = (id) => setStorefrontUI(prev => ({ ...prev, promotionalBanners: (prev.promotionalBanners || []).filter(b => String(b.id) !== String(id)) }));
+
+  const handleAddFbPixel = () => setTrackingSettings(prev => ({ ...prev, fbPixels: [...(prev.fbPixels || []), { id: Date.now().toString(), pixelId: '', capiToken: '', testEventCode: '' }] }));
+  const handleUpdateFbPixel = (id, field, value) => setTrackingSettings(prev => ({ ...prev, fbPixels: (prev.fbPixels || []).map(p => String(p.id) === String(id) ? { ...p, [field]: value } : p) }));
+  const handleRemoveFbPixel = (id) => setTrackingSettings(prev => ({ ...prev, fbPixels: (prev.fbPixels || []).filter(p => String(p.id) !== String(id)) }));
 
 
   const handleAddTrustBadge = () => setStorefrontUI(prev => ({ ...prev, trustBadges: [...(prev.trustBadges || []), { id: Date.now().toString(), text: '', icon: 'Star' }] }));
@@ -645,54 +649,116 @@ const AdminSettings = () => {
               <h2 style={{ fontSize: '1.25rem', fontWeight: 600 }}>Marketing & Tracking</h2>
             </div>
             <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', fontSize: '0.95rem' }}>
-              Configure Google Tag Manager and Facebook Pixel for analytics and conversions tracking.
+              Configure Google Tag Manager, Google Analytics, and Facebook Pixels for analytics and conversions tracking.
             </p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', maxWidth: '600px' }}>
-              <div>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Google Tag Manager ID</label>
-                <input
-                  className="input-field"
-                  placeholder="e.g. GTM-XXXXXXX"
-                  value={trackingSettings.gtmId || ''}
-                  onChange={e => setTrackingSettings({ ...trackingSettings, gtmId: e.target.value })}
-                />
-                <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.25rem', display: 'block' }}>Leave blank to disable GTM.</span>
-              </div>
-              <div>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Facebook Pixel ID</label>
-                <input
-                  className="input-field"
-                  placeholder="e.g. 1234567890"
-                  value={trackingSettings.fbPixelId || ''}
-                  onChange={e => setTrackingSettings({ ...trackingSettings, fbPixelId: e.target.value })}
-                />
-              </div>
-              <div>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Facebook Conversions API (CAPI) Access Token</label>
-                <textarea
-                  className="input-field"
-                  rows="3"
-                  placeholder="Paste your long access token here..."
-                  value={trackingSettings.fbCapiToken || ''}
-                  onChange={e => setTrackingSettings({ ...trackingSettings, fbCapiToken: e.target.value })}
-                />
-                <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
-                  Required for Server-Side Tracking. Generate this in Events Manager {'>'} Settings {'>'} Conversions API.
-                </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', maxWidth: '800px' }}>
+              
+              <div style={{ background: '#f9fafb', padding: '1.5rem', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '1rem' }}>Google Tracking</h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Google Tag Manager ID</label>
+                    <input
+                      className="input-field"
+                      placeholder="e.g. GTM-XXXXXXX"
+                      value={trackingSettings.gtmId || ''}
+                      onChange={e => setTrackingSettings({ ...trackingSettings, gtmId: e.target.value })}
+                      style={{ background: '#fff', width: '100%', maxWidth: '400px' }}
+                    />
+                    <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.25rem', display: 'block' }}>Leave blank to disable GTM.</span>
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Google Analytics Measurement ID</label>
+                    <input
+                      className="input-field"
+                      placeholder="e.g. G-XXXXXXXXXX"
+                      value={trackingSettings.googleAnalyticsId || ''}
+                      onChange={e => setTrackingSettings({ ...trackingSettings, googleAnalyticsId: e.target.value })}
+                      style={{ background: '#fff', width: '100%', maxWidth: '400px' }}
+                    />
+                    <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.25rem', display: 'block' }}>Requires GA4 Measurement ID to enable native Google Analytics tracking.</span>
+                  </div>
+                </div>
               </div>
 
-              <div style={{ marginBottom: '1.5rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Facebook Test Event Code (Optional)</label>
-                <input
-                  className="input-field"
-                  placeholder="e.g. TEST12345"
-                  style={{ width: '100%' }}
-                  value={trackingSettings.fbTestEventCode || ''}
-                  onChange={e => setTrackingSettings({ ...trackingSettings, fbTestEventCode: e.target.value })}
-                />
-                <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
-                  Used for debugging CAPI events in Events Manager. Remove this in production.
+              <div style={{ background: '#f9fafb', padding: '1.5rem', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                  <h3 style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>Facebook Pixels (Multi-Pixel Support)</h3>
+                  <button className="btn btn-secondary" onClick={handleAddFbPixel} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.4rem 0.8rem', fontSize: '0.9rem' }}>
+                    <Plus size={16} /> Add Pixel
+                  </button>
+                </div>
+                
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
+                  Add multiple Facebook Pixels to send the same conversion data across different ad accounts simultaneously.
                 </p>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  {(!trackingSettings.fbPixels || trackingSettings.fbPixels.length === 0) ? (
+                    <div style={{ textAlign: 'center', padding: '2rem', background: '#fff', borderRadius: '8px', border: '1px dashed #cbd5e1', color: 'var(--text-secondary)' }}>
+                      No Facebook Pixels configured. Click "Add Pixel" to start.
+                    </div>
+                  ) : (
+                    trackingSettings.fbPixels.map((pixel, index) => (
+                      <div key={pixel.id || index} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', background: '#fff', padding: '1rem', borderRadius: '8px', border: '1px solid #e5e7eb', position: 'relative' }}>
+                        <div style={{ position: 'absolute', top: '1rem', right: '1rem' }}>
+                          <button
+                            className="btn"
+                            onClick={() => handleRemoveFbPixel(pixel.id)}
+                            style={{ padding: '0.4rem', color: '#ef4444', background: 'rgba(239, 68, 68, 0.1)' }}
+                            title="Remove Pixel"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                        
+                        <div style={{ paddingRight: '2.5rem' }}>
+                          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500, fontSize: '0.9rem' }}>Pixel ID {index + 1} *</label>
+                          <input
+                            className="input-field"
+                            placeholder="e.g. 1234567890"
+                            value={pixel.pixelId || ''}
+                            onChange={e => handleUpdateFbPixel(pixel.id, 'pixelId', e.target.value)}
+                            style={{ width: '100%', maxWidth: '400px' }}
+                          />
+                        </div>
+
+                        <div>
+                          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500, fontSize: '0.9rem' }}>Conversions API (CAPI) Access Token</label>
+                          <textarea
+                            className="input-field"
+                            rows="2"
+                            placeholder="Paste your long access token here..."
+                            value={pixel.capiToken || ''}
+                            onChange={e => handleUpdateFbPixel(pixel.id, 'capiToken', e.target.value)}
+                            style={{ width: '100%' }}
+                          />
+                          <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
+                            Required for Server-Side Tracking. Generate this in Events Manager {'>'} Settings {'>'} Conversions API.
+                          </p>
+                        </div>
+
+                        <div>
+                          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500, fontSize: '0.9rem' }}>Test Event Code (Optional)</label>
+                          <input
+                            className="input-field"
+                            placeholder="e.g. TEST12345"
+                            value={pixel.testEventCode || ''}
+                            onChange={e => handleUpdateFbPixel(pixel.id, 'testEventCode', e.target.value)}
+                            style={{ width: '100%', maxWidth: '200px' }}
+                          />
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+                
+                {/* Legacy Data Notice - keeping this in case they had old data, though the backend will migrate it effectively on save */}
+                {(trackingSettings.fbPixelId && (!trackingSettings.fbPixels || trackingSettings.fbPixels.length === 0)) && (
+                  <div style={{ marginTop: '1rem', padding: '1rem', background: '#fffbeb', color: '#b45309', borderRadius: '8px', border: '1px solid #fde68a', fontSize: '0.9rem' }}>
+                    <strong>Note:</strong> We detected a legacy Pixel ID ({trackingSettings.fbPixelId}). It will be automatically converted to the new multi-pixel format when you click "Save Changes".
+                  </div>
+                )}
               </div>
             </div>
           </div>

@@ -136,9 +136,17 @@ const addOrderItems = async (req, res) => {
       try {
         const trackingSetting = await Setting.findOne({ where: { key: 'tracking_settings' } });
         if (trackingSetting && trackingSetting.value) {
-          const { fbPixelId, fbCapiToken, fbTestEventCode } = trackingSetting.value;
           
-          if (fbPixelId && fbCapiToken) {
+          let pixels = trackingSetting.value.fbPixels || [];
+          if (pixels.length === 0 && trackingSetting.value.fbPixelId && trackingSetting.value.fbCapiToken) {
+            pixels = [{
+              pixelId: trackingSetting.value.fbPixelId,
+              capiToken: trackingSetting.value.fbCapiToken,
+              testEventCode: trackingSetting.value.fbTestEventCode
+            }];
+          }
+          
+          if (pixels.length > 0) {
             
             // Format IP for FB (avoid local IPs)
             let finalClientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || req.ip;
@@ -154,46 +162,56 @@ const addOrderItems = async (req, res) => {
               }
             }
 
-            const eventData = {
-              data: [
-                {
-                  event_name: 'Purchase',
-                  event_time: Math.floor(Date.now() / 1000),
-                  event_id: `purchase_${order.id}`,
-                  action_source: 'website',
-                  event_source_url: `${process.env.FRONTEND_URL || 'http://localhost:6711'}/checkout`,
-                  user_data: {
-                    client_user_agent: req.headers['user-agent'],
-                    client_ip_address: finalClientIp,
-                    em: req.user && req.user.email ? [hashData(req.user.email)] : [],
-                    ph: phone ? [hashData(phone)] : [],
-                    fn: fnHash,
-                    ln: lnHash,
-                    ct: city ? [hashData(city)] : [],
-                    zp: postalCode ? [hashData(postalCode)] : [],
-                    country: [hashData('bd')]
-                  },
-                  custom_data: {
-                    currency: 'BDT',
-                    value: totalPrice,
-                    content_ids: orderItems.map(item => item.productId.toString()),
-                    content_type: 'product',
-                    order_id: order.id
+            const promises = pixels.map(async (pixel) => {
+              if (!pixel.pixelId || !pixel.capiToken) return;
+
+              const eventData = {
+                data: [
+                  {
+                    event_name: 'Purchase',
+                    event_time: Math.floor(Date.now() / 1000),
+                    event_id: `purchase_${order.id}`,
+                    action_source: 'website',
+                    event_source_url: `${process.env.FRONTEND_URL || 'http://localhost:6711'}/checkout`,
+                    user_data: {
+                      client_user_agent: req.headers['user-agent'],
+                      client_ip_address: finalClientIp,
+                      em: req.user && req.user.email ? [hashData(req.user.email)] : [],
+                      ph: phone ? [hashData(phone)] : [],
+                      fn: fnHash,
+                      ln: lnHash,
+                      ct: city ? [hashData(city)] : [],
+                      zp: postalCode ? [hashData(postalCode)] : [],
+                      country: [hashData('bd')]
+                    },
+                    custom_data: {
+                      currency: 'BDT',
+                      value: totalPrice,
+                      content_ids: orderItems.map(item => item.productId.toString()),
+                      content_type: 'product',
+                      order_id: order.id
+                    }
                   }
-                }
-              ]
-            };
+                ]
+              };
 
-            if (fbTestEventCode && fbTestEventCode.trim() !== '') {
-              eventData.test_event_code = fbTestEventCode.trim();
-            }
+              if (pixel.testEventCode && pixel.testEventCode.trim() !== '') {
+                eventData.test_event_code = pixel.testEventCode.trim();
+              }
 
-            await axios.post(`https://graph.facebook.com/v17.0/${fbPixelId}/events?access_token=${fbCapiToken}`, eventData);
-            console.log('FB CAPI Purchase Event Sent');
+              try {
+                await axios.post(`https://graph.facebook.com/v17.0/${pixel.pixelId}/events?access_token=${pixel.capiToken}`, eventData);
+                console.log(`FB CAPI Purchase Event Sent for Pixel ${pixel.pixelId}`);
+              } catch (fbError) {
+                console.error(`FB CAPI Error for Pixel ${pixel.pixelId}:`, fbError.response ? fbError.response.data : fbError.message);
+              }
+            });
+
+            await Promise.allSettled(promises);
           }
         }
       } catch (fbError) {
-        console.error('FB CAPI Error:', fbError.response ? fbError.response.data : fbError.message);
+        console.error('FB CAPI Error:', fbError.message);
       }
 
       res.status(201).json(order);
