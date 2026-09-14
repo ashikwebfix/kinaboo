@@ -30,7 +30,12 @@ const AdminCategories = () => {
     try {
       const res = await fetch(import.meta.env.VITE_API_URL + '/api/categories');
       const data = await res.json();
-      setCategories(data);
+      if (res.ok && Array.isArray(data)) {
+        setCategories(data);
+      } else {
+        console.error("API Error fetching categories:", data);
+        setCategories([]);
+      }
     } catch (error) {
       console.error("Error:", error);
     } finally {
