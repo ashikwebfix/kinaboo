@@ -435,6 +435,42 @@ const AdminSettings = () => {
                 )}
               </div>
 
+              {/* Site Logos */}
+              <div style={{ background: '#f9fafb', padding: '1.5rem', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '1.25rem' }}>
+                  Store Logos (SVG Supported)
+                </h3>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+                  {/* Header Logo */}
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '0.4rem', fontWeight: 500, fontSize: '0.9rem' }}>Header Logo</label>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                      <div style={{ width: '100px', height: '50px', background: '#fff', border: '1px dashed #cbd5e1', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                        {generalSettings.headerLogo ? <img src={generalSettings.headerLogo} alt="Header Logo" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} /> : <ImageIcon size={20} color="#9ca3af" />}
+                      </div>
+                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                        <input className="input-field" placeholder="Logo URL" value={generalSettings.headerLogo || ''} onChange={(e) => setGeneralSettings({ ...generalSettings, headerLogo: e.target.value })} style={{ width: '100%', background: '#fff' }} />
+                        <button className="btn btn-secondary" onClick={() => setPickerType('header_logo')} style={{ padding: '0.4rem', fontSize: '0.85rem' }}>Select Media</button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Footer Logo */}
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '0.4rem', fontWeight: 500, fontSize: '0.9rem' }}>Footer Logo</label>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                      <div style={{ width: '100px', height: '50px', background: '#1e293b', border: '1px dashed #cbd5e1', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                        {generalSettings.footerLogo ? <img src={generalSettings.footerLogo} alt="Footer Logo" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} /> : <ImageIcon size={20} color="#9ca3af" />}
+                      </div>
+                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                        <input className="input-field" placeholder="Logo URL" value={generalSettings.footerLogo || ''} onChange={(e) => setGeneralSettings({ ...generalSettings, footerLogo: e.target.value })} style={{ width: '100%', background: '#fff' }} />
+                        <button className="btn btn-secondary" onClick={() => setPickerType('footer_logo')} style={{ padding: '0.4rem', fontSize: '0.85rem' }}>Select Media</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               {/* Store Profile & Contact Information */}
               <div style={{ background: '#f9fafb', padding: '1.5rem', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
                 <h3 style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '1.25rem' }}>
@@ -638,6 +674,37 @@ const AdminSettings = () => {
               <button className="btn btn-secondary" onClick={handleAddMenuItem} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <Plus size={18} /> Add Menu Item
               </button>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'delivery' && (
+          <div className="animate-fade-in">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '1rem' }}>
+              <Truck size={20} color="var(--accent-primary)" />
+              <h2 style={{ fontSize: '1.25rem', fontWeight: 600 }}>Delivery Rates</h2>
+            </div>
+            <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', fontSize: '0.95rem' }}>
+              Configure the delivery methods and their charges available during checkout.
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: '600px' }}>
+              {deliveryMethods.map(method => (
+                <div key={method.id} style={{ display: 'flex', alignItems: 'center', gap: '1rem', background: '#f9fafb', padding: '1rem', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
+                  <div style={{ flex: 1 }}>
+                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 500, color: 'var(--text-secondary)', marginBottom: '0.25rem' }}>Method Name</label>
+                    <input className="input-field" value={method.name} onChange={e => handleUpdateMethod(method.id, 'name', e.target.value)} placeholder="e.g. Inside Dhaka" style={{ width: '100%', background: '#fff' }} />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 500, color: 'var(--text-secondary)', marginBottom: '0.25rem' }}>Charge (৳)</label>
+                    <input className="input-field" type="number" value={method.charge} onChange={e => handleUpdateMethod(method.id, 'charge', Number(e.target.value))} placeholder="60" style={{ width: '100%', background: '#fff' }} />
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'flex-end', height: '60px' }}>
+                    <button className="btn btn-secondary" onClick={() => handleRemoveMethod(method.id)} style={{ padding: '0.6rem', color: '#ef4444', borderColor: 'transparent', background: 'rgba(239, 68, 68, 0.1)' }} title="Remove Method"><Trash2 size={20} /></button>
+                  </div>
+                </div>
+              ))}
+              {deliveryMethods.length === 0 && <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-secondary)', background: '#f9fafb', borderRadius: '8px' }}>No delivery methods configured.</div>}
+              <button className="btn btn-secondary" onClick={handleAddMethod} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', alignSelf: 'flex-start' }}><Plus size={18} /> Add Method</button>
             </div>
           </div>
         )}
@@ -848,6 +915,10 @@ const AdminSettings = () => {
           } else if (pickerType?.startsWith('popular_cat_')) {
             const id = pickerType.replace('popular_cat_', '');
             handleUpdatePopularCategory(id, 'image', selection);
+          } else if (pickerType === 'header_logo') {
+            setGeneralSettings(prev => ({ ...prev, headerLogo: selection }));
+          } else if (pickerType === 'footer_logo') {
+            setGeneralSettings(prev => ({ ...prev, footerLogo: selection }));
           }
           setPickerType(null);
         }}

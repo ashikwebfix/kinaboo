@@ -213,7 +213,7 @@ const Navbar = () => {
 
           {/* Logo */}
           <Link to="/" className="brand-logo-link">
-            <img src="/logo.svg" alt="Kinaboo" className="brand-logo-img" />
+            <img src={generalSettings?.headerLogo || "/logo.svg"} alt={generalSettings?.siteName || "Kinaboo"} className="brand-logo-img" style={{ maxHeight: '40px' }} />
           </Link>
 
           {/* Search Bar (Desktop) */}
@@ -646,7 +646,7 @@ const Navbar = () => {
       <div className={`mobile-drawer-panel ${isMobileMenuOpen ? 'open' : ''}`}>
         <div className="mobile-drawer-header">
           <Link to="/" onClick={() => setIsMobileMenuOpen(false)}>
-            <img src="/logo.svg" alt="Kinaboo" style={{ height: '34px' }} />
+            <img src={generalSettings?.headerLogo || "/logo.svg"} alt={generalSettings?.siteName || "Kinaboo"} style={{ height: '34px' }} />
           </Link>
           <button
             className="mobile-drawer-close-btn"

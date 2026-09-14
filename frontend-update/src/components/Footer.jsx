@@ -101,7 +101,7 @@ const Footer = () => {
             {/* Column 1: Brand Info & Socials */}
             <div className="footer-brand-col">
               <Link to="/" style={{ display: 'inline-block', textDecoration: 'none' }}>
-                <img src="/logo-white.svg" alt={footerInfo.siteName || "Kinaboo"} className="footer-brand-logo" />
+                <img src={footerInfo.footerLogo || "/logo-white.svg"} alt={footerInfo.siteName || "Kinaboo"} className="footer-brand-logo" />
               </Link>
               <p className="footer-brand-text">
                 {footerInfo.storeBio}
