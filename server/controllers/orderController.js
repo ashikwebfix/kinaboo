@@ -170,7 +170,7 @@ const addOrderItems = async (req, res) => {
                   {
                     event_name: 'Purchase',
                     event_time: Math.floor(Date.now() / 1000),
-                    event_id: parseInt(order.id.replace(/-/g, '').substring(0, 12), 16).toString(),
+                    event_id: 'purchase_' + order.id,
                     action_source: 'website',
                     event_source_url: `${process.env.FRONTEND_URL || 'http://localhost:6711'}/checkout`,
                     user_data: {
@@ -182,7 +182,9 @@ const addOrderItems = async (req, res) => {
                       ln: lnHash,
                       ct: city ? [hashData(city)] : [],
                       zp: postalCode ? [hashData(postalCode)] : [],
-                      country: [hashData('bd')]
+                      country: [hashData('bd')],
+                      fbp: req.body.fbp || undefined,
+                      fbc: req.body.fbc || undefined
                     },
                     custom_data: {
                       currency: 'BDT',

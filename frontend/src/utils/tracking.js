@@ -7,7 +7,7 @@ const generateEventId = () => {
   return Date.now().toString() + Math.floor(Math.random() * 1000).toString().padStart(3, '0');
 };
 
-const getCookie = (name) => {
+export const getCookie = (name) => {
   if (typeof document === 'undefined') return undefined;
   const value = `; ${document.cookie}`;
   const parts = value.split(`; ${name}=`);
@@ -216,8 +216,8 @@ export const trackSearch = (query) => {
 export const trackPurchase = (order, cartItems) => {
   if (!order) return;
   
-  // order.id is unique per purchase. We convert the first part of the UUID to a numeric string.
-  const eventId = parseInt(order.id.replace(/-/g, '').substring(0, 12), 16).toString();
+  // order.id is unique per purchase, so we can use it as the deduplication eventId!
+  const eventId = 'purchase_' + order.id;
   const numValue = Number(order.totalPrice) || 0;
 
   // GTM

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Truck, User, Phone, MapPin, Tag, CheckCircle2, ShieldCheck, Zap, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { trackBeginCheckout, trackPurchase } from '../utils/tracking';
+import { trackBeginCheckout, trackPurchase, getCookie } from '../utils/tracking';
 import useCartStore from '../store/useCartStore';
 
 const defaultDeliveryOptions = [
@@ -227,7 +227,9 @@ const ExpressCheckoutModal = ({ product, qty = 1, selectedVariations = {}, cartI
         shippingCost,
         discount,
         couponCode: appliedCoupon ? appliedCoupon.code : null,
-        orderItems: orderItemsPayload
+        orderItems: orderItemsPayload,
+        fbp: getCookie('_fbp'),
+        fbc: getCookie('_fbc')
       };
 
       const headers = { 'Content-Type': 'application/json' };

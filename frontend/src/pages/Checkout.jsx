@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import useCartStore from '../store/useCartStore';
 import { MapPin, User, ChevronLeft, Truck } from 'lucide-react';
-import { trackBeginCheckout, trackPurchase } from '../utils/tracking';
+import { trackBeginCheckout, trackPurchase, getCookie } from '../utils/tracking';
 
 const Checkout = () => {
   const { cartItems, clearCart } = useCartStore();
@@ -161,7 +161,9 @@ const Checkout = () => {
           qty: item.qty,
           price: item.sellPrice || item.price,
           selectedVariations: item.selectedVariations
-        }))
+        })),
+        fbp: getCookie('_fbp'),
+        fbc: getCookie('_fbc')
       };
 
       const headers = { 'Content-Type': 'application/json' };

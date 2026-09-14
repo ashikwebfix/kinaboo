@@ -7,7 +7,7 @@ const generateEventId = () => {
   return 'evt_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
 };
 
-const getCookie = (name) => {
+export const getCookie = (name) => {
   if (typeof document === 'undefined') return undefined;
   const value = `; ${document.cookie}`;
   const parts = value.split(`; ${name}=`);
