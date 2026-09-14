@@ -271,6 +271,30 @@ const getOrders = async (req, res) => {
   }
 };
 
+const updateOrderShipping = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, phone, shippingAddress, city, postalCode } = req.body;
+
+    const order = await Order.findByPk(id);
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    if (name) order.name = name;
+    if (phone) order.phone = phone;
+    if (shippingAddress) order.shippingAddress = shippingAddress;
+    if (city) order.city = city;
+    if (postalCode) order.postalCode = postalCode;
+    
+    await order.save();
+
+    res.json(order);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 const updateOrderStatus = async (req, res) => {
   try {
     const { id } = req.params;
@@ -395,4 +419,4 @@ const bulkDeleteOrders = async (req, res) => {
   }
 };
 
-module.exports = { addOrderItems, getMyOrders, getOrders, updateOrderStatus, getOrderById, bulkUpdateOrderStatus, bulkDeleteOrders };
+module.exports = { addOrderItems, getMyOrders, getOrders, updateOrderStatus, getOrderById, bulkUpdateOrderStatus, bulkDeleteOrders, updateOrderShipping };

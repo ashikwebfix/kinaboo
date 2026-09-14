@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { addOrderItems, getMyOrders, getOrders, updateOrderStatus, getOrderById, bulkUpdateOrderStatus, bulkDeleteOrders } = require('../controllers/orderController');
+const { addOrderItems, getMyOrders, getOrders, updateOrderStatus, updateOrderShipping, getOrderById, bulkUpdateOrderStatus, bulkDeleteOrders } = require('../controllers/orderController');
 const { protect, admin, optionalAuth, requireRole } = require('../middleware/authMiddleware');
 
 router.route('/')
@@ -13,5 +13,6 @@ router.route('/bulk').delete(protect, requireRole(['superadmin', 'admin', 'manag
 router.route('/myorders').get(protect, getMyOrders);
 router.route('/:id').get(getOrderById);
 router.route('/:id/status').put(protect, requireRole(['superadmin', 'admin', 'manager']), updateOrderStatus);
+router.route('/:id/shipping').put(protect, requireRole(['superadmin', 'admin', 'manager']), updateOrderShipping);
 
 module.exports = router;

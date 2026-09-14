@@ -29,6 +29,12 @@ const AdminOrderDetails = () => {
   const [weight, setWeight] = useState(0.5);
   const [itemType, setItemType] = useState(2); // 2 = Parcel
   const [pathaoLoading, setPathaoLoading] = useState(false);
+  
+  const [isManualPathao, setIsManualPathao] = useState(false);
+  const [showEditShipping, setShowEditShipping] = useState(false);
+  const [shippingData, setShippingData] = useState({
+    name: '', phone: '', shippingAddress: '', city: '', postalCode: ''
+  });
 
   useEffect(() => {
     if (!token) navigate('/admin/login');
@@ -55,6 +61,42 @@ const AdminOrderDetails = () => {
       console.error("Error fetching order:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  };
+
+  const openEditShipping = () => {
+    setShippingData({
+      name: order.name || '',
+      phone: order.phone || '',
+      shippingAddress: order.shippingAddress || '',
+      city: order.city || '',
+      postalCode: order.postalCode || ''
+    });
+    setShowEditShipping(true);
+  };
+
+  const handleUpdateShipping = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/orders/${id}/shipping`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(shippingData)
+      });
+      if (res.ok) {
+        toast.success('Shipping information updated');
+        setShowEditShipping(false);
+        fetchOrder();
+      } else {
+        toast.error('Failed to update shipping info');
+      }
+    } catch (error) {
+      toast.error('Error updating shipping');
     }
   };
 
@@ -208,6 +250,41 @@ const AdminOrderDetails = () => {
   return (
     <div className="animate-fade-in" style={{ padding: '1rem', maxWidth: '1200px', margin: '0 auto', position: 'relative' }}>
       
+      {/* Edit Shipping Modal */}
+      {showEditShipping && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ background: '#fff', padding: '2rem', borderRadius: '12px', width: '90%', maxWidth: '500px', boxShadow: '0 10px 25px rgba(0,0,0,0.2)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+              <h2 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>Edit Shipping Details</h2>
+              <button onClick={() => setShowEditShipping(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)' }}><X size={24} /></button>
+            </div>
+            <form onSubmit={handleUpdateShipping} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div>
+                <label className="input-label">Customer Name</label>
+                <input className="input-field" value={shippingData.name} onChange={e => setShippingData({...shippingData, name: e.target.value})} style={{ width: '100%' }} required />
+              </div>
+              <div>
+                <label className="input-label">Phone</label>
+                <input className="input-field" value={shippingData.phone} onChange={e => setShippingData({...shippingData, phone: e.target.value})} style={{ width: '100%' }} required />
+              </div>
+              <div>
+                <label className="input-label">Address</label>
+                <textarea className="input-field" value={shippingData.shippingAddress} onChange={e => setShippingData({...shippingData, shippingAddress: e.target.value})} style={{ width: '100%', resize: 'vertical' }} required />
+              </div>
+              <div>
+                <label className="input-label">City / Area</label>
+                <input className="input-field" value={shippingData.city} onChange={e => setShippingData({...shippingData, city: e.target.value})} style={{ width: '100%' }} />
+              </div>
+              <div>
+                <label className="input-label">Postal Code</label>
+                <input className="input-field" value={shippingData.postalCode} onChange={e => setShippingData({...shippingData, postalCode: e.target.value})} style={{ width: '100%' }} />
+              </div>
+              <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '0.5rem' }}>Save Changes</button>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* Pathao Modal */}
       {showPathaoModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -219,11 +296,34 @@ const AdminOrderDetails = () => {
               <button onClick={() => setShowPathaoModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)' }}><X size={24} /></button>
             </div>
             
-            <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
-              Select the precise delivery destination to generate a Pathao Consignment ID.
-            </p>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+              <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', margin: 0 }}>
+                Select the precise delivery destination.
+              </p>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', cursor: 'pointer', fontWeight: 600, color: 'var(--text-primary)' }}>
+                <input type="checkbox" checked={isManualPathao} onChange={e => setIsManualPathao(e.target.checked)} style={{ cursor: 'pointer' }} />
+                Manual ID Entry
+              </label>
+            </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {isManualPathao ? (
+                <>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 500, marginBottom: '0.25rem' }}>City ID</label>
+                    <input type="number" className="input-field" value={selectedCity} onChange={e => setSelectedCity(e.target.value)} style={{ width: '100%' }} placeholder="e.g. 1" />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 500, marginBottom: '0.25rem' }}>Zone ID</label>
+                    <input type="number" className="input-field" value={selectedZone} onChange={e => setSelectedZone(e.target.value)} style={{ width: '100%' }} placeholder="e.g. 1" />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 500, marginBottom: '0.25rem' }}>Area ID</label>
+                    <input type="number" className="input-field" value={selectedArea} onChange={e => setSelectedArea(e.target.value)} style={{ width: '100%' }} placeholder="e.g. 1" />
+                  </div>
+                </>
+              ) : (
+                <>
               <div>
                 <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 500, marginBottom: '0.25rem' }}>City</label>
                 <select className="input-field" value={selectedCity} onChange={e => setSelectedCity(e.target.value)} disabled={pathaoLoading || cities.length === 0} style={{ width: '100%' }}>
@@ -247,8 +347,10 @@ const AdminOrderDetails = () => {
                   {areas.map(a => <option key={a.area_id} value={a.area_id}>{a.area_name}</option>)}
                 </select>
               </div>
+              </>
+              )}
 
-              <div style={{ display: 'flex', gap: '1rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '0.5rem' }}>
                 <div style={{ flex: 1 }}>
                   <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 500, marginBottom: '0.25rem' }}>Weight (kg)</label>
                   <input type="number" step="0.1" className="input-field" value={weight} onChange={e => setWeight(e.target.value)} style={{ width: '100%' }} />
@@ -335,7 +437,10 @@ const AdminOrderDetails = () => {
               </div>
             </div>
             <div>
-              <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Shipped To</h3>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)', margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Shipped To</h3>
+                <button onClick={openEditShipping} style={{ background: 'none', border: 'none', color: 'var(--accent-primary)', fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer' }}>Edit</button>
+              </div>
               <div style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: '1.6' }}>
                 {order.shippingAddress}<br />
                 {order.city}<br />
