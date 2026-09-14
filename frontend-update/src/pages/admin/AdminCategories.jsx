@@ -16,6 +16,7 @@ const AdminCategories = () => {
   const [subtitle, setSubtitle] = useState('');
   const [description, setDescription] = useState('');
   const [image, setImage] = useState('');
+  const [fbPixelId, setFbPixelId] = useState('');
 
   const navigate = useNavigate();
   const token = JSON.parse(localStorage.getItem('userInfo') || '{}').token;
@@ -58,9 +59,10 @@ const AdminCategories = () => {
       setSubtitle(cat.subtitle || '');
       setDescription(cat.description || '');
       setImage(cat.image || '');
+      setFbPixelId(cat.fbPixelId || '');
     } else {
       setEditingId(null);
-      setTitle(''); setSubtitle(''); setDescription(''); setImage('');
+      setTitle(''); setSubtitle(''); setDescription(''); setImage(''); setFbPixelId('');
     }
     setIsFormOpen(true);
   };
@@ -68,7 +70,7 @@ const AdminCategories = () => {
   const handleSave = async (e) => {
     e.preventDefault();
     
-    const parsedData = { title, subtitle, description, image };
+    const parsedData = { title, subtitle, description, image, fbPixelId };
 
     try {
       const method = editingId ? 'PUT' : 'POST';
@@ -113,6 +115,10 @@ const AdminCategories = () => {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               <div><label style={{display:'block',marginBottom:'.5rem',fontWeight:600}}>Title</label><input required className="input-field" value={title} onChange={e => setTitle(e.target.value)} /></div>
               <div><label style={{display:'block',marginBottom:'.5rem',fontWeight:600}}>Subtitle</label><input className="input-field" value={subtitle} onChange={e => setSubtitle(e.target.value)} /></div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div><label style={{display:'block',marginBottom:'.5rem',fontWeight:600}}>Meta Pixel ID (Optional)</label><input className="input-field" placeholder="e.g. 123456789" value={fbPixelId} onChange={e => setFbPixelId(e.target.value)} /></div>
             </div>
 
             <div><label style={{display:'block',marginBottom:'.5rem',fontWeight:600}}>Description</label><textarea className="input-field" rows="3" value={description} onChange={e => setDescription(e.target.value)} /></div>

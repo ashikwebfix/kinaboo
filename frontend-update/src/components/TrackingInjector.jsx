@@ -7,20 +7,59 @@ const TrackingInjector = () => {
   const location = useLocation();
 
   useEffect(() => {
-    // Fetch tracking settings from backend
-    const fetchTrackingSettings = async () => {
+    // Fetch tracking settings and categories from backend
+    const fetchSettingsAndCategories = async () => {
       try {
         const apiUrl = import.meta.env.VITE_API_URL || '';
-        const res = await fetch(`${apiUrl}/api/settings/tracking_settings`);
-        if (res.ok) {
-          const data = await res.json();
-          setSettings(data);
+        
+        // Fetch tracking settings
+        const resSettings = await fetch(`${apiUrl}/api/settings/tracking_settings`);
+        let trackingData = null;
+        if (resSettings.ok) trackingData = await resSettings.json();
+        
+        // Fetch categories to get category-specific pixels
+        const resCategories = await fetch(`${apiUrl}/api/categories`);
+        let categoryPixelsMap = {};
+        let categoryPixelIds = [];
+        if (resCategories.ok) {
+          const categories = await resCategories.json();
+          categories.forEach(cat => {
+            if (cat.fbPixelId) {
+              categoryPixelsMap[cat.title] = cat.fbPixelId;
+              if (!categoryPixelIds.includes(cat.fbPixelId)) {
+                categoryPixelIds.push(cat.fbPixelId);
+              }
+            }
+          });
         }
+
+        // Prepare Pixels array, including global and category pixels
+        let pixels = trackingData?.fbPixels || [];
+        if (pixels.length === 0 && trackingData?.fbPixelId) {
+          pixels = [{ pixelId: trackingData.fbPixelId }];
+        }
+        
+        // Add category specific pixels to the initialization array
+        if (categoryPixelIds.length > 0) {
+          categoryPixelIds.forEach(id => {
+            if (!pixels.find(p => p.pixelId === id)) {
+              pixels.push({ pixelId: id });
+            }
+          });
+        }
+
+        // Store config globally for tracking.js to use
+        window.__TRACKING_CONFIG__ = {
+          globalPixelId: trackingData?.fbPixelId || null,
+          categoryPixels: categoryPixelsMap
+        };
+
+        setSettings({ ...trackingData, categoryPixelIds });
       } catch (error) {
         console.error('Failed to fetch tracking settings:', error);
       }
     };
-    fetchTrackingSettings();
+    fetchSettingsAndCategories();
   }, []);
 
   useEffect(() => {
@@ -46,10 +85,29 @@ const TrackingInjector = () => {
       document.body.insertBefore(noscript, document.body.firstChild);
     }
 
+    // Prepare Pixels array, including global and category pixels
+    let pixels = settings.fbPixels || [];
+    if (pixels.length === 0 && settings.fbPixelId) {
+      pixels = [{ pixelId: settings.fbPixelId }];
+    }
+    
+    // Add category specific pixels to the initialization array
+    if (settings.categoryPixelIds && settings.categoryPixelIds.length > 0) {
+      settings.categoryPixelIds.forEach(id => {
+        if (!pixels.find(p => p.pixelId === id)) {
+          pixels.push({ pixelId: id });
+        }
+      });
+    }
+
     // Inject Facebook Pixel
-    if (settings.fbPixelId && !document.getElementById('fb-pixel-script')) {
+    if (pixels.length > 0 && !document.getElementById('fb-pixel-script')) {
       const script = document.createElement('script');
       script.id = 'fb-pixel-script';
+      
+      // Build the init calls for all pixels
+      const initCalls = pixels.filter(p => p.pixelId).map(p => `fbq('init', '${p.pixelId}');`).join('\n        ');
+      
       script.innerHTML = `
         !function(f,b,e,v,n,t,s)
         {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
@@ -59,7 +117,7 @@ const TrackingInjector = () => {
         t.src=v;s=b.getElementsByTagName(e)[0];
         s.parentNode.insertBefore(t,s)}(window, document,'script',
         'https://connect.facebook.net/en_US/fbevents.js');
-        fbq('init', '${settings.fbPixelId}');
+        ${initCalls}
       `;
       document.head.appendChild(script);
     }

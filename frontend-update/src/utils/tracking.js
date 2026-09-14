@@ -45,19 +45,46 @@ export const pushToDataLayer = (data) => {
   }
 };
 
+// Helper to get target pixels based on category
+const getTargetPixels = (categoryName = null) => {
+  if (typeof window === 'undefined') return [];
+  const config = window.__TRACKING_CONFIG__ || {};
+  const globalPixelId = config.globalPixelId;
+  const categoryPixelsMap = config.categoryPixels || {};
+  
+  const pixels = [];
+  if (globalPixelId) pixels.push(globalPixelId);
+  
+  if (categoryName && categoryPixelsMap[categoryName]) {
+    const catPixelId = categoryPixelsMap[categoryName];
+    if (!pixels.includes(catPixelId)) {
+      pixels.push(catPixelId);
+    }
+  }
+  return pixels;
+};
+
 // Helper to push to fbq (Facebook Pixel) with deduplication eventID
-export const pushToFbq = (event, eventName, data, eventId) => {
+export const pushToFbq = (event, eventName, data, eventId, targetPixels = []) => {
   if (typeof window !== 'undefined' && window.fbq) {
     const options = eventId ? { eventID: eventId } : undefined;
-    window.fbq(event, eventName, data || {}, options);
+    
+    if (targetPixels && targetPixels.length > 0) {
+      targetPixels.forEach(pixelId => {
+        window.fbq('trackSingle', pixelId, eventName, data || {}, options);
+      });
+    } else {
+      window.fbq(event, eventName, data || {}, options);
+    }
   }
 };
 
-export const trackPageView = (url) => {
+export const trackPageView = (url, categoryName = null) => {
   const eventId = generateEventId();
   const data = { page_path: url };
   pushToDataLayer({ event: 'page_view', ...data, event_id: eventId });
-  pushToFbq('track', 'PageView', data, eventId);
+  const pixels = getTargetPixels(categoryName);
+  pushToFbq('track', 'PageView', data, eventId, pixels);
   sendCAPI('PageView', data, eventId);
 };
 
@@ -90,7 +117,8 @@ export const trackViewContent = (product) => {
   };
 
   // FB Web + CAPI
-  pushToFbq('track', 'ViewContent', fbData, eventId);
+  const pixels = getTargetPixels(product.category);
+  pushToFbq('track', 'ViewContent', fbData, eventId, pixels);
   sendCAPI('ViewContent', fbData, eventId);
 };
 
@@ -123,7 +151,8 @@ export const trackAddToCart = (product, qty = 1) => {
   };
 
   // FB Web + CAPI
-  pushToFbq('track', 'AddToCart', fbData, eventId);
+  const pixels = getTargetPixels(product.category);
+  pushToFbq('track', 'AddToCart', fbData, eventId, pixels);
   sendCAPI('AddToCart', fbData, eventId);
 };
 
@@ -155,7 +184,8 @@ export const trackAddToWishlist = (product) => {
   };
 
   // FB Web + CAPI
-  pushToFbq('track', 'AddToWishlist', fbData, eventId);
+  const pixels = getTargetPixels(product.category);
+  pushToFbq('track', 'AddToWishlist', fbData, eventId, pixels);
   sendCAPI('AddToWishlist', fbData, eventId);
 };
 
@@ -188,8 +218,17 @@ export const trackBeginCheckout = (cartItems, totalPrice) => {
     num_items: cartItems.length
   };
 
+  // Determine all category pixels needed for the cart items
+  let pixels = getTargetPixels(); // Global pixel
+  cartItems.forEach(item => {
+    const catPixels = getTargetPixels(item.category);
+    catPixels.forEach(p => {
+      if (!pixels.includes(p)) pixels.push(p);
+    });
+  });
+
   // FB Web + CAPI
-  pushToFbq('track', 'InitiateCheckout', fbData, eventId);
+  pushToFbq('track', 'InitiateCheckout', fbData, eventId, pixels);
   sendCAPI('InitiateCheckout', fbData, eventId);
 };
 
@@ -209,7 +248,8 @@ export const trackSearch = (query) => {
   };
 
   // FB Web + CAPI
-  pushToFbq('track', 'Search', fbData, eventId);
+  const pixels = getTargetPixels();
+  pushToFbq('track', 'Search', fbData, eventId, pixels);
   sendCAPI('Search', fbData, eventId);
 };
 
@@ -244,8 +284,17 @@ export const trackPurchase = (order, cartItems) => {
     currency: 'BDT'
   };
 
+  // Determine all category pixels needed for the purchased items
+  let pixels = getTargetPixels(); // Global pixel
+  cartItems.forEach(item => {
+    const catPixels = getTargetPixels(item.category);
+    catPixels.forEach(p => {
+      if (!pixels.includes(p)) pixels.push(p);
+    });
+  });
+
   // FB Web
-  pushToFbq('track', 'Purchase', fbData, eventId);
+  pushToFbq('track', 'Purchase', fbData, eventId, pixels);
   
   // Since orderController handles CAPI for Purchase, we don't call sendCAPI here.
 };

@@ -23,6 +23,10 @@ const Category = sequelize.define('Category', {
     type: DataTypes.STRING,
     allowNull: true,
   },
+  fbPixelId: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
 });
 
 module.exports = Category;

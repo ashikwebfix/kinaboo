@@ -7,20 +7,44 @@ const TrackingInjector = () => {
   const location = useLocation();
 
   useEffect(() => {
-    // Fetch tracking settings from backend
-    const fetchTrackingSettings = async () => {
+    // Fetch tracking settings and categories from backend
+    const fetchSettingsAndCategories = async () => {
       try {
         const apiUrl = import.meta.env.VITE_API_URL || '';
-        const res = await fetch(`${apiUrl}/api/settings/tracking_settings`);
-        if (res.ok) {
-          const data = await res.json();
-          setSettings(data);
+        
+        // Fetch tracking settings
+        const resSettings = await fetch(`${apiUrl}/api/settings/tracking_settings`);
+        let trackingData = null;
+        if (resSettings.ok) trackingData = await resSettings.json();
+        
+        // Fetch categories to get category-specific pixels
+        const resCategories = await fetch(`${apiUrl}/api/categories`);
+        let categoryPixelsMap = {};
+        let categoryPixelIds = [];
+        if (resCategories.ok) {
+          const categories = await resCategories.json();
+          categories.forEach(cat => {
+            if (cat.fbPixelId) {
+              categoryPixelsMap[cat.title] = cat.fbPixelId;
+              if (!categoryPixelIds.includes(cat.fbPixelId)) {
+                categoryPixelIds.push(cat.fbPixelId);
+              }
+            }
+          });
         }
+
+        // Store config globally for tracking.js to use
+        window.__TRACKING_CONFIG__ = {
+          globalPixelId: trackingData?.fbPixelId || null,
+          categoryPixels: categoryPixelsMap
+        };
+
+        setSettings({ ...trackingData, categoryPixelIds });
       } catch (error) {
         console.error('Failed to fetch tracking settings:', error);
       }
     };
-    fetchTrackingSettings();
+    fetchSettingsAndCategories();
   }, []);
 
   useEffect(() => {
@@ -70,10 +94,19 @@ const TrackingInjector = () => {
       document.head.appendChild(initScript);
     }
 
-    // Prepare Pixels array, including legacy fields for backward compatibility
+    // Prepare Pixels array, including global and category pixels
     let pixels = settings.fbPixels || [];
     if (pixels.length === 0 && settings.fbPixelId) {
       pixels = [{ pixelId: settings.fbPixelId }];
+    }
+    
+    // Add category specific pixels to the initialization array
+    if (settings.categoryPixelIds) {
+      settings.categoryPixelIds.forEach(id => {
+        if (!pixels.find(p => p.pixelId === id)) {
+          pixels.push({ pixelId: id });
+        }
+      });
     }
 
     // Inject Facebook Pixel
