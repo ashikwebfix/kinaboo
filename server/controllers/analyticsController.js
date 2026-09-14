@@ -222,10 +222,11 @@ const getDashboardStats = async (req, res) => {
 };
 
 const Setting = require('../models/Setting'); // Need Setting to fetch tracking settings
+const Category = require('../models/Category'); // Need Category to fetch category CAPI tokens
 
 const sendCAPIEvent = async (req, res) => {
   try {
-    const { eventName, eventData, eventId, eventSourceUrl, clientIp, userAgent, fbp, fbc } = req.body;
+    const { eventName, eventData, eventId, eventSourceUrl, clientIp, userAgent, fbp, fbc, categoryNames } = req.body;
     
     // Fetch tracking settings
     const trackingSetting = await Setting.findOne({ where: { key: 'tracking_settings' } });
@@ -243,6 +244,23 @@ const sendCAPIEvent = async (req, res) => {
       }];
     }
     
+    if (categoryNames && Array.isArray(categoryNames) && categoryNames.length > 0) {
+      const categories = await Category.findAll({
+        where: { title: categoryNames }
+      });
+      categories.forEach(cat => {
+        if (cat.fbPixelId && cat.fbCapiToken) {
+          if (!pixels.find(p => p.pixelId === cat.fbPixelId)) {
+            pixels.push({
+              pixelId: cat.fbPixelId,
+              capiToken: cat.fbCapiToken,
+              testEventCode: trackingSetting?.value?.fbTestEventCode || ''
+            });
+          }
+        }
+      });
+    }
+
     if (pixels.length === 0) {
       return res.status(200).json({ success: false, message: 'Facebook CAPI not fully configured' });
     }

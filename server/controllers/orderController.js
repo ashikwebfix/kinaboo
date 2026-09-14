@@ -146,6 +146,26 @@ const addOrderItems = async (req, res) => {
             }];
           }
           
+          // Fetch Category CAPI tokens
+          const productIds = orderItems.map(item => item.productId);
+          const products = await Product.findAll({ where: { id: productIds }, attributes: ['category'] });
+          const categoryNames = [...new Set(products.map(p => p.category).filter(Boolean))];
+          if (categoryNames.length > 0) {
+            const Category = require('../models/Category');
+            const categories = await Category.findAll({ where: { title: categoryNames } });
+            categories.forEach(cat => {
+              if (cat.fbPixelId && cat.fbCapiToken) {
+                if (!pixels.find(p => p.pixelId === cat.fbPixelId)) {
+                  pixels.push({
+                    pixelId: cat.fbPixelId,
+                    capiToken: cat.fbCapiToken,
+                    testEventCode: trackingSetting.value.fbTestEventCode || ''
+                  });
+                }
+              }
+            });
+          }
+          
           if (pixels.length > 0) {
             
             // Format IP for FB (avoid local IPs)

@@ -10,9 +10,9 @@ const getCategories = async (req, res) => {
 };
 
 const createCategory = async (req, res) => {
-  const { title, subtitle, description, image, fbPixelId } = req.body;
+  const { title, subtitle, description, image, fbPixelId, fbCapiToken } = req.body;
   try {
-    const category = await Category.create({ title, subtitle, description, image, fbPixelId });
+    const category = await Category.create({ title, subtitle, description, image, fbPixelId, fbCapiToken });
     res.status(201).json(category);
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -20,7 +20,7 @@ const createCategory = async (req, res) => {
 };
 
 const updateCategory = async (req, res) => {
-  const { title, subtitle, description, image, fbPixelId } = req.body;
+  const { title, subtitle, description, image, fbPixelId, fbCapiToken } = req.body;
   try {
     const category = await Category.findByPk(req.params.id);
     if (category) {
@@ -29,6 +29,7 @@ const updateCategory = async (req, res) => {
       category.description = description || category.description;
       category.image = image || category.image;
       category.fbPixelId = fbPixelId !== undefined ? fbPixelId : category.fbPixelId;
+      category.fbCapiToken = fbCapiToken !== undefined ? fbCapiToken : category.fbCapiToken;
       await category.save();
       res.json(category);
     } else {

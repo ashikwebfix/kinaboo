@@ -15,7 +15,7 @@ export const getCookie = (name) => {
   return undefined;
 };
 
-const sendCAPI = async (eventName, eventData, eventId) => {
+const sendCAPI = async (eventName, eventData, eventId, categoryNames = []) => {
   try {
     const apiUrl = import.meta.env.VITE_API_URL || '';
     await fetch(`${apiUrl}/api/analytics/capi`, {
@@ -30,7 +30,8 @@ const sendCAPI = async (eventName, eventData, eventId) => {
         eventSourceUrl: window.location.href,
         userAgent: navigator.userAgent,
         fbp: getCookie('_fbp'),
-        fbc: getCookie('_fbc')
+        fbc: getCookie('_fbc'),
+        categoryNames
       })
     });
   } catch (error) {
@@ -85,7 +86,7 @@ export const trackPageView = (url, categoryName = null) => {
   pushToDataLayer({ event: 'page_view', ...data, event_id: eventId });
   const pixels = getTargetPixels(categoryName);
   pushToFbq('track', 'PageView', data, eventId, pixels);
-  sendCAPI('PageView', data, eventId);
+  sendCAPI('PageView', data, eventId, categoryName ? [categoryName] : []);
 };
 
 export const trackViewContent = (product) => {
@@ -119,7 +120,7 @@ export const trackViewContent = (product) => {
   // FB Web + CAPI
   const pixels = getTargetPixels(product.category);
   pushToFbq('track', 'ViewContent', fbData, eventId, pixels);
-  sendCAPI('ViewContent', fbData, eventId);
+  sendCAPI('ViewContent', fbData, eventId, product.category ? [product.category] : []);
 };
 
 export const trackAddToCart = (product, qty = 1) => {
@@ -153,7 +154,7 @@ export const trackAddToCart = (product, qty = 1) => {
   // FB Web + CAPI
   const pixels = getTargetPixels(product.category);
   pushToFbq('track', 'AddToCart', fbData, eventId, pixels);
-  sendCAPI('AddToCart', fbData, eventId);
+  sendCAPI('AddToCart', fbData, eventId, product.category ? [product.category] : []);
 };
 
 export const trackAddToWishlist = (product) => {
@@ -186,7 +187,7 @@ export const trackAddToWishlist = (product) => {
   // FB Web + CAPI
   const pixels = getTargetPixels(product.category);
   pushToFbq('track', 'AddToWishlist', fbData, eventId, pixels);
-  sendCAPI('AddToWishlist', fbData, eventId);
+  sendCAPI('AddToWishlist', fbData, eventId, product.category ? [product.category] : []);
 };
 
 export const trackBeginCheckout = (cartItems, totalPrice) => {
@@ -229,7 +230,9 @@ export const trackBeginCheckout = (cartItems, totalPrice) => {
 
   // FB Web + CAPI
   pushToFbq('track', 'InitiateCheckout', fbData, eventId, pixels);
-  sendCAPI('InitiateCheckout', fbData, eventId);
+  
+  const categories = cartItems.map(item => item.category).filter(Boolean);
+  sendCAPI('InitiateCheckout', fbData, eventId, categories);
 };
 
 export const trackSearch = (query) => {
