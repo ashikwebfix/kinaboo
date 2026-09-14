@@ -23,9 +23,9 @@ const storage = multer.diskStorage({
 });
 
 function checkFileType(file, cb) {
-  const filetypes = /jpg|jpeg|png|webp|gif|mp4|mkv|webm|avi/;
+  const filetypes = /jpg|jpeg|png|webp|gif|svg|mp4|mkv|webm|avi/;
   const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-  const mimetype = filetypes.test(file.mimetype) || file.mimetype.startsWith('video/');
+  const mimetype = filetypes.test(file.mimetype) || file.mimetype.startsWith('video/') || file.mimetype === 'image/svg+xml';
 
   if (extname && mimetype) {
     return cb(null, true);
