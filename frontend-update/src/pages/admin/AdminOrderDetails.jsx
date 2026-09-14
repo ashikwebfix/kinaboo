@@ -64,8 +64,6 @@ const AdminOrderDetails = () => {
     }
   };
 
-  };
-
   const openEditShipping = () => {
     setShippingData({
       name: order.name || '',
