@@ -14,13 +14,17 @@ const getPathaoConfig = async () => {
 // Helper to generate access token
 const getAccessToken = async (config) => {
   try {
-    const response = await axios.post(`${config.baseUrl}/aladdin/api/v1/issue-token`, {
+    const authPayload = {
       client_id: config.clientId,
       client_secret: config.clientSecret,
-      username: config.username,
-      password: config.password,
-      grant_type: 'password'
-    });
+      grant_type: (config.username && config.password) ? 'password' : 'client_credentials'
+    };
+    if (config.username && config.password) {
+      authPayload.username = config.username;
+      authPayload.password = config.password;
+    }
+
+    const response = await axios.post(`${config.baseUrl}/aladdin/api/v1/issue-token`, authPayload);
     return response.data.access_token;
   } catch (error) {
     console.error('Pathao Auth Error:', error.response?.data || error.message);
@@ -79,22 +83,29 @@ const createConsignment = async (req, res) => {
 
     const config = await getPathaoConfig();
     const token = await getAccessToken(config);
+    
+    // Fetch General Settings for sender info
+    const generalSetting = await Setting.findOne({ where: { key: 'general_settings' } });
+    const senderName = generalSetting?.value?.siteName || 'Store';
+    const senderPhone = generalSetting?.value?.phone || '01000000000';
 
     const payload = {
-      store_id: config.storeId,
-      merchant_order_id: order.id.slice(0, 8),
+      store_id: parseInt(config.storeId, 10),
+      merchant_order_id: order.id.toString(),
+      sender_name: senderName,
+      sender_phone: senderPhone,
       recipient_name: order.name,
       recipient_phone: order.phone,
       recipient_address: order.shippingAddress,
-      recipient_city: city_id,
-      recipient_zone: zone_id,
-      recipient_area: area_id,
+      recipient_city: parseInt(city_id, 10),
+      recipient_zone: parseInt(zone_id, 10),
+      recipient_area: parseInt(area_id, 10),
       delivery_type: 48, // Standard delivery
-      item_type: item_type || 2, // Default Parcel
+      item_type: parseInt(item_type, 10) || 2, // Default Parcel
       item_quantity: 1,
-      item_weight: weight || 0.5,
-      amount_to_collect: order.paymentMethod === 'Cash on Delivery' ? Number(order.totalPrice) : 0,
-      item_description: `Order #${order.id.slice(0, 8)} items`
+      item_weight: parseFloat(weight) || 0.5,
+      amount_to_collect: order.paymentMethod === 'Cash on Delivery' ? Math.round(Number(order.totalPrice)) : 0,
+      item_description: `Order #${order.id.toString().slice(0, 8)} items`
     };
 
     const response = await axios.post(`${config.baseUrl}/aladdin/api/v1/orders`, payload, {

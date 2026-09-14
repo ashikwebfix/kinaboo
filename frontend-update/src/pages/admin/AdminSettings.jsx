@@ -1957,11 +1957,11 @@ const AdminSettings = () => {
                 <input className="input-field" type="password" placeholder="e.g. jx8s...9s1" value={pathaoSettings.clientSecret || ''} onChange={e => setPathaoSettings({ ...pathaoSettings, clientSecret: e.target.value })} style={{ width: '100%' }} />
               </div>
               <div>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Username</label>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Username (Optional)</label>
                 <input className="input-field" placeholder="email@example.com" value={pathaoSettings.username || ''} onChange={e => setPathaoSettings({ ...pathaoSettings, username: e.target.value })} style={{ width: '100%' }} />
               </div>
               <div>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Password</label>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Password (Optional)</label>
                 <input className="input-field" type="password" placeholder="Password" value={pathaoSettings.password || ''} onChange={e => setPathaoSettings({ ...pathaoSettings, password: e.target.value })} style={{ width: '100%' }} />
               </div>
               <div>
