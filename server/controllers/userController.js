@@ -128,9 +128,15 @@ const deleteUser = async (req, res) => {
   const userToDelete = await User.findByPk(req.params.id);
   if (!userToDelete) return res.status(404).json({ message: 'User not found' });
   
-  if (userToDelete.role === 'superadmin') {
-    return res.status(403).json({ message: 'Cannot delete superadmin' });
+  // Prevent deleting yourself
+  if (userToDelete.id === req.user.id) {
+    return res.status(403).json({ message: 'You cannot delete your own account' });
   }
+  // Only superadmin can delete another superadmin
+  if (userToDelete.role === 'superadmin' && req.user.role !== 'superadmin') {
+    return res.status(403).json({ message: 'Only a superadmin can delete another superadmin' });
+  }
+  // Admin cannot delete another admin
   if (req.user.role === 'admin' && userToDelete.role === 'admin') {
     return res.status(403).json({ message: 'Admin cannot delete another admin' });
   }
@@ -143,9 +149,15 @@ const updateUserRole = async (req, res) => {
   const userToUpdate = await User.findByPk(req.params.id);
   if (!userToUpdate) return res.status(404).json({ message: 'User not found' });
   
-  if (userToUpdate.role === 'superadmin' && req.body.role !== 'superadmin') {
-    return res.status(403).json({ message: 'Cannot demote superadmin' });
+  // Prevent demoting yourself
+  if (userToUpdate.id === req.user.id && req.body.role !== 'superadmin') {
+    return res.status(403).json({ message: 'You cannot demote your own account' });
   }
+  // Only superadmin can demote/modify another superadmin
+  if (userToUpdate.role === 'superadmin' && req.user.role !== 'superadmin') {
+    return res.status(403).json({ message: 'Only a superadmin can modify another superadmin' });
+  }
+  // Admin cannot modify another admin or superadmin
   if (req.user.role === 'admin' && (userToUpdate.role === 'admin' || userToUpdate.role === 'superadmin')) {
     return res.status(403).json({ message: 'Admin cannot modify role of admin or superadmin' });
   }
