@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { PackageX, MessageCircle, Clock, Search, ShoppingCart, X } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
 const AdminAbandonedCarts = () => {
   const [carts, setCarts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const navigate = useNavigate();
   
   // Transfer Modal State
   const [showModal, setShowModal] = useState(false);
@@ -22,9 +24,10 @@ const AdminAbandonedCarts = () => {
   });
   const [transferring, setTransferring] = useState(false);
 
-  const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+  const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
 
   useEffect(() => {
+    if (!userInfo.token) { navigate('/login'); return; }
     fetchCarts();
   }, []);
 
@@ -35,14 +38,19 @@ const AdminAbandonedCarts = () => {
           'Authorization': `Bearer ${userInfo.token}`
         }
       });
+      if (res.status === 401) {
+        localStorage.removeItem('userInfo');
+        navigate('/login');
+        return;
+      }
       const data = await res.json();
       if (res.ok) {
-        setCarts(data);
+        setCarts(Array.isArray(data) ? data : []);
       } else {
         toast.error('Failed to load abandoned carts');
       }
     } catch (error) {
-      toast.error('Server error');
+      toast.error('Server error loading carts');
     } finally {
       setLoading(false);
     }
