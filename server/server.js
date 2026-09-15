@@ -46,9 +46,26 @@ const Category = require('./models/Category');
 const { migrateProductSlugs } = require('./controllers/productController');
 
 
+const { sequelize } = require('./config/db');
+
+// Safe DB migrations - adds missing columns without breaking existing data
+const runMigrations = async () => {
+  try {
+    // Add fcmToken to Users if missing
+    const [fcmCols] = await sequelize.query("SHOW COLUMNS FROM Users LIKE 'fcmToken'");
+    if (fcmCols.length === 0) {
+      await sequelize.query('ALTER TABLE Users ADD COLUMN fcmToken TEXT NULL');
+      console.log('[Migration] Added fcmToken column to Users table');
+    }
+  } catch (err) {
+    console.error('[Migration] Error running migrations:', err.message);
+  }
+};
+
 // Connect to database and run migrations
 connectDB().then(() => {
   migrateProductSlugs();
+  runMigrations();
 });
 
 const app = express();
