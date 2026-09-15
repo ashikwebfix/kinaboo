@@ -319,6 +319,7 @@ const AdminSettings = () => {
         <button className={`tab-btn ${activeTab === 'delivery' ? 'active' : ''}`} onClick={() => navigate('/admin/settings?tab=delivery')}>Delivery Rates</button>
         <button className={`tab-btn ${activeTab === 'tracking' ? 'active' : ''}`} onClick={() => navigate('/admin/settings?tab=tracking')}>Marketing</button>
         <button className={`tab-btn ${activeTab === 'courier' ? 'active' : ''}`} onClick={() => navigate('/admin/settings?tab=courier')}>Courier API</button>
+        <button className={`tab-btn ${activeTab === 'firebase' ? 'active' : ''}`} onClick={() => navigate('/admin/settings?tab=firebase')}>Firebase Push</button>
       </div>
 
       <div style={{ background: '#fff', borderRadius: '12px', padding: '2rem', border: '1px solid var(--border-color)', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
