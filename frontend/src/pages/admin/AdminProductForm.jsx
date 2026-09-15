@@ -272,14 +272,14 @@ const AdminProductForm = () => {
       </header>
 
       <form onSubmit={handleSave}>
-        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '2rem' }}>
+        <div className="form-grid-2-1" style={{ gap: "2rem" }}>
           
           {/* LEFT COLUMN: Main Content */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             
             {/* Basic Info */}
             <div style={{ padding: '1.5rem', border: '1px solid var(--border-color)', borderRadius: '8px', background: '#fff' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+              <div className="form-grid-2-1" style={{ marginBottom: "1rem" }}>
                 <div>
                   <label style={{display:'block',marginBottom:'.5rem',fontWeight:600}}>Title</label>
                   <input required className="input-field" value={name} onChange={e => setName(e.target.value)} />
@@ -295,7 +295,7 @@ const AdminProductForm = () => {
                 <textarea required className="input-field" rows="3" value={description} onChange={e => setDescription(e.target.value)}></textarea>
               </div>
               
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
+              <div className="form-grid-3">
                 <div><label style={{display:'block',marginBottom:'.5rem',fontWeight:600}}>Price (BDT)</label><input required type="number" step="0.01" className="input-field" value={price} onChange={e => setPrice(e.target.value)} /></div>
                 <div><label style={{display:'block',marginBottom:'.5rem',fontWeight:600}}>Sell Price (BDT)</label><input type="number" step="0.01" className="input-field" value={sellPrice} onChange={e => setSellPrice(e.target.value)} /></div>
                 <div>
@@ -419,7 +419,7 @@ const AdminProductForm = () => {
               {volumeBundles.map((b, bIdx) => (
                 <div key={bIdx} style={{ background: '#f9fafb', padding: '1rem', borderRadius: '8px', marginBottom: '1rem', border: '1px solid var(--border-color)', position: 'relative' }}>
                   <button type="button" onClick={() => removeVolumeBundle(bIdx)} style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer' }}><Trash2 size={18} /></button>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                  <div className="form-grid-3" style={{ marginBottom: "1rem" }}>
                     <div>
                       <label style={{display:'block',marginBottom:'.25rem',fontWeight:500, fontSize:'0.9rem'}}>Quantity</label>
                       <input type="number" className="input-field" value={b.qty} onChange={e => updateVolumeBundle(bIdx, 'qty', Number(e.target.value))} min="2" />

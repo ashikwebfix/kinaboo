@@ -64,8 +64,14 @@ const initSession = async (req, res) => {
 const trackPageview = async (req, res) => {
   try {
     const { sessionId, pageUrl, referrer } = req.body;
-    const visitor = await Visitor.findOne({ where: { sessionId } });
-    if (!visitor) return res.status(404).json({ message: 'Visitor not found' });
+    let visitor = await Visitor.findOne({ where: { sessionId } });
+    if (!visitor) {
+      visitor = await Visitor.create({
+        sessionId,
+        ipAddress: req.headers['x-forwarded-for'] || req.socket.remoteAddress || req.ip,
+        userAgent: req.headers['user-agent'] || ''
+      });
+    }
 
     visitor.lastActive = new Date();
     await visitor.save();
@@ -85,8 +91,14 @@ const trackPageview = async (req, res) => {
 const trackClicks = async (req, res) => {
   try {
     const { sessionId, pageUrl, clicks } = req.body;
-    const visitor = await Visitor.findOne({ where: { sessionId } });
-    if (!visitor) return res.status(404).json({ message: 'Visitor not found' });
+    let visitor = await Visitor.findOne({ where: { sessionId } });
+    if (!visitor) {
+      visitor = await Visitor.create({
+        sessionId,
+        ipAddress: req.headers['x-forwarded-for'] || req.socket.remoteAddress || req.ip,
+        userAgent: req.headers['user-agent'] || ''
+      });
+    }
 
     visitor.lastActive = new Date();
     await visitor.save();

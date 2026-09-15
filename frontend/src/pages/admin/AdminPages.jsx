@@ -418,8 +418,8 @@ const AdminPages = () => {
           </form>
         </div>
       ) : (
-        <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <div style={{ background: '#fff', borderRadius: '12px', border: '1px solid var(--border-color)', overflowX: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "800px" }}>
             <thead style={{ background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border-color)' }}>
               <tr>
                 <th style={{ padding: '1rem', textAlign: 'left', fontWeight: '600' }}>Title</th>

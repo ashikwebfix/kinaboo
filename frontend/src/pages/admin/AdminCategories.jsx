@@ -119,12 +119,12 @@ const AdminCategories = () => {
           
           <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
             
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div className="form-grid-2">
               <div><label style={{display:'block',marginBottom:'.5rem',fontWeight:600}}>Title</label><input required className="input-field" value={title} onChange={e => setTitle(e.target.value)} /></div>
               <div><label style={{display:'block',marginBottom:'.5rem',fontWeight:600}}>Subtitle</label><input className="input-field" value={subtitle} onChange={e => setSubtitle(e.target.value)} /></div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div className="form-grid-2">
               <div><label style={{display:'block',marginBottom:'.5rem',fontWeight:600}}>Meta Pixel ID (Optional)</label><input className="input-field" placeholder="e.g. 123456789" value={fbPixelId} onChange={e => setFbPixelId(e.target.value)} /></div>
               <div><label style={{display:'block',marginBottom:'.5rem',fontWeight:600}}>Meta CAPI Token (Optional)</label><input className="input-field" placeholder="e.g. EAAG..." value={fbCapiToken} onChange={e => setFbCapiToken(e.target.value)} /></div>
             </div>
@@ -154,8 +154,8 @@ const AdminCategories = () => {
           </form>
         </div>
       ) : (
-        <div style={{ background: 'var(--bg-secondary)', borderRadius: '12px', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <div style={{ background: 'var(--bg-secondary)', borderRadius: '12px', border: '1px solid var(--border-color)', overflowX: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "800px" }}>
             <thead style={{ background: '#f9fafb', borderBottom: '1px solid var(--border-color)', textAlign: 'left' }}>
               <tr>
                 <th style={{ padding: '1rem' }}>Category</th>

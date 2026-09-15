@@ -25,10 +25,10 @@ const protect = async (req, res, next) => {
 };
 
 const admin = (req, res, next) => {
-  if (req.user && (req.user.role === 'superadmin' || req.user.role === 'admin' || req.user.isAdmin)) {
+  if (req.user && (req.user.role === 'superadmin' || req.user.role === 'admin' || req.user.role === 'manager' || req.user.isAdmin)) {
     next();
   } else {
-    res.status(403).json({ message: 'Not authorized as an admin' });
+    res.status(403).json({ message: 'Not authorized as an admin or manager' });
   }
 };
 

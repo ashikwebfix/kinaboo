@@ -160,4 +160,16 @@ const updateUserRole = async (req, res) => {
   res.json({ id: userToUpdate.id, name: userToUpdate.name, email: userToUpdate.email, role: userToUpdate.role });
 };
 
-module.exports = { authUser, registerUser, getUsers, getUserProfile, updateUserProfile, createUser, deleteUser, updateUserRole };
+
+const updateFcmToken = async (req, res) => {
+  const user = await User.findByPk(req.user.id);
+  if (user) {
+    user.fcmToken = req.body.fcmToken;
+    await user.save();
+    res.json({ message: 'FCM token updated successfully' });
+  } else {
+    res.status(404).json({ message: 'User not found' });
+  }
+};
+
+module.exports = { updateFcmToken, authUser, registerUser, getUsers, getUserProfile, updateUserProfile, createUser, deleteUser, updateUserRole };

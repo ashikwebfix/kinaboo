@@ -18,7 +18,8 @@ const AdminBundles = () => {
       });
       if (res.ok) {
         const data = await res.json();
-        setBundles(data);
+        if (res.status === 401) { localStorage.removeItem('userInfo'); navigate('/login'); return; }
+        setBundles(Array.isArray(data) ? data : []);
       }
     } catch (error) {
       console.error("Error fetching bundles:", error);
@@ -56,8 +57,8 @@ const AdminBundles = () => {
         </Link>
       </header>
 
-      <div style={{ background: 'var(--bg-secondary)', borderRadius: '12px', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+      <div style={{ background: 'var(--bg-secondary)', borderRadius: '12px', border: '1px solid var(--border-color)', overflowX: "auto" }}>
+        <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "800px" }}>
           <thead style={{ background: '#f9fafb', borderBottom: '1px solid var(--border-color)', textAlign: 'left' }}>
             <tr>
               <th style={{ padding: '1rem' }}>Bundle Name</th>

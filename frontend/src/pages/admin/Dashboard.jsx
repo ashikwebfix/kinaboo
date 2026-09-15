@@ -13,20 +13,33 @@ const Dashboard = () => {
       return;
     }
 
-    const { token, isAdmin } = JSON.parse(userInfo);
-    if (!isAdmin) {
+    const { token, isAdmin, role } = JSON.parse(userInfo);
+    if (!isAdmin && role !== 'manager') {
       navigate('/');
+      return;
+    }
+
+    if (role === 'manager') {
+      navigate('/admin/orders');
       return;
     }
 
     // Fetch stats
     const fetchStats = async () => {
       try {
+        
         const [productsRes, usersRes, ordersRes] = await Promise.all([
           fetch(import.meta.env.VITE_API_URL + '/api/products'),
           fetch(import.meta.env.VITE_API_URL + '/api/users', { headers: { Authorization: `Bearer ${token}` } }),
           fetch(import.meta.env.VITE_API_URL + '/api/orders', { headers: { Authorization: `Bearer ${token}` } })
         ]);
+        
+        if (usersRes.status === 401 || ordersRes.status === 401) {
+          localStorage.removeItem('userInfo');
+          navigate('/login');
+          return;
+        }
+
         
         const products = await productsRes.json();
         const users = await usersRes.json();
@@ -56,7 +69,7 @@ const Dashboard = () => {
         <p className="text-muted">Welcome to your admin dashboard</p>
       </header>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '2rem' }}>
+      <div className="admin-dashboard-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '2rem' }}>
         
         <div className="glass" style={{ padding: '2rem', borderRadius: '16px', display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
           <div style={{ padding: '1rem', background: 'rgba(59, 130, 246, 0.2)', borderRadius: '12px', color: '#60a5fa' }}>

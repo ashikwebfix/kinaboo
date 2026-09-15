@@ -22,7 +22,7 @@ const AdminLogin = () => {
       const data = await res.json();
       
       if (res.ok) {
-        if (data.isAdmin || data.role === 'superadmin' || data.role === 'admin' || data.role === 'shopmanager') {
+        if (data.isAdmin || data.role === 'superadmin' || data.role === 'admin' || data.role === 'shopmanager' || data.role === 'manager') {
           localStorage.setItem('userInfo', JSON.stringify(data));
           navigate('/admin');
         } else {

@@ -36,6 +36,10 @@ const User = sequelize.define('User', {
   address: {
     type: DataTypes.TEXT,
     allowNull: true,
+  },
+  fcmToken: {
+    type: DataTypes.TEXT,
+    allowNull: true,
   }
 });
 

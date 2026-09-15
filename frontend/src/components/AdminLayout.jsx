@@ -1,6 +1,8 @@
 import React from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, PackageSearch, Layers, Image as ImageIcon, Users, ShoppingCart, LogOut, Settings as SettingsIcon, Tag, PackagePlus, Shield, Activity, PackageX, FileText } from 'lucide-react';
+import { requestForToken, onMessageListener, initFirebase } from '../firebase';
+import toast from 'react-hot-toast';
+import { Bell, LayoutDashboard, PackageSearch, Layers, Image as ImageIcon, Users, ShoppingCart, LogOut, Settings as SettingsIcon, Tag, PackagePlus, Shield, Activity, PackageX, FileText, Menu, X } from 'lucide-react';
 
 const AdminLayout = () => {
   const navigate = useNavigate();
@@ -11,6 +13,10 @@ const AdminLayout = () => {
     setMounted(true);
   }, []);
 
+  React.useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [location.pathname]);
+
   const handleLogout = () => {
     localStorage.removeItem('userInfo');
     navigate('/login');
@@ -19,7 +25,64 @@ const AdminLayout = () => {
   const userInfo = JSON.parse(localStorage.getItem('userInfo')) || {};
   const role = userInfo.role || (userInfo.isAdmin ? 'admin' : 'customer');
 
+  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const [openMenus, setOpenMenus] = React.useState({ Products: true, Settings: true });
+
+  const [isTokenFound, setTokenFound] = React.useState(false);
+
+  React.useEffect(() => {
+    const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+    initFirebase(userInfo.token).then(initialized => {
+      if (initialized) {
+        onMessageListener().then(payload => {
+          toast.success(payload.notification.body, { duration: 5000, icon: '🛍️' });
+        }).catch(err => console.log('failed: ', err));
+      }
+    });
+  }, []);
+
+  const enableNotifications = async () => {
+    try {
+      const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+      const initialized = await initFirebase(userInfo.token);
+      if (!initialized) {
+        toast.error('Firebase is not configured in Settings.');
+        return;
+      }
+      const token = await requestForToken();
+      if (token) {
+        setTokenFound(true);
+        // Send token to backend
+        const res = await fetch(import.meta.env.VITE_API_URL + '/api/users/fcm-token', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + userInfo.token
+          },
+          body: JSON.stringify({ fcmToken: token })
+        });
+        if (res.ok) {
+          toast.success('Notifications enabled successfully!');
+        } else {
+          toast.error('Failed to save notification settings.');
+        }
+      }
+    } catch (error) {
+      toast.error('Could not enable notifications.');
+      console.error(error);
+    }
+  };
+
+  const notificationBtn = (
+    <button 
+      onClick={enableNotifications} 
+      title="Enable Push Notifications"
+      style={{ background: isTokenFound ? 'linear-gradient(135deg, #22c55e, #16a34a)' : 'linear-gradient(135deg, #6366f1, #8b5cf6)', border: 'none', color: '#fff', padding: '0.65rem 1rem', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer', width: '100%', marginBottom: '0.75rem' }}
+    >
+      <Bell size={16} /> {isTokenFound ? '✓ Alerts Enabled' : 'Enable Push Alerts'}
+    </button>
+  );
+
 
   let navItems = [
     { name: 'Dashboard', path: '/admin', icon: <LayoutDashboard size={20} /> },
@@ -53,7 +116,7 @@ const AdminLayout = () => {
   ];
 
   if (role === 'manager') {
-    navItems = navItems.filter(item => ['Dashboard', 'Orders', 'Products', 'Customers'].includes(item.name));
+    navItems = navItems.filter(item => ['Orders', 'Products', 'Bundles', 'Coupons', 'Media Library', 'Abandoned Carts', 'Pages'].includes(item.name));
   }
 
   if (role === 'superadmin' || role === 'admin') {
@@ -66,12 +129,37 @@ const AdminLayout = () => {
 
   if (!mounted) return null;
 
+
   return (
     <div className="admin-layout">
-      <aside className="admin-sidebar" style={{ background: 'var(--bg-secondary)' }}>
-        <div style={{ marginBottom: '2rem' }}>
-          <h2 className="heading-lg" style={{ color: 'var(--text-primary)' }}>Admin Panel</h2>
+      {/* Mobile Header (visible only on mobile) */}
+      <div className="admin-mobile-header">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <img src="/logo.svg" alt="Kinaboo" style={{ height: '24px' }} onError={(e) => e.target.style.display='none'} />
+          <span style={{ fontWeight: 700, fontSize: '1.25rem' }}>Admin</span>
         </div>
+        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+          <div className="hide-on-desktop">{notificationBtn}</div>
+          <button onClick={() => setMobileMenuOpen(true)} style={{ background: 'none', border: 'none', color: 'var(--text-primary)' }}>
+          <Menu size={24} />
+        </button>
+        </div>
+      </div>
+
+      {/* Overlay for mobile sidebar */}
+      <div 
+        className={`admin-sidebar-overlay ${mobileMenuOpen ? 'mobile-open' : ''}`} 
+        onClick={() => setMobileMenuOpen(false)}
+      ></div>
+
+      <aside className={`admin-sidebar ${mobileMenuOpen ? 'mobile-open' : ''}`} style={{ background: 'var(--bg-secondary)' }}>
+        <div style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <h2 className="heading-lg" style={{ color: 'var(--text-primary)', margin: 0 }}>Admin Panel</h2>
+          <button className="mobile-close-btn" style={{ background: 'none', border: 'none', color: 'var(--text-primary)' }} onClick={() => setMobileMenuOpen(false)} style={{ background: 'none', border: 'none', color: 'var(--text-primary)', display: 'block' }}>
+            <X size={24} />
+          </button>
+        </div>
+
         <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
           {navItems.map((item) => (
             <div key={item.name}>
@@ -132,14 +220,39 @@ const AdminLayout = () => {
           ))}
         </nav>
         <div style={{ marginTop: 'auto' }}>
+          {notificationBtn}
           <button onClick={handleLogout} className="btn btn-primary" style={{ width: '100%', background: 'linear-gradient(135deg, #ef4444 0%, #f87171 100%)', display: 'flex', justifyContent: 'center', gap: '0.5rem' }}>
             <LogOut size={18} /> Logout
           </button>
         </div>
       </aside>
-      <main className="admin-content" style={{ padding: '2rem' }}>
+      <main className="admin-content" style={{ padding: '1.5rem', width: '100%', boxSizing: 'border-box' }}>
         <Outlet />
       </main>
+
+      {/* Admin Mobile Bottom Nav */}
+            <nav className="admin-bottom-nav">
+        <Link to="/admin" className={`admin-bottom-nav-item ${location.pathname === '/admin' ? 'active' : ''}`}>
+          <Activity size={20} />
+          <span>Analytics</span>
+        </Link>
+        <Link to="/admin/orders" className={`admin-bottom-nav-item ${location.pathname.startsWith('/admin/orders') ? 'active' : ''}`}>
+          <ShoppingCart size={20} />
+          <span>Orders</span>
+        </Link>
+        <Link to="/admin/abandoned-carts" className={`admin-bottom-nav-item ${location.pathname.startsWith('/admin/abandoned-carts') ? 'active' : ''}`}>
+          <PackageX size={20} />
+          <span>Carts</span>
+        </Link>
+        <Link to="/admin/customers" className={`admin-bottom-nav-item ${location.pathname.startsWith('/admin/customers') ? 'active' : ''}`}>
+          <Users size={20} />
+          <span>Customers</span>
+        </Link>
+        <button onClick={() => setMobileMenuOpen(true)} className="admin-bottom-nav-item" style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+          <Menu size={20} />
+          <span>Menu</span>
+        </button>
+      </nav>
     </div>
   );
 };

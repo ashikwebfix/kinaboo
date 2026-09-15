@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { addOrderItems, getMyOrders, getOrders, updateOrderStatus, updateOrderShipping, getOrderById, bulkUpdateOrderStatus, bulkDeleteOrders } = require('../controllers/orderController');
+const { addOrderItems, getMyOrders, getOrders, updateOrderStatus, updateOrderShipping, updateOrderItems, getOrderById, bulkUpdateOrderStatus, bulkDeleteOrders } = require('../controllers/orderController');
 const { protect, admin, optionalAuth, requireRole } = require('../middleware/authMiddleware');
 
 router.route('/')
@@ -14,5 +14,6 @@ router.route('/myorders').get(protect, getMyOrders);
 router.route('/:id').get(getOrderById);
 router.route('/:id/status').put(protect, requireRole(['superadmin', 'admin', 'manager']), updateOrderStatus);
 router.route('/:id/shipping').put(protect, requireRole(['superadmin', 'admin', 'manager']), updateOrderShipping);
+router.route('/:id/items').put(protect, requireRole(['superadmin', 'admin', 'manager']), updateOrderItems);
 
 module.exports = router;

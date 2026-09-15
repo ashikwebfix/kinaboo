@@ -18,10 +18,16 @@ const AdminCustomers = () => {
       const res = await fetch(import.meta.env.VITE_API_URL + '/api/users', {
         headers: { Authorization: `Bearer ${token}` }
       });
+      if (res.status === 401) {
+        localStorage.removeItem('userInfo');
+        navigate('/login');
+        return;
+      }
       const data = await res.json();
-      setCustomers(data);
+      setCustomers(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("Error fetching customers:", error);
+      setCustomers([]);
     } finally {
       setLoading(false);
     }
@@ -38,8 +44,8 @@ const AdminCustomers = () => {
         <div className="text-muted">Total: {customers.length} registered</div>
       </header>
 
-      <div style={{ background: 'var(--bg-secondary)', borderRadius: '12px', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+      <div style={{ background: 'var(--bg-secondary)', borderRadius: '12px', border: '1px solid var(--border-color)', overflowX: "auto" }}>
+        <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "800px" }}>
           <thead style={{ background: '#f9fafb', borderBottom: '1px solid var(--border-color)', textAlign: 'left' }}>
             <tr>
               <th style={{ padding: '1rem' }}>Customer</th>

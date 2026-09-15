@@ -23,6 +23,7 @@ const MobileBottomNav = () => {
   };
 
   if (!mounted) return null;
+  if (location.pathname.startsWith('/admin')) return null;
 
   return (
     <nav className="mobile-bottom-nav" aria-label="Mobile Navigation">

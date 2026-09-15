@@ -124,11 +124,10 @@ const addOrderItems = async (req, res) => {
         }
       }
 
-      // Mark abandoned cart as recovered
+      // Mark abandoned cart as recovered by removing it
       if (phone) {
-        await AbandonedCart.update(
-          { status: 'recovered' },
-          { where: { phone, status: 'abandoned' } }
+        await AbandonedCart.destroy(
+          { where: { phone } }
         );
       }
 
@@ -236,6 +235,14 @@ const addOrderItems = async (req, res) => {
         console.error('FB CAPI Error:', fbError.message);
       }
 
+      // Trigger Firebase Push Notification to Admins
+      try {
+        const { sendOrderNotification } = require('../utils/firebaseAdmin');
+        sendOrderNotification(order); // Fire-and-forget, don't await
+      } catch (fcmError) {
+        console.error('FCM Error:', fcmError.message);
+      }
+
       res.status(201).json(order);
     } catch (error) {
       res.status(400).json({ message: error.message });
@@ -258,7 +265,14 @@ const getMyOrders = async (req, res) => {
 
 const getOrders = async (req, res) => {
   try {
+    const whereClause = {};
+    if (req.user && req.user.role === 'manager') {
+      const { Op } = require('sequelize');
+      whereClause.status = { [Op.notIn]: ['Delivered', 'Completed'] };
+    }
+
     const orders = await Order.findAll({
+      where: whereClause,
       include: [
         { model: User, as: 'user', attributes: ['id', 'name', 'email'] },
         { model: OrderItem, as: 'orderItems', include: [{ model: Product, as: 'product' }] }
@@ -350,6 +364,10 @@ const getOrderById = async (req, res) => {
       return res.status(404).json({ message: 'Order not found' });
     }
     
+    if (req.user && req.user.role === 'manager' && (order.status === 'Delivered' || order.status === 'Completed')) {
+      return res.status(403).json({ message: 'Managers cannot access completed orders.' });
+    }
+    
     res.json(order);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -418,5 +436,65 @@ const bulkDeleteOrders = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+const updateOrderItems = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { orderItems } = req.body; // Array of { productId, qty, price, selectedVariations }
 
-module.exports = { addOrderItems, getMyOrders, getOrders, updateOrderStatus, getOrderById, bulkUpdateOrderStatus, bulkDeleteOrders, updateOrderShipping };
+    if (!orderItems || !Array.isArray(orderItems) || orderItems.length === 0) {
+      return res.status(400).json({ message: 'No order items provided' });
+    }
+
+    const order = await Order.findByPk(id);
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    // Recalculate total items price
+    const itemsTotal = orderItems.reduce((acc, item) => {
+      return acc + (Number(item.price) * Number(item.qty));
+    }, 0);
+
+    // Order total = itemsTotal - discount + shippingCost
+    const newTotalPrice = itemsTotal - Number(order.discount || 0) + Number(order.shippingCost || 0);
+
+    // Remove existing order items
+    await OrderItem.destroy({ where: { orderId: id } });
+
+    // Create new order items
+    const orderItemsData = orderItems.map((item) => ({
+      orderId: order.id,
+      productId: item.productId,
+      qty: item.qty,
+      price: item.price,
+      selectedVariations: item.selectedVariations || null
+    }));
+    await OrderItem.bulkCreate(orderItemsData);
+
+    // Update order total price
+    order.totalPrice = newTotalPrice;
+    
+    // Add log
+    let currentLogs = [];
+    if (Array.isArray(order.statusLogs)) {
+      currentLogs = [...order.statusLogs];
+    } else if (typeof order.statusLogs === 'string') {
+      try { currentLogs = JSON.parse(order.statusLogs); } catch(e) { currentLogs = []; }
+    }
+    currentLogs.push({
+      status: order.status,
+      date: new Date().toISOString(),
+      note: 'Order items updated by admin'
+    });
+    order.statusLogs = currentLogs;
+
+    await order.save();
+
+    res.json({ message: 'Order items updated successfully', order });
+  } catch (error) {
+    console.error('Error updating order items:', error);
+    res.status(500).json({ message: 'Failed to update order items' });
+  }
+};
+
+module.exports = { addOrderItems, getMyOrders, getOrders, updateOrderStatus, getOrderById, bulkUpdateOrderStatus, bulkDeleteOrders, updateOrderShipping, updateOrderItems };

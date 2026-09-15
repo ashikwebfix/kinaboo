@@ -7,6 +7,12 @@ const getSettingByKey = async (req, res) => {
   try {
     const setting = await Setting.findOne({ where: { key: req.params.key } });
     if (setting) {
+      if (req.params.key === 'firebase_settings' && setting.value.serviceAccountJson) {
+        // Create a copy to avoid mutating the db object in memory
+        const maskedValue = { ...setting.value };
+        maskedValue.serviceAccountJson = '*** HIDDEN ***';
+        return res.json(maskedValue);
+      }
       res.json(setting.value);
     } else {
       // Return default if not found
@@ -45,6 +51,17 @@ const getSettingByKey = async (req, res) => {
           },
           customSections: []
         });
+      } else if (req.params.key === 'firebase_settings') {
+        res.json({
+          apiKey: '',
+          authDomain: '',
+          projectId: '',
+          storageBucket: '',
+          messagingSenderId: '',
+          appId: '',
+          vapidKey: '',
+          serviceAccountJson: ''
+        });
       } else if (req.params.key === 'fraud_protection') {
         res.json({
           enableIPBlocking: false,
@@ -73,6 +90,7 @@ const getSettingByKey = async (req, res) => {
       }
     }
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: 'Server Error' });
   }
 };
@@ -88,14 +106,19 @@ const updateSetting = async (req, res) => {
     let setting = await Setting.findOne({ where: { key } });
 
     if (setting) {
+      if (key === 'firebase_settings' && value.serviceAccountJson === '*** HIDDEN ***') {
+        value.serviceAccountJson = setting.value.serviceAccountJson;
+      }
       setting.value = value;
       await setting.save();
     } else {
+      // Create new setting. (Don't create if service account is hidden mask, but that's impossible on first create)
       setting = await Setting.create({ key, value });
     }
 
     res.json(setting.value);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: 'Server Error' });
   }
 };

@@ -27,6 +27,22 @@ const AbandonedCart = sequelize.define('AbandonedCart', {
   status: {
     type: DataTypes.ENUM('abandoned', 'recovered'),
     defaultValue: 'abandoned'
+  },
+  ipAddress: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  userAgent: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  fbp: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  fbc: {
+    type: DataTypes.STRING,
+    allowNull: true
   }
 });
 

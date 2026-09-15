@@ -49,7 +49,7 @@ const Checkout = () => {
 
   useEffect(() => {
     // Abandoned Cart Tracking
-    if (cartItems.length > 0 && phone && bdPhoneRegex.test(phone)) {
+    if (cartItems.length > 0 && phone && phone.replace(/[^0-9]/g, '').length >= 10) {
       const timer = setTimeout(async () => {
         try {
           await fetch(`${apiUrl}/api/abandoned-carts/track`, {
@@ -59,7 +59,9 @@ const Checkout = () => {
               phone,
               name,
               cartData: cartItems,
-              totalValue: cartItems.reduce((acc, item) => acc + (item.sellPrice || item.price) * item.qty, 0)
+              totalValue: cartItems.reduce((acc, item) => acc + (item.sellPrice || item.price) * item.qty, 0),
+              fbp: getCookie('_fbp'),
+              fbc: getCookie('_fbc')
             })
           });
         } catch (err) {
@@ -219,7 +221,7 @@ const Checkout = () => {
                   value={phone} 
                   onChange={e => setPhone(e.target.value)} 
                   onBlur={() => {
-                    if (phone && /^(?:\+88|88)?01[3-9]\d{8}$/.test(phone)) {
+                    if (phone && phone.replace(/[^0-9]/g, '').length >= 10) {
                       fetch(`${apiUrl}/api/abandoned-carts/track`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -227,7 +229,9 @@ const Checkout = () => {
                           phone,
                           name,
                           cartData: cartItems,
-                          totalValue: cartItems.reduce((acc, item) => acc + (item.sellPrice || item.price) * item.qty, 0)
+                          totalValue: cartItems.reduce((acc, item) => acc + (item.sellPrice || item.price) * item.qty, 0),
+                          fbp: getCookie('_fbp'),
+                          fbc: getCookie('_fbc')
                         })
                       }).catch(() => {});
                     }

@@ -32,6 +32,7 @@ const AdminSettings = () => {
   const [trackingSettings, setTrackingSettings] = useState({ gtmId: '', googleAnalyticsId: '', fbPixels: [], fbPixelId: '', fbCapiToken: '', fbTestEventCode: '' });
   const [pathaoSettings, setPathaoSettings] = useState({ clientId: '', clientSecret: '', username: '', password: '', storeId: '', baseUrl: 'https://api-hermes.pathao.com' });
   const [generalSettings, setGeneralSettings] = useState({ maintenanceMode: false, maintenanceMessage: 'Site is under maintenance. We will be right back.' });
+  const [firebaseSettings, setFirebaseSettings] = useState({ apiKey: '', authDomain: '', projectId: '', storageBucket: '', messagingSenderId: '', appId: '', vapidKey: '', serviceAccountJson: '' });
   const [storefrontUI, setStorefrontUI] = useState({
     heroType: 'multi', singleHeroImage: '', singleHeroLink: '',
     heroBanners: [], promotionalBanners: [], trustBadges: [], superHourDeals: { productIds: [], endTime: '' },
@@ -101,6 +102,11 @@ const AdminSettings = () => {
       }
 
       const pathaoRes = await fetch(import.meta.env.VITE_API_URL + '/api/settings/pathao_settings', { headers: { Authorization: `Bearer ${token}` } });
+      const firebaseRes = await fetch(import.meta.env.VITE_API_URL + '/api/settings/firebase_settings', { headers: { Authorization: `Bearer ${token}` } });
+      if (firebaseRes.ok) {
+        const firebaseData = await firebaseRes.json();
+        if (firebaseData) setFirebaseSettings(firebaseData);
+      }
       if (pathaoRes.ok) {
         const pathaoData = await pathaoRes.json();
         if (pathaoData) setPathaoSettings(pathaoData);
@@ -386,7 +392,7 @@ const AdminSettings = () => {
 
                 {generalSettings.showAnnouncementBar !== false && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem' }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '1rem' }}>
+                    <div className="form-grid-2">
                       <div>
                         <label style={{ display: 'block', marginBottom: '0.4rem', fontWeight: 500, fontSize: '0.9rem' }}>Offer Badge Text</label>
                         <input
@@ -409,7 +415,7 @@ const AdminSettings = () => {
                       </div>
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                    <div className="form-grid-2">
                       <div>
                         <label style={{ display: 'block', marginBottom: '0.4rem', fontWeight: 500, fontSize: '0.9rem' }}>Track Order Button Label</label>
                         <input
@@ -440,7 +446,7 @@ const AdminSettings = () => {
                 <h3 style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '1.25rem' }}>
                   Store Logos (SVG Supported)
                 </h3>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+                <div className="form-grid-2">
                   {/* Header Logo */}
                   <div>
                     <label style={{ display: 'block', marginBottom: '0.4rem', fontWeight: 500, fontSize: '0.9rem' }}>Header Logo</label>
@@ -501,7 +507,7 @@ const AdminSettings = () => {
                     />
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <div className="form-grid-2">
                     <div>
                       <label style={{ display: 'block', marginBottom: '0.4rem', fontWeight: 500, fontSize: '0.9rem' }}>Hotline / Phone Number</label>
                       <input
@@ -535,7 +541,7 @@ const AdminSettings = () => {
                     />
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '0.5rem' }}>
+                  <div className="form-grid-2" style={{ marginTop: "0.5rem" }}>
                     <div>
                       <label style={{ display: 'block', marginBottom: '0.4rem', fontWeight: 500, fontSize: '0.9rem' }}>Facebook Page URL</label>
                       <input
@@ -558,7 +564,7 @@ const AdminSettings = () => {
                     </div>
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <div className="form-grid-2">
                     <div>
                       <label style={{ display: 'block', marginBottom: '0.4rem', fontWeight: 500, fontSize: '0.9rem' }}>YouTube Channel URL</label>
                       <input
@@ -840,7 +846,7 @@ const AdminSettings = () => {
             <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', fontSize: '0.95rem' }}>
               Configure Pathao API credentials to enable one-click consignment dispatch and live tracking.
             </p>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', maxWidth: '800px' }}>
+            <div className="form-grid-2" style={{ maxWidth: "800px" }}>
               <div>
                 <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>Client ID</label>
                 <input className="input-field" placeholder="e.g. 1234" value={pathaoSettings.clientId || ''} onChange={e => setPathaoSettings({ ...pathaoSettings, clientId: e.target.value })} style={{ width: '100%' }} />
