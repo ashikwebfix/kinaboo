@@ -875,7 +875,6 @@ const AdminSettings = () => {
               </div>
             </div>
           </div>
-          </div>
         )}
 
         {activeTab === 'firebase' && (
