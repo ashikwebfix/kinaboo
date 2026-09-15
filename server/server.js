@@ -50,16 +50,27 @@ const { sequelize } = require('./config/db');
 
 // Safe DB migrations - adds missing columns without breaking existing data
 const runMigrations = async () => {
-  try {
-    // Add fcmToken to Users if missing
-    const [fcmCols] = await sequelize.query("SHOW COLUMNS FROM Users LIKE 'fcmToken'");
-    if (fcmCols.length === 0) {
-      await sequelize.query('ALTER TABLE Users ADD COLUMN fcmToken TEXT NULL');
-      console.log('[Migration] Added fcmToken column to Users table');
+  const safeAlter = async (table, column, definition) => {
+    try {
+      const [cols] = await sequelize.query(`SHOW COLUMNS FROM ${table} LIKE '${column}'`);
+      if (cols.length === 0) {
+        await sequelize.query(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`);
+        console.log(`[Migration] Added ${column} to ${table}`);
+      }
+    } catch (err) {
+      console.error(`[Migration] Failed to add ${column} to ${table}:`, err.message);
     }
-  } catch (err) {
-    console.error('[Migration] Error running migrations:', err.message);
-  }
+  };
+
+  await safeAlter('Users', 'fcmToken', 'TEXT NULL');
+  await safeAlter('Users', 'phone', 'VARCHAR(255) NULL');
+  await safeAlter('Users', 'address', 'TEXT NULL');
+  await safeAlter('AbandonedCarts', 'fbp', 'VARCHAR(255) NULL');
+  await safeAlter('AbandonedCarts', 'fbc', 'VARCHAR(255) NULL');
+  await safeAlter('AbandonedCarts', 'ipAddress', 'VARCHAR(255) NULL');
+  await safeAlter('AbandonedCarts', 'userAgent', 'VARCHAR(255) NULL');
+  await safeAlter('AbandonedCarts', 'name', 'VARCHAR(255) NULL');
+  console.log('[Migration] All migrations complete.');
 };
 
 // Connect to database and run migrations
