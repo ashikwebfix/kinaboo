@@ -875,6 +875,52 @@ const AdminSettings = () => {
               </div>
             </div>
           </div>
+          </div>
+        )}
+
+        {activeTab === 'firebase' && (
+          <div className="animate-fade-in">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '1rem' }}>
+              <SettingsIcon size={20} color="var(--accent-primary)" />
+              <h2 style={{ fontSize: '1.25rem', fontWeight: 600 }}>Firebase Push Notifications</h2>
+            </div>
+            <p className="text-muted" style={{ marginBottom: '1.5rem' }}>Configure Firebase Cloud Messaging to receive new order alerts on your devices.</p>
+            
+            <div className="form-grid-2" style={{ maxWidth: "800px" }}>
+              <div className="input-group">
+                <label>API Key</label>
+                <input type="text" className="input-field" value={firebaseSettings?.apiKey || ''} onChange={e => setFirebaseSettings({...firebaseSettings, apiKey: e.target.value})} />
+              </div>
+              <div className="input-group">
+                <label>Auth Domain</label>
+                <input type="text" className="input-field" value={firebaseSettings?.authDomain || ''} onChange={e => setFirebaseSettings({...firebaseSettings, authDomain: e.target.value})} />
+              </div>
+              <div className="input-group">
+                <label>Project ID</label>
+                <input type="text" className="input-field" value={firebaseSettings?.projectId || ''} onChange={e => setFirebaseSettings({...firebaseSettings, projectId: e.target.value})} />
+              </div>
+              <div className="input-group">
+                <label>Storage Bucket</label>
+                <input type="text" className="input-field" value={firebaseSettings?.storageBucket || ''} onChange={e => setFirebaseSettings({...firebaseSettings, storageBucket: e.target.value})} />
+              </div>
+              <div className="input-group">
+                <label>Messaging Sender ID</label>
+                <input type="text" className="input-field" value={firebaseSettings?.messagingSenderId || ''} onChange={e => setFirebaseSettings({...firebaseSettings, messagingSenderId: e.target.value})} />
+              </div>
+              <div className="input-group">
+                <label>App ID</label>
+                <input type="text" className="input-field" value={firebaseSettings?.appId || ''} onChange={e => setFirebaseSettings({...firebaseSettings, appId: e.target.value})} />
+              </div>
+              <div className="input-group">
+                <label>VAPID Public Key</label>
+                <input type="text" className="input-field" value={firebaseSettings?.vapidKey || ''} onChange={e => setFirebaseSettings({...firebaseSettings, vapidKey: e.target.value})} />
+              </div>
+              <div className="input-group" style={{ gridColumn: '1 / -1' }}>
+                <label>Service Account JSON (Server-side)</label>
+                <textarea className="input-field" rows="6" value={firebaseSettings?.serviceAccountJson || ''} onChange={e => setFirebaseSettings({...firebaseSettings, serviceAccountJson: e.target.value})} placeholder="Paste the entire JSON content of your Firebase service account key..."></textarea>
+              </div>
+            </div>
+          </div>
         )}
 
       </div>
