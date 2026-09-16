@@ -1189,14 +1189,45 @@ const ProductDetails = () => {
         {product.reviews && product.reviews.length > 0 && (
           <div style={{ marginBottom: '4rem' }}>
             <h2 className="heading-lg" style={{ marginBottom: '2rem', textAlign: 'center' }}>Customer Reviews</h2>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            <style>{`
+              .reviews-carousel::-webkit-scrollbar {
+                display: none;
+              }
+              .review-card {
+                flex: 0 0 calc(25% - 1.125rem);
+                min-width: 300px;
+                scroll-snap-align: start;
+                padding: 1.5rem;
+                border: 1px solid var(--border-color);
+                border-radius: 12px;
+                background: #fff;
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+                display: flex;
+                flex-direction: column;
+              }
+              @media (max-width: 1024px) {
+                .review-card { flex: 0 0 calc(33.333% - 1rem); }
+              }
+              @media (max-width: 768px) {
+                .review-card { flex: 0 0 calc(85%); }
+              }
+            `}</style>
+            <div className="reviews-carousel" style={{ 
+              display: 'flex', 
+              overflowX: 'auto', 
+              scrollSnapType: 'x mandatory', 
+              gap: '1.5rem', 
+              paddingBottom: '1rem',
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none'
+            }}>
               {product.reviews.map((rv, idx) => (
-                <div key={idx} style={{ padding: '1.5rem', border: '1px solid var(--border-color)', borderRadius: '12px', background: '#fff', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)' }}>
+                <div key={idx} className="review-card">
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
                     <div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
                         <span style={{ fontWeight: 600, fontSize: '1.1rem', color: 'var(--text-primary)' }}>{rv.name}</span>
-                        <CheckCircle2 size={16} color="#22c55e" /> <span style={{ fontSize: '0.8rem', color: '#22c55e' }}>Verified Buyer</span>
+                        <CheckCircle2 size={16} color="#22c55e" /> <span style={{ fontSize: '0.8rem', color: '#22c55e' }}>Verified</span>
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
                         {[...Array(5)].map((_, i) => (
@@ -1204,15 +1235,15 @@ const ProductDetails = () => {
                         ))}
                       </div>
                     </div>
-                    {rv.date && (
-                      <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                        {new Date(rv.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-                      </span>
-                    )}
                   </div>
-                  <p style={{ color: 'var(--text-secondary)', lineHeight: '1.6', margin: 0, fontSize: '1rem' }}>
+                  <p style={{ color: 'var(--text-secondary)', lineHeight: '1.6', margin: 0, fontSize: '1rem', flex: 1 }}>
                     {rv.comment}
                   </p>
+                  {rv.date && (
+                    <div style={{ marginTop: '1.5rem', fontSize: '0.85rem', color: 'var(--text-secondary)', borderTop: '1px solid #f3f4f6', paddingTop: '0.75rem' }}>
+                      {new Date(rv.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
