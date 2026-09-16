@@ -12,7 +12,9 @@ const AdminOrders = () => {
   const [bulkStatus, setBulkStatus] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
   const navigate = useNavigate();
-  const token = JSON.parse(localStorage.getItem('userInfo') || '{}').token;
+  const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+  const token = userInfo.token;
+  const userRole = userInfo.role;
 
   useEffect(() => {
     if (!token) navigate('/admin/login');
@@ -108,7 +110,11 @@ const AdminOrders = () => {
 
   const handleBulkDelete = async () => {
     if (selectedOrders.length === 0) return;
-    if (!window.confirm(`Are you sure you want to delete selected orders? (Only Cancelled orders will be deleted)`)) return;
+    const confirmMessage = userRole === 'superadmin' 
+      ? `Are you sure you want to permanently delete ${selectedOrders.length} selected orders?`
+      : `Are you sure you want to delete selected orders? (Only Cancelled orders will be deleted)`;
+      
+    if (!window.confirm(confirmMessage)) return;
 
     setActionLoading(true);
     try {

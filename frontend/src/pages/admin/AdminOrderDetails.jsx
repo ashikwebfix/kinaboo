@@ -10,7 +10,9 @@ const AdminOrderDetails = () => {
   
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
-  const token = JSON.parse(localStorage.getItem('userInfo') || '{}').token;
+  const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+  const token = userInfo.token;
+  const userRole = userInfo.role;
 
   // Form states
   const [status, setStatus] = useState('');
@@ -135,6 +137,25 @@ const AdminOrderDetails = () => {
     } catch (error) {
       console.error("Error updating order:", error);
       toast.error('Something went wrong');
+    }
+  };
+
+  const handleDeleteOrder = async () => {
+    if (!window.confirm('Are you sure you want to permanently delete this order and all its details? This action cannot be undone.')) return;
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/orders/${id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        toast.success('Order deleted successfully');
+        navigate('/admin/orders');
+      } else {
+        const errorData = await res.json();
+        toast.error(errorData.message || 'Failed to delete order');
+      }
+    } catch (error) {
+      toast.error('Error deleting order');
     }
   };
 
@@ -479,7 +500,16 @@ const AdminOrderDetails = () => {
         >
           <ArrowLeft size={18} /> Back to Orders
         </button>
-        <div style={{ display: 'flex', gap: '1rem' }}>
+        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+          {userRole === 'superadmin' && (
+            <button 
+              onClick={handleDeleteOrder}
+              className="btn"
+              style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#fee2e2', color: '#dc2626', borderColor: '#fee2e2' }}
+            >
+              <Trash2 size={18} /> Delete Order
+            </button>
+          )}
           <button 
             onClick={openPathaoModal}
             className="btn btn-secondary"

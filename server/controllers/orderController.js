@@ -423,15 +423,27 @@ const bulkDeleteOrders = async (req, res) => {
       return res.status(400).json({ message: 'No order IDs provided' });
     }
 
-    // Only allow deleting cancelled orders
+    const whereClause = { id: ids };
+    
+    // Only allow deleting cancelled orders, UNLESS user is superadmin
+    if (req.user && req.user.role !== 'superadmin') {
+      whereClause.status = 'Cancelled';
+    }
+
+    // First find the exact orders that match the where clause so we can delete their items
+    const ordersToDelete = await Order.findAll({ where: whereClause, attributes: ['id'] });
+    const orderIdsToDelete = ordersToDelete.map(o => o.id);
+
+    if (orderIdsToDelete.length > 0) {
+      // Delete associated order items first
+      await OrderItem.destroy({ where: { orderId: orderIdsToDelete } });
+    }
+
     const deleted = await Order.destroy({
-      where: {
-        id: ids,
-        status: 'Cancelled'
-      }
+      where: whereClause
     });
 
-    res.json({ message: `Successfully deleted ${deleted} cancelled orders` });
+    res.json({ message: `Successfully deleted ${deleted} orders` });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -497,4 +509,24 @@ const updateOrderItems = async (req, res) => {
   }
 };
 
-module.exports = { addOrderItems, getMyOrders, getOrders, updateOrderStatus, getOrderById, bulkUpdateOrderStatus, bulkDeleteOrders, updateOrderShipping, updateOrderItems };
+const deleteOrder = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const order = await Order.findByPk(id);
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+    
+    // Delete associated order items first
+    await OrderItem.destroy({ where: { orderId: id } });
+    
+    // Delete the order itself
+    await order.destroy();
+
+    res.json({ message: 'Order and its details deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+module.exports = { addOrderItems, getMyOrders, getOrders, updateOrderStatus, getOrderById, bulkUpdateOrderStatus, bulkDeleteOrders, updateOrderShipping, updateOrderItems, deleteOrder };
