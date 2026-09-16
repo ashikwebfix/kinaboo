@@ -29,6 +29,7 @@ const AdminProductForm = () => {
   const [keypoints, setKeypoints] = useState([]); 
   const [variations, setVariations] = useState([]);
   const [faq, setFaq] = useState([]);
+  const [reviews, setReviews] = useState([]);
   const [longDescription, setLongDescription] = useState('');
   const [imageTextSections, setImageTextSections] = useState([]);
   const [tags, setTags] = useState([]);
@@ -79,6 +80,7 @@ const AdminProductForm = () => {
       setKeypoints(product.keypoints || []);
       setVariations(product.variations || []);
       setFaq(product.faq || []);
+      setReviews(product.reviews || []);
       setLongDescription(product.longDescription || '');
       setImageTextSections(product.imageTextSections || []);
       setTags(product.tags || []);
@@ -96,7 +98,7 @@ const AdminProductForm = () => {
     e.preventDefault();
     
     const parsedData = {
-      name, sku, category, price: Number(price), stock: Number(stock), allowSellWithoutStock, image, images, variations, faq, description, longDescription, imageTextSections, tags, status, volumeBundles, configurator,
+      name, sku, category, price: Number(price), stock: Number(stock), allowSellWithoutStock, image, images, variations, faq, reviews, description, longDescription, imageTextSections, tags, status, volumeBundles, configurator,
       sellPrice: sellPrice ? Number(sellPrice) : null,
       keypoints: keypoints.map(s => s.trim()).filter(Boolean)
     };
@@ -205,6 +207,15 @@ const AdminProductForm = () => {
     const newFaq = [...faq];
     newFaq[idx][field] = val;
     setFaq(newFaq);
+  };
+
+  // --- Reviews Handlers ---
+  const addReview = () => setReviews([...reviews, { name: '', rating: 5, date: new Date().toISOString().split('T')[0], comment: '' }]);
+  const removeReview = (idx) => setReviews(reviews.filter((_, i) => i !== idx));
+  const updateReview = (idx, field, val) => {
+    const newReviews = [...reviews];
+    newReviews[idx][field] = val;
+    setReviews(newReviews);
   };
 
   // --- Image Text Sections Handlers ---
@@ -596,6 +607,39 @@ const AdminProductForm = () => {
                   <option key={cat.id} value={cat.title}>{cat.title}</option>
                 ))}
               </select>
+            </div>
+
+            {/* Reviews Box */}
+            <div style={{ padding: '1.5rem', border: '1px solid var(--border-color)', borderRadius: '8px', background: '#fff' }}>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 600, margin: '0 0 1rem 0' }}>Manual Product Reviews</h3>
+              {reviews.map((rv, idx) => (
+                <div key={idx} style={{ padding: '1rem', border: '1px solid var(--border-color)', borderRadius: '8px', marginBottom: '1rem', position: 'relative', background: '#f9fafb' }}>
+                  <button type="button" onClick={() => removeReview(idx)} style={{ position: 'absolute', top: '10px', right: '10px', background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer' }}>
+                    <Trash2 size={18} />
+                  </button>
+                  <div className="form-grid-2" style={{ marginBottom: '1rem', gap: '1rem' }}>
+                    <div className="input-group">
+                      <label>Reviewer Name</label>
+                      <input type="text" className="input-field" value={rv.name} onChange={e => updateReview(idx, 'name', e.target.value)} placeholder="e.g. John Doe" required />
+                    </div>
+                    <div className="input-group">
+                      <label>Rating (1-5)</label>
+                      <input type="number" className="input-field" value={rv.rating} onChange={e => updateReview(idx, 'rating', Number(e.target.value))} min="1" max="5" required />
+                    </div>
+                    <div className="input-group">
+                      <label>Date</label>
+                      <input type="date" className="input-field" value={rv.date} onChange={e => updateReview(idx, 'date', e.target.value)} required />
+                    </div>
+                  </div>
+                  <div className="input-group" style={{ marginBottom: 0 }}>
+                    <label>Review Comment</label>
+                    <textarea className="input-field" rows="3" value={rv.comment} onChange={e => updateReview(idx, 'comment', e.target.value)} placeholder="What did they think about this product?"></textarea>
+                  </div>
+                </div>
+              ))}
+              <button type="button" className="btn btn-secondary" onClick={addReview} style={{ width: '100%', display: 'flex', justifyContent: 'center', gap: '0.5rem' }}>
+                <Plus size={18} /> Add Review
+              </button>
             </div>
 
             {/* Tags Box */}

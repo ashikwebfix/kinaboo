@@ -74,6 +74,10 @@ const Product = sequelize.define('Product', {
     type: DataTypes.JSON,
     allowNull: true,
   },
+  reviews: {
+    type: DataTypes.JSON,
+    allowNull: true,
+  },
   tags: {
     type: DataTypes.JSON,
     allowNull: true,

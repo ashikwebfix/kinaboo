@@ -1185,6 +1185,40 @@ const ProductDetails = () => {
           }
         })}
 
+        {/* Manual Product Reviews */}
+        {product.reviews && product.reviews.length > 0 && (
+          <div style={{ marginBottom: '4rem' }}>
+            <h2 className="heading-lg" style={{ marginBottom: '2rem', textAlign: 'center' }}>Customer Reviews</h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              {product.reviews.map((rv, idx) => (
+                <div key={idx} style={{ padding: '1.5rem', border: '1px solid var(--border-color)', borderRadius: '12px', background: '#fff', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
+                        <span style={{ fontWeight: 600, fontSize: '1.1rem', color: 'var(--text-primary)' }}>{rv.name}</span>
+                        <CheckCircle2 size={16} color="#22c55e" /> <span style={{ fontSize: '0.8rem', color: '#22c55e' }}>Verified Buyer</span>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+                        {[...Array(5)].map((_, i) => (
+                          <Star key={i} size={16} fill={i < rv.rating ? "#f59e0b" : "transparent"} color={i < rv.rating ? "#f59e0b" : "#d1d5db"} />
+                        ))}
+                      </div>
+                    </div>
+                    {rv.date && (
+                      <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                        {new Date(rv.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                      </span>
+                    )}
+                  </div>
+                  <p style={{ color: 'var(--text-secondary)', lineHeight: '1.6', margin: 0, fontSize: '1rem' }}>
+                    {rv.comment}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* FAQs */}
         {product.faq && product.faq.some(item => item.question && item.question.trim() !== '') && (
           <div style={{ marginBottom: '4rem' }}>
