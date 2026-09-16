@@ -53,12 +53,20 @@ const ProductCard = ({ product = {}, showRating = false }) => {
     setShowExpressModal(true);
   };
 
-  // Pseudo rating calculation based on product identity for visual consistency
-  const ratings = [4.8, 4.9, 5.0];
-  const str = (productId || product.name || 'a').toString();
-  const ratingIndex = (str.charCodeAt(0) + str.length) % 3;
-  const rating = ratings[ratingIndex];
-  const reviewsCount = 18 + (str.charCodeAt(str.length - 1) % 65);
+  let rating = 0;
+  let reviewsCount = 0;
+
+  if (product.reviews && product.reviews.length > 0) {
+    reviewsCount = product.reviews.length;
+    const total = product.reviews.reduce((sum, rv) => sum + rv.rating, 0);
+    rating = total / reviewsCount;
+  } else {
+    const ratings = [4.8, 4.9, 5.0];
+    const str = (productId || product.name || 'a').toString();
+    const ratingIndex = (str.charCodeAt(0) + str.length) % 3;
+    rating = ratings[ratingIndex];
+    reviewsCount = 18 + (str.charCodeAt(str.length - 1) % 65);
+  }
 
   const regularPrice = Number(product.price) || 0;
   const currentPrice = product.sellPrice ? Number(product.sellPrice) : regularPrice;

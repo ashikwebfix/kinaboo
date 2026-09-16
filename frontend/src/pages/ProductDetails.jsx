@@ -518,6 +518,19 @@ const ProductDetails = () => {
 
   const ogDesc = stripHtml(product.description).substring(0, 200) + (product.description?.length > 200 ? '...' : '');
 
+  let rating = 0;
+  let reviewsCount = 0;
+  if (product.reviews && product.reviews.length > 0) {
+    reviewsCount = product.reviews.length;
+    const total = product.reviews.reduce((sum, rv) => sum + rv.rating, 0);
+    rating = total / reviewsCount;
+  } else {
+    const str = (product.id || product.name || 'a').toString();
+    const ratingIndex = (str.charCodeAt(0) + str.length) % 3;
+    rating = [4.8, 4.9, 5.0][ratingIndex];
+    reviewsCount = 18 + (str.charCodeAt(str.length - 1) % 65);
+  }
+
   return (
     <div className="container" style={{ paddingBottom: '4rem' }}>
       <Helmet>
@@ -705,14 +718,14 @@ const ProductDetails = () => {
                 {[...Array(5)].map((_, i) => (
                   <Star 
                     key={i} 
-                    fill={i < Math.round(Number(product.rating || 4.9)) ? '#f59e0b' : '#e2e8f0'} 
-                    color={i < Math.round(Number(product.rating || 4.9)) ? '#f59e0b' : '#cbd5e1'} 
+                    fill={i < Math.round(rating) ? '#f59e0b' : '#e2e8f0'} 
+                    color={i < Math.round(rating) ? '#f59e0b' : '#cbd5e1'} 
                     size={14} 
                   />
                 ))}
               </div>
-              <span className="review-score">{Number(product.rating || 4.9).toFixed(1)}</span>
-              <span className="review-count">({product.reviewsCount || product.numReviews || 124} Reviews)</span>
+              <span className="review-score">{rating.toFixed(1)}</span>
+              <span className="review-count">({reviewsCount} Reviews)</span>
             </div>
           </div>
 
