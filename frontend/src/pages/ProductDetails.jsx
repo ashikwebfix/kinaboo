@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ShieldCheck, Truck, RotateCcw, Star, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, X, Lock, HeadphonesIcon, ZoomIn, Maximize2, Minus, Plus, Home as HomeIcon, CheckCircle2, ShoppingBag, Zap, Sparkles } from 'lucide-react';
 import useCartStore from '../store/useCartStore';
@@ -175,6 +175,44 @@ const ProductDetails = () => {
   const [comboProducts, setComboProducts] = useState([]);
 
   const userInfo = JSON.parse(localStorage.getItem('userInfo') || 'null');
+  const reviewsCarouselRef = useRef(null);
+
+  useEffect(() => {
+    const carousel = reviewsCarouselRef.current;
+    if (!carousel) return;
+    
+    let isPaused = false;
+    
+    const scrollStep = () => {
+      if (!isPaused && carousel) {
+        const maxScroll = carousel.scrollWidth - carousel.clientWidth;
+        if (carousel.scrollLeft >= maxScroll - 10) {
+          carousel.scrollTo({ left: 0, behavior: 'smooth' });
+        } else {
+          const cardWidth = carousel.children[0]?.clientWidth || 300;
+          carousel.scrollBy({ left: cardWidth + 24, behavior: 'smooth' });
+        }
+      }
+    };
+
+    const timer = setInterval(scrollStep, 4000);
+    
+    const pause = () => isPaused = true;
+    const resume = () => isPaused = false;
+    
+    carousel.addEventListener('mouseenter', pause);
+    carousel.addEventListener('mouseleave', resume);
+    carousel.addEventListener('touchstart', pause);
+    carousel.addEventListener('touchend', resume);
+    
+    return () => {
+      clearInterval(timer);
+      carousel.removeEventListener('mouseenter', pause);
+      carousel.removeEventListener('mouseleave', resume);
+      carousel.removeEventListener('touchstart', pause);
+      carousel.removeEventListener('touchend', resume);
+    };
+  }, [product?.reviews]);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -1225,7 +1263,7 @@ const ProductDetails = () => {
                 .review-card { flex: 0 0 calc(85%); }
               }
             `}</style>
-            <div className="reviews-carousel" style={{ 
+            <div ref={reviewsCarouselRef} className="reviews-carousel" style={{ 
               display: 'flex', 
               overflowX: 'auto', 
               scrollSnapType: 'x mandatory', 
