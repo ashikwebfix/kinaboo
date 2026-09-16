@@ -9,6 +9,7 @@ router.post('/login', authUser);
 router.route('/profile')
   .get(protect, getUserProfile)
   .put(protect, updateUserProfile);
+router.put('/fcm-token', protect, updateFcmToken);
 router.route('/:id').delete(protect, admin, deleteUser).put(protect, admin, updateUserRole);
 
 module.exports = router;
