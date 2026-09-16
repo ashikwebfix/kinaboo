@@ -10,7 +10,14 @@ const { sequelize } = require('../config/db');
 
 const initSession = async (req, res) => {
   try {
-    const { sessionId, userAgent } = req.body;
+    const { sessionId } = req.body;
+    let { userAgent } = req.body;
+    
+    // Ensure userAgent fits in VARCHAR(255) to prevent 500 Internal Server Errors
+    if (userAgent && userAgent.length > 255) {
+      userAgent = userAgent.substring(0, 255);
+    }
+
     let ipAddress = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
     
     // clean ipv6 localhost
