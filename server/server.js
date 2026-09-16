@@ -63,6 +63,7 @@ const runMigrations = async () => {
   };
 
   await safeAlter('Users', 'fcmToken', 'TEXT NULL');
+  await safeAlter('Products', 'reviews', 'JSON NULL');
   await safeAlter('Users', 'phone', 'VARCHAR(255) NULL');
   await safeAlter('Users', 'address', 'TEXT NULL');
   await safeAlter('AbandonedCarts', 'fbp', 'VARCHAR(255) NULL');
