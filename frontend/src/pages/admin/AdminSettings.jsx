@@ -277,7 +277,12 @@ const AdminSettings = () => {
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ value: generalSettings })
       });
-      if (res1.ok && res2.ok && res3.ok && res4.ok && res5.ok && res6.ok) {
+      const res7 = await fetch(import.meta.env.VITE_API_URL + '/api/settings/firebase_settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ value: firebaseSettings })
+      });
+      if (res1.ok && res2.ok && res3.ok && res4.ok && res5.ok && res6.ok && res7.ok) {
         alert('Settings saved successfully!');
       } else {
         alert('Failed to save settings.');
