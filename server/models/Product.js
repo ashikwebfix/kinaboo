@@ -58,6 +58,10 @@ const Product = sequelize.define('Product', {
     type: DataTypes.JSON,
     allowNull: true,
   },
+  youtubeReels: {
+    type: DataTypes.JSON,
+    allowNull: true,
+  },
   keypoints: {
     type: DataTypes.JSON,
     allowNull: true,

@@ -30,6 +30,7 @@ const AdminProductForm = () => {
   const [variations, setVariations] = useState([]);
   const [faq, setFaq] = useState([]);
   const [reviews, setReviews] = useState([]);
+  const [youtubeReels, setYoutubeReels] = useState([]);
   const [longDescription, setLongDescription] = useState('');
   const [imageTextSections, setImageTextSections] = useState([]);
   const [tags, setTags] = useState([]);
@@ -81,6 +82,7 @@ const AdminProductForm = () => {
       setVariations(product.variations || []);
       setFaq(product.faq || []);
       setReviews(product.reviews || []);
+      setYoutubeReels(product.youtubeReels || []);
       setLongDescription(product.longDescription || '');
       setImageTextSections(product.imageTextSections || []);
       setTags(product.tags || []);
@@ -98,7 +100,7 @@ const AdminProductForm = () => {
     e.preventDefault();
     
     const parsedData = {
-      name, sku, category, price: Number(price), stock: Number(stock), allowSellWithoutStock, image, images, variations, faq, reviews, description, longDescription, imageTextSections, tags, status, volumeBundles, configurator,
+      name, sku, category, price: Number(price), stock: Number(stock), allowSellWithoutStock, image, images, variations, faq, reviews, youtubeReels, description, longDescription, imageTextSections, tags, status, volumeBundles, configurator,
       sellPrice: sellPrice ? Number(sellPrice) : null,
       keypoints: keypoints.map(s => s.trim()).filter(Boolean)
     };
@@ -216,6 +218,15 @@ const AdminProductForm = () => {
     const newReviews = [...reviews];
     newReviews[idx][field] = val;
     setReviews(newReviews);
+  };
+
+  // --- YouTube Reels Handlers ---
+  const addYoutubeReel = () => setYoutubeReels([...youtubeReels, '']);
+  const removeYoutubeReel = (idx) => setYoutubeReels(youtubeReels.filter((_, i) => i !== idx));
+  const updateYoutubeReel = (idx, val) => {
+    const newReels = [...youtubeReels];
+    newReels[idx] = val;
+    setYoutubeReels(newReels);
   };
 
   // --- Image Text Sections Handlers ---
@@ -611,6 +622,30 @@ const AdminProductForm = () => {
               ))}
               <button type="button" className="btn btn-secondary" onClick={addReview} style={{ width: '100%', display: 'flex', justifyContent: 'center', gap: '0.5rem' }}>
                 <Plus size={18} /> Add Review
+              </button>
+            </div>
+
+            {/* YouTube Reels Box */}
+            <div style={{ padding: '1.5rem', border: '1px solid var(--border-color)', borderRadius: '8px', background: '#fff' }}>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 600, margin: '0 0 1rem 0' }}>YouTube Reels / Shorts</h3>
+              {youtubeReels.map((url, idx) => (
+                <div key={idx} style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+                  <input 
+                    type="url" 
+                    className="input-field" 
+                    style={{ flex: 1, marginBottom: 0 }}
+                    value={url} 
+                    onChange={e => updateYoutubeReel(idx, e.target.value)} 
+                    placeholder="https://www.youtube.com/shorts/..." 
+                    required 
+                  />
+                  <button type="button" className="btn btn-secondary" onClick={() => removeYoutubeReel(idx)} style={{ color: '#ef4444', padding: '0 1rem' }}>
+                    <Trash2 size={18} />
+                  </button>
+                </div>
+              ))}
+              <button type="button" className="btn btn-secondary" onClick={addYoutubeReel} style={{ width: '100%', display: 'flex', justifyContent: 'center', gap: '0.5rem' }}>
+                <Plus size={18} /> Add YouTube Reel
               </button>
             </div>
 

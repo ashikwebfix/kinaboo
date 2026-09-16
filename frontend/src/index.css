@@ -8358,3 +8358,10 @@ a.drawer-contact-row {
     justify-content: flex-start !important;
   }
 }
+
+@media (max-width: 768px) {
+  .product-main-image-container {
+    padding: 0 !important;
+  }
+}
+

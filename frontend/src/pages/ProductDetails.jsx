@@ -176,6 +176,7 @@ const ProductDetails = () => {
 
   const userInfo = JSON.parse(localStorage.getItem('userInfo') || 'null');
   const reviewsCarouselRef = useRef(null);
+  const reelsCarouselRef = useRef(null);
 
   useEffect(() => {
     // Small delay to ensure the DOM is fully painted and the ref is attached
@@ -220,6 +221,14 @@ const ProductDetails = () => {
     const carousel = reviewsCarouselRef.current;
     if (carousel) {
       const cardWidth = carousel.children[0]?.clientWidth || 300;
+      carousel.scrollBy({ left: dir === 'left' ? -(cardWidth + 24) : (cardWidth + 24), behavior: 'smooth' });
+    }
+  };
+
+  const scrollReels = (dir) => {
+    const carousel = reelsCarouselRef.current;
+    if (carousel) {
+      const cardWidth = carousel.children[0]?.clientWidth || 250;
       carousel.scrollBy({ left: dir === 'left' ? -(cardWidth + 24) : (cardWidth + 24), behavior: 'smooth' });
     }
   };
@@ -1246,6 +1255,76 @@ const ProductDetails = () => {
           }
         })}
 
+        {/* YouTube Reels */}
+        {product.youtubeReels && product.youtubeReels.length > 0 && (
+          <div style={{ marginBottom: '4rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', padding: '0 0.5rem' }}>
+              <h2 className="heading-lg" style={{ margin: 0 }}>Product Videos</h2>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <button type="button" onClick={() => scrollReels('left')} style={{ background: '#fff', border: '1px solid var(--border-color)', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
+                  <ChevronLeft size={20} />
+                </button>
+                <button type="button" onClick={() => scrollReels('right')} style={{ background: '#fff', border: '1px solid var(--border-color)', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
+                  <ChevronRight size={20} />
+                </button>
+              </div>
+            </div>
+            <style>{`
+              .reels-carousel::-webkit-scrollbar {
+                display: none;
+              }
+              .reel-card {
+                flex: 0 0 250px;
+                scroll-snap-align: start;
+                border-radius: 12px;
+                overflow: hidden;
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+                aspect-ratio: 9/16;
+                background: #000;
+              }
+              .reel-card iframe {
+                width: 100%;
+                height: 100%;
+                border: none;
+              }
+            `}</style>
+            <div ref={reelsCarouselRef} className="reels-carousel" style={{ 
+              display: 'flex', 
+              overflowX: 'auto', 
+              scrollSnapType: 'x mandatory', 
+              gap: '1.5rem', 
+              paddingBottom: '1rem',
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none'
+            }}>
+              {product.youtubeReels.map((url, idx) => {
+                // Extract video ID from youtube shorts URL
+                let videoId = '';
+                if (url.includes('shorts/')) {
+                  videoId = url.split('shorts/')[1]?.split('?')[0];
+                } else if (url.includes('v=')) {
+                  videoId = url.split('v=')[1]?.split('&')[0];
+                } else if (url.includes('youtu.be/')) {
+                  videoId = url.split('youtu.be/')[1]?.split('?')[0];
+                }
+                
+                if (!videoId) return null;
+                
+                return (
+                  <div key={idx} className="reel-card">
+                    <iframe 
+                      src={`https://www.youtube.com/embed/${videoId}?loop=1&playlist=${videoId}&autoplay=0&mute=0`} 
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                      allowFullScreen
+                      title="YouTube Shorts Reel"
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {/* Manual Product Reviews */}
         {product.reviews && product.reviews.length > 0 && (
           <div style={{ marginBottom: '4rem' }}>
@@ -1358,36 +1437,6 @@ const ProductDetails = () => {
           </div>
         </div>
       )}
-
-      {/* CRO Trust Area (Before Footer) */}
-      <div className="product-trust-card" style={{ maxWidth: '1200px', margin: '2rem auto 4rem auto', width: '100%', padding: '1.5rem' }}>
-        <div className="trust-grid">
-          <div className="trust-item">
-            <div className="trust-icon-box" style={{ width: '56px', height: '56px' }}>
-              <Lock size={24} />
-            </div>
-            <span className="trust-label" style={{ fontSize: '0.85rem', marginTop: '0.5rem' }}>নিরাপদ পেমেন্ট</span>
-          </div>
-          <div className="trust-item">
-            <div className="trust-icon-box" style={{ width: '56px', height: '56px' }}>
-              <Truck size={24} />
-            </div>
-            <span className="trust-label" style={{ fontSize: '0.85rem', marginTop: '0.5rem' }}>ফ্রি ও ফাস্ট শিপিং</span>
-          </div>
-          <div className="trust-item">
-            <div className="trust-icon-box" style={{ width: '56px', height: '56px' }}>
-              <RotateCcw size={24} />
-            </div>
-            <span className="trust-label" style={{ fontSize: '0.85rem', marginTop: '0.5rem' }}>সহজ রিটার্ন</span>
-          </div>
-          <div className="trust-item">
-            <div className="trust-icon-box" style={{ width: '56px', height: '56px' }}>
-              <HeadphonesIcon size={24} />
-            </div>
-            <span className="trust-label" style={{ fontSize: '0.85rem', marginTop: '0.5rem' }}>২৪/৭ সাপোর্ট</span>
-          </div>
-        </div>
-      </div>
 
       {/* Quick Buy Modal */}
       {isQuickBuyOpen && (
