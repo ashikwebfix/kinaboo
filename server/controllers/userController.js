@@ -184,4 +184,17 @@ const updateFcmToken = async (req, res) => {
   }
 };
 
-module.exports = { updateFcmToken, authUser, registerUser, getUsers, getUserProfile, updateUserProfile, createUser, deleteUser, updateUserRole };
+const testFcmNotification = async (req, res) => {
+  try {
+    const { sendOrderNotification } = require('../utils/firebaseAdmin');
+    // We send a mock order
+    const mockOrder = { id: 'TEST-' + Math.floor(Math.random() * 10000), totalPrice: 0 };
+    await sendOrderNotification(mockOrder);
+    res.json({ message: 'Test notification triggered.' });
+  } catch (error) {
+    console.error("Test FCM Error:", error);
+    res.status(500).json({ message: 'Failed to send test notification', error: error.message });
+  }
+};
+
+module.exports = { testFcmNotification, updateFcmToken, authUser, registerUser, getUsers, getUserProfile, updateUserProfile, createUser, deleteUser, updateUserRole };

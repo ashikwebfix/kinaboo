@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Settings as SettingsIcon, Truck, Plus, Trash2, Save, Navigation, GripVertical, LayoutTemplate, Image as ImageIcon, Tag, Box, Star, X, XCircle, Sparkles, Layers, Eye, EyeOff, Check, Flame } from 'lucide-react';
+import { Settings as SettingsIcon, Truck, Plus, Trash2, Save, Navigation, GripVertical, LayoutTemplate, Image as ImageIcon, Tag, Box, Star, X, XCircle, Sparkles, Layers, Eye, EyeOff, Check, Flame, Bell } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import MediaPickerModal from '../../components/MediaPickerModal';
 import StorefrontBuilder from './StorefrontBuilder';
@@ -292,6 +292,23 @@ const AdminSettings = () => {
       alert('Error saving settings.');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleTestNotification = async () => {
+    try {
+      const res = await fetch(import.meta.env.VITE_API_URL + '/api/users/test-fcm', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        alert('Test notification triggered!');
+      } else {
+        alert('Failed to trigger test notification. Ensure you have properly set up and saved your Service Account JSON.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error triggering test notification.');
     }
   };
 
@@ -884,9 +901,14 @@ const AdminSettings = () => {
 
         {activeTab === 'firebase' && (
           <div className="animate-fade-in">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '1rem' }}>
-              <SettingsIcon size={20} color="var(--accent-primary)" />
-              <h2 style={{ fontSize: '1.25rem', fontWeight: 600 }}>Firebase Push Notifications</h2>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '1rem', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <SettingsIcon size={20} color="var(--accent-primary)" />
+                <h2 style={{ fontSize: '1.25rem', fontWeight: 600, margin: 0 }}>Firebase Push Notifications</h2>
+              </div>
+              <button className="btn btn-outline" onClick={handleTestNotification} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.4rem 0.8rem', fontSize: '0.85rem' }}>
+                <Bell size={16} /> Test Notification
+              </button>
             </div>
             <p className="text-muted" style={{ marginBottom: '1.5rem' }}>Configure Firebase Cloud Messaging to receive new order alerts on your devices.</p>
             
