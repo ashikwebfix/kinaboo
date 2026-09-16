@@ -77,7 +77,7 @@ const getProductById = async (req, res) => {
 
 const createProduct = async (req, res) => {
   try {
-    const { name, sku, price, sellPrice, description, longDescription, image, images, category, stock, allowSellWithoutStock, keypoints, variations, faq, imageTextSections, tags, status, volumeBundles, configurator, slug, alternativeSlugs } = req.body;
+    const { name, sku, price, sellPrice, description, longDescription, image, images, category, stock, allowSellWithoutStock, keypoints, variations, faq, reviews, imageTextSections, tags, status, volumeBundles, configurator, slug, alternativeSlugs } = req.body;
     
     let finalSlug;
     if (slug && slug.trim() !== '') {
@@ -88,7 +88,7 @@ const createProduct = async (req, res) => {
     }
     
     const product = await Product.create({
-      name, slug: finalSlug, alternativeSlugs, sku, price, sellPrice, description, longDescription, image, images, category, stock, allowSellWithoutStock, keypoints, variations, faq, imageTextSections, tags, status, volumeBundles, configurator
+      name, slug: finalSlug, alternativeSlugs, sku, price, sellPrice, description, longDescription, image, images, category, stock, allowSellWithoutStock, keypoints, variations, faq, reviews, imageTextSections, tags, status, volumeBundles, configurator
     });
     res.status(201).json(product);
   } catch (error) {
@@ -97,7 +97,7 @@ const createProduct = async (req, res) => {
 };
 
 const updateProduct = async (req, res) => {
-  const { name, sku, price, sellPrice, description, longDescription, image, images, category, stock, allowSellWithoutStock, keypoints, variations, faq, imageTextSections, tags, status, volumeBundles, configurator, slug, alternativeSlugs } = req.body;
+  const { name, sku, price, sellPrice, description, longDescription, image, images, category, stock, allowSellWithoutStock, keypoints, variations, faq, reviews, imageTextSections, tags, status, volumeBundles, configurator, slug, alternativeSlugs } = req.body;
   const product = await Product.findByPk(req.params.id);
 
   if (product) {
@@ -120,6 +120,7 @@ const updateProduct = async (req, res) => {
     product.keypoints = keypoints || product.keypoints;
     product.variations = variations || product.variations;
     product.faq = faq || product.faq;
+    product.reviews = reviews !== undefined ? reviews : product.reviews;
     product.imageTextSections = imageTextSections || product.imageTextSections;
     product.tags = tags || product.tags;
     product.status = status || product.status;
