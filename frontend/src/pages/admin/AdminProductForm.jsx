@@ -581,34 +581,6 @@ const AdminProductForm = () => {
               </div>
             </div>
 
-          </div>
-
-          {/* RIGHT COLUMN: Settings & Media */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            
-            {/* Publish Box */}
-            <div style={{ padding: '1.5rem', border: '1px solid var(--border-color)', borderRadius: '8px', background: '#fff' }}>
-              <h3 style={{ fontSize: '1.1rem', fontWeight: 600, margin: '0 0 1rem 0' }}>Status</h3>
-              <select className="input-field" value={status} onChange={(e) => setStatus(e.target.value)} style={{ marginBottom: '1.5rem' }}>
-                <option value="published">Published</option>
-                <option value="draft">Draft</option>
-              </select>
-              <button type="submit" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
-                <Save size={18} /> Save Product
-              </button>
-            </div>
-
-            {/* Category Box */}
-            <div style={{ padding: '1.5rem', border: '1px solid var(--border-color)', borderRadius: '8px', background: '#fff' }}>
-              <h3 style={{ fontSize: '1.1rem', fontWeight: 600, margin: '0 0 1rem 0' }}>Category</h3>
-              <select className="input-field" value={category} onChange={(e) => setCategory(e.target.value)} required>
-                <option value="">Select Category</option>
-                {fetchedCategories.map(cat => (
-                  <option key={cat.id} value={cat.title}>{cat.title}</option>
-                ))}
-              </select>
-            </div>
-
             {/* Reviews Box */}
             <div style={{ padding: '1.5rem', border: '1px solid var(--border-color)', borderRadius: '8px', background: '#fff' }}>
               <h3 style={{ fontSize: '1.1rem', fontWeight: 600, margin: '0 0 1rem 0' }}>Manual Product Reviews</h3>
@@ -640,6 +612,34 @@ const AdminProductForm = () => {
               <button type="button" className="btn btn-secondary" onClick={addReview} style={{ width: '100%', display: 'flex', justifyContent: 'center', gap: '0.5rem' }}>
                 <Plus size={18} /> Add Review
               </button>
+            </div>
+
+          </div>
+
+          {/* RIGHT COLUMN: Settings & Media */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            
+            {/* Publish Box */}
+            <div style={{ padding: '1.5rem', border: '1px solid var(--border-color)', borderRadius: '8px', background: '#fff' }}>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 600, margin: '0 0 1rem 0' }}>Status</h3>
+              <select className="input-field" value={status} onChange={(e) => setStatus(e.target.value)} style={{ marginBottom: '1.5rem' }}>
+                <option value="published">Published</option>
+                <option value="draft">Draft</option>
+              </select>
+              <button type="submit" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
+                <Save size={18} /> Save Product
+              </button>
+            </div>
+
+            {/* Category Box */}
+            <div style={{ padding: '1.5rem', border: '1px solid var(--border-color)', borderRadius: '8px', background: '#fff' }}>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 600, margin: '0 0 1rem 0' }}>Category</h3>
+              <select className="input-field" value={category} onChange={(e) => setCategory(e.target.value)} required>
+                <option value="">Select Category</option>
+                {fetchedCategories.map(cat => (
+                  <option key={cat.id} value={cat.title}>{cat.title}</option>
+                ))}
+              </select>
             </div>
 
             {/* Tags Box */}
