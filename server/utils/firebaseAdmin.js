@@ -51,7 +51,23 @@ const sendOrderNotification = async (order) => {
 
     if (admins.length === 0) return;
 
-    const tokens = admins.map(a => a.fcmToken).filter(t => t && t.trim() !== '');
+    let tokens = [];
+    admins.forEach(a => {
+      if (a.fcmToken && a.fcmToken.trim() !== '') {
+        try {
+          const parsed = JSON.parse(a.fcmToken);
+          if (Array.isArray(parsed)) {
+            tokens.push(...parsed);
+          } else {
+            tokens.push(a.fcmToken);
+          }
+        } catch (e) {
+          tokens.push(a.fcmToken); // Fallback to plain string
+        }
+      }
+    });
+
+    tokens = [...new Set(tokens)].filter(t => t); // Unique and non-empty
     if (tokens.length === 0) return;
 
     const payload = {

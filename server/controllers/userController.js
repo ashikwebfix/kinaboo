@@ -176,7 +176,20 @@ const updateUserRole = async (req, res) => {
 const updateFcmToken = async (req, res) => {
   const user = await User.findByPk(req.user.id);
   if (user) {
-    user.fcmToken = req.body.fcmToken;
+    const newToken = req.body.fcmToken;
+    let tokens = [];
+    if (user.fcmToken) {
+      try {
+        tokens = JSON.parse(user.fcmToken);
+        if (!Array.isArray(tokens)) tokens = [user.fcmToken];
+      } catch (e) {
+        tokens = [user.fcmToken];
+      }
+    }
+    if (newToken && !tokens.includes(newToken)) {
+      tokens.push(newToken);
+    }
+    user.fcmToken = JSON.stringify(tokens);
     await user.save();
     res.json({ message: 'FCM token updated successfully' });
   } else {
