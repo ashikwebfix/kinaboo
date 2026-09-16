@@ -214,6 +214,14 @@ const ProductDetails = () => {
     };
   }, [product?.reviews]);
 
+  const scrollReviews = (dir) => {
+    const carousel = reviewsCarouselRef.current;
+    if (carousel) {
+      const cardWidth = carousel.children[0]?.clientWidth || 300;
+      carousel.scrollBy({ left: dir === 'left' ? -(cardWidth + 24) : (cardWidth + 24), behavior: 'smooth' });
+    }
+  };
+
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (!isLightboxOpen) return;
@@ -1239,7 +1247,17 @@ const ProductDetails = () => {
         {/* Manual Product Reviews */}
         {product.reviews && product.reviews.length > 0 && (
           <div style={{ marginBottom: '4rem' }}>
-            <h2 className="heading-lg" style={{ marginBottom: '2rem', textAlign: 'center' }}>Customer Reviews</h2>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', padding: '0 0.5rem' }}>
+              <h2 className="heading-lg" style={{ margin: 0 }}>Customer Reviews</h2>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <button type="button" onClick={() => scrollReviews('left')} style={{ background: '#fff', border: '1px solid var(--border-color)', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
+                  <ChevronLeft size={20} />
+                </button>
+                <button type="button" onClick={() => scrollReviews('right')} style={{ background: '#fff', border: '1px solid var(--border-color)', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
+                  <ChevronRight size={20} />
+                </button>
+              </div>
+            </div>
             <style>{`
               .reviews-carousel::-webkit-scrollbar {
                 display: none;
