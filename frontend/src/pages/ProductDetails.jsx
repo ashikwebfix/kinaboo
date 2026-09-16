@@ -178,41 +178,43 @@ const ProductDetails = () => {
   const reviewsCarouselRef = useRef(null);
 
   useEffect(() => {
-    const carousel = reviewsCarouselRef.current;
-    if (!carousel) return;
-    
-    let isPaused = false;
-    
-    const scrollStep = () => {
-      if (!isPaused && carousel) {
+    // Small delay to ensure the DOM is fully painted and the ref is attached
+    const timer = setTimeout(() => {
+      const carousel = reviewsCarouselRef.current;
+      if (!carousel) return;
+      
+      let isHovered = false;
+      
+      carousel.onmouseenter = () => { isHovered = true; };
+      carousel.onmouseleave = () => { isHovered = false; };
+      carousel.ontouchstart = () => { isHovered = true; };
+      carousel.ontouchend = () => { isHovered = false; };
+
+      const scrollInterval = setInterval(() => {
+        if (isHovered) return;
+        
         const maxScroll = carousel.scrollWidth - carousel.clientWidth;
+        // If there's no overflow, don't scroll
+        if (maxScroll <= 0) return;
+        
         if (carousel.scrollLeft >= maxScroll - 10) {
           carousel.scrollTo({ left: 0, behavior: 'smooth' });
         } else {
           const cardWidth = carousel.children[0]?.clientWidth || 300;
           carousel.scrollBy({ left: cardWidth + 24, behavior: 'smooth' });
         }
-      }
-    };
+      }, 2500);
 
-    const timer = setInterval(scrollStep, 4000);
-    
-    const pause = () => isPaused = true;
-    const resume = () => isPaused = false;
-    
-    carousel.addEventListener('mouseenter', pause);
-    carousel.addEventListener('mouseleave', resume);
-    carousel.addEventListener('touchstart', pause);
-    carousel.addEventListener('touchend', resume);
+      carousel._scrollInterval = scrollInterval;
+    }, 500);
     
     return () => {
-      clearInterval(timer);
-      carousel.removeEventListener('mouseenter', pause);
-      carousel.removeEventListener('mouseleave', resume);
-      carousel.removeEventListener('touchstart', pause);
-      carousel.removeEventListener('touchend', resume);
+      clearTimeout(timer);
+      if (reviewsCarouselRef.current && reviewsCarouselRef.current._scrollInterval) {
+        clearInterval(reviewsCarouselRef.current._scrollInterval);
+      }
     };
-  }, [product?.reviews]);
+  }, [product]);
 
   const scrollReviews = (dir) => {
     const carousel = reviewsCarouselRef.current;
