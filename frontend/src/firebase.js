@@ -43,10 +43,9 @@ export const requestForToken = async () => {
   }
 };
 
-export const onMessageListener = () =>
-  new Promise((resolve) => {
-    if (!messaging) return;
-    onMessage(messaging, (payload) => {
-      resolve(payload);
-    });
+export const onMessageListener = (callback) => {
+  if (!messaging) return;
+  return onMessage(messaging, (payload) => {
+    callback(payload);
   });
+};

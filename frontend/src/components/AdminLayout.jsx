@@ -34,9 +34,9 @@ const AdminLayout = () => {
     const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
     initFirebase(userInfo.token).then(initialized => {
       if (initialized) {
-        onMessageListener().then(payload => {
+        onMessageListener(payload => {
           toast.success(payload.notification.body, { duration: 5000, icon: '🛍️' });
-        }).catch(err => console.log('failed: ', err));
+        });
       }
     });
   }, []);
