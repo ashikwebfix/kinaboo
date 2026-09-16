@@ -8,6 +8,7 @@ const AdminProducts = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(20);
   const [selectedProductIds, setSelectedProductIds] = useState([]);
+  const [filterStatus, setFilterStatus] = useState('published');
   const navigate = useNavigate();
 
   const token = JSON.parse(localStorage.getItem('userInfo') || '{}').token;
@@ -103,18 +104,31 @@ const AdminProducts = () => {
     }
   };
 
-  const totalPages = Math.ceil(products.length / itemsPerPage);
-  const paginatedProducts = products.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const filteredProducts = products.filter(p => filterStatus === 'all' || (p.status || 'published') === filterStatus);
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+  const paginatedProducts = filteredProducts.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   if (loading) return <div>Loading...</div>;
 
   return (
     <div className="animate-fade-in">
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
         <h1 className="heading-lg">Products Management</h1>
-        <button className="btn btn-primary" onClick={() => navigate('/admin/products/new')}>
-          <Plus size={18} /> Add Product
-        </button>
+        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+          <select 
+            className="input-field" 
+            style={{ width: 'auto', marginBottom: 0, padding: '0.5rem 1rem' }} 
+            value={filterStatus} 
+            onChange={(e) => { setFilterStatus(e.target.value); setCurrentPage(1); }}
+          >
+            <option value="all">All Products</option>
+            <option value="published">Published</option>
+            <option value="draft">Drafts</option>
+          </select>
+          <button className="btn btn-primary" onClick={() => navigate('/admin/products/new')}>
+            <Plus size={18} /> Add Product
+          </button>
+        </div>
       </header>
 
       {selectedProductIds.length > 0 && (
