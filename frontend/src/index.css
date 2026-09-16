@@ -2666,8 +2666,33 @@ a {
   }
 
   .footer-perks-grid {
-    grid-template-columns: 1fr;
-    gap: 1.25rem;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+  }
+  
+  .footer-perk-item {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.5rem;
+  }
+  
+  .footer-perk-icon-wrap {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .footer-perk-icon-wrap svg {
+    width: 18px;
+    height: 18px;
+  }
+  
+  .footer-perk-title {
+    font-size: 0.75rem;
+    line-height: 1.2;
+  }
+  
+  .footer-perk-sub {
+    display: none;
   }
 
   .footer-main-grid {
