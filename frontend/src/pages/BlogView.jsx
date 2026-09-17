@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowRight, ShoppingBag, Tag, Star } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
 /* ─── Inline Product Card (rendered when [product N] shortcode is found) ─── */
 const InlineProductCard = ({ product }) => {
@@ -12,54 +12,31 @@ const InlineProductCard = ({ product }) => {
     : 0;
 
   return (
-    <div className="blog-inline-product">
-      {/* Header banner */}
+    <Link to={`/product/${product.slug}`} className="blog-inline-product">
+      {/* Black header — matches sidebar card */}
       <div className="bip-header">
-        <div className="bip-header-text">
-          <span className="bip-eyebrow">Featured Product</span>
-          <h3 className="bip-name">{product.name}</h3>
-        </div>
-        {discountPercent > 0 && (
-          <div className="bip-discount-badge">
-            <Tag size={12} />
-            {discountPercent}% OFF
-          </div>
-        )}
+        <h3 className="bip-name">Say goodbye to pain and sweat with {product.name}</h3>
+        <p className="bip-sub">Pain-free and sweat-free</p>
       </div>
 
-      {/* Image + Info row */}
-      <div className="bip-body">
-        {mainImg && (
-          <div className="bip-img-wrap">
-            <img src={mainImg} alt={product.name} className="bip-img" />
-          </div>
-        )}
-        <div className="bip-info">
-          {product.rating && (
-            <div className="bip-stars">
-              {[1,2,3,4,5].map(s => (
-                <Star key={s} size={14} fill={s <= Math.round(product.rating) ? '#f59e0b' : 'none'} color={s <= Math.round(product.rating) ? '#f59e0b' : '#cbd5e1'} />
-              ))}
-              <span className="bip-rating-count">({product.reviewCount || '100+'})</span>
-            </div>
-          )}
-          <div className="bip-price-row">
-            <span className="bip-sell-price">৳{sellPrice.toLocaleString()}</span>
-            {comparePrice > sellPrice && (
-              <span className="bip-compare-price">৳{comparePrice.toLocaleString()}</span>
-            )}
-          </div>
-          {product.shortDescription && (
-            <p className="bip-short-desc">{product.shortDescription}</p>
-          )}
-          <Link to={`/product/${product.slug}`} className="bip-buy-btn">
-            <ShoppingBag size={16} />
-            <span>এখনই কিনুন</span>
-            <ArrowRight size={16} />
-          </Link>
+      {/* Product image — full width */}
+      {mainImg && (
+        <img src={mainImg} alt={product.name} className="bip-img" />
+      )}
+
+      {/* Discount strip */}
+      {discountPercent > 0 && (
+        <div className="bip-off-strip">
+          GET {discountPercent}% OFF
         </div>
+      )}
+
+      {/* CTA button */}
+      <div className="blog-cta-btn">
+        <span>স্টক আছে কিনা দেখুন</span>
+        <ArrowRight size={18} />
       </div>
-    </div>
+    </Link>
   );
 };
 
@@ -237,150 +214,58 @@ const BlogView = () => {
 
           /* ── Inline Product Card (shortcode rendered) ── */
           .blog-inline-product {
-            border: 2px solid #e2e8f0;
-            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
             overflow: hidden;
-            margin: 2.5rem 0;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
-            background: #fff;
+            margin: 2.5rem auto;
+            max-width: 400px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            text-decoration: none;
+            color: inherit;
+            transition: transform 0.2s, box-shadow 0.2s;
+          }
+
+          .blog-inline-product:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
           }
 
           .bip-header {
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            padding: 1.25rem 1.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 1rem;
-          }
-
-          .bip-eyebrow {
-            display: block;
-            font-size: 0.7rem;
-            font-weight: 700;
-            color: #94a3b8;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            margin-bottom: 0.3rem;
+            background: #000;
+            padding: 1.5rem;
+            color: #fff;
+            text-align: center;
           }
 
           .bip-name {
             font-size: 1.2rem;
-            font-weight: 800;
-            color: #fff;
-            margin: 0;
+            font-weight: 700;
+            margin: 0 0 0.5rem 0;
             line-height: 1.3;
-          }
-
-          .bip-discount-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.3rem;
-            background: #FF6A3D;
             color: #fff;
-            font-size: 0.78rem;
-            font-weight: 800;
-            padding: 0.4rem 0.75rem;
-            border-radius: 9999px;
-            white-space: nowrap;
-            flex-shrink: 0;
           }
 
-          .bip-body {
-            display: flex;
-            gap: 0;
-            align-items: stretch;
-          }
-
-          .bip-img-wrap {
-            width: 200px;
-            flex-shrink: 0;
-            background: #f8fafc;
-            overflow: hidden;
+          .bip-sub {
+            font-size: 0.85rem;
+            color: #e2e8f0;
+            margin: 0;
           }
 
           .bip-img {
             width: 100%;
-            height: 100%;
-            object-fit: cover;
+            height: auto;
             display: block;
           }
 
-          .bip-info {
-            flex: 1;
+          .bip-off-strip {
+            background: #fff;
             padding: 1.5rem;
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-            justify-content: center;
-          }
-
-          .bip-stars {
-            display: flex;
-            align-items: center;
-            gap: 0.2rem;
-          }
-
-          .bip-rating-count {
-            font-size: 0.78rem;
-            color: #94a3b8;
-            margin-left: 0.35rem;
-          }
-
-          .bip-price-row {
-            display: flex;
-            align-items: baseline;
-            gap: 0.75rem;
-          }
-
-          .bip-sell-price {
-            font-size: 1.75rem;
+            text-align: center;
+            font-size: 1.5rem;
             font-weight: 800;
-            color: #0f172a;
-          }
-
-          .bip-compare-price {
-            font-size: 1rem;
-            color: #94a3b8;
-            text-decoration: line-through;
-          }
-
-          .bip-short-desc {
-            font-size: 0.9rem;
-            color: #64748b;
-            line-height: 1.6;
-            margin: 0;
-          }
-
-          .bip-buy-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.6rem;
-            background: #000;
-            color: #fff;
-            padding: 0.85rem 1.75rem;
-            font-weight: 800;
-            font-size: 1rem;
-            border-radius: 8px;
-            text-decoration: none;
-            animation: scalePulse 1.8s ease-in-out infinite;
-            margin-top: 0.25rem;
-            align-self: flex-start;
-            letter-spacing: 0.03em;
-          }
-
-          .bip-buy-btn:hover {
-            background: #1e293b;
-            animation: none;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-          }
-
-          @media (max-width: 600px) {
-            .bip-body { flex-direction: column; }
-            .bip-img-wrap { width: 100%; height: 220px; }
-            .bip-buy-btn { align-self: stretch; justify-content: center; }
+            color: #000;
           }
 
           @media (min-width: 1024px) {
