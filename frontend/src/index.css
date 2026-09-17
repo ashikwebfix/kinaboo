@@ -4640,7 +4640,7 @@ a {
   flex-shrink: 0;
 }
 
-.action-btn {
+.modern-header .action-btn {
   display: inline-flex;
   align-items: center;
   gap: 0.65rem;
@@ -4655,7 +4655,7 @@ a {
   position: relative;
 }
 
-.action-btn:hover {
+.modern-header .action-btn:hover {
   background: #f1f5f9;
 }
 
@@ -5535,7 +5535,7 @@ a.drawer-contact-row {
     height: 34px;
   }
 
-  .action-btn {
+  .modern-header .action-btn {
     padding: 0.4rem;
   }
 }

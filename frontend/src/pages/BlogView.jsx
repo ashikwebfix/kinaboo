@@ -113,7 +113,7 @@ const BlogView = () => {
             100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0,0,0,0); }
           }
 
-          .action-btn {
+          .blog-cta-btn {
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -128,6 +128,11 @@ const BlogView = () => {
             cursor: pointer;
             animation: scalePulse 1.6s ease-in-out infinite;
             letter-spacing: 0.02em;
+            text-decoration: none;
+          }
+
+          .blog-cta-btn:hover {
+            background: #111;
           }
 
           @media (min-width: 1024px) {
@@ -185,7 +190,7 @@ const BlogView = () => {
                         </div>
                       )}
 
-                      <div className="action-btn">
+                      <div className="blog-cta-btn">
                         <span>স্টক আছে কিনা দেখুন</span>
                         <ArrowRight size={18} />
                       </div>
