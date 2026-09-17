@@ -106,27 +106,28 @@ const BlogView = () => {
           .blog-content ul { padding-left: 1.5rem; margin-bottom: 1.5rem; }
           .blog-content li { margin-bottom: 0.5rem; color: #334155; font-size: 1.1rem; }
           
-          @keyframes glowPulse {
-            0% { box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.5); opacity: 1; }
-            50% { box-shadow: 0 0 15px 5px rgba(0, 0, 0, 0.2); opacity: 0.9; }
-            100% { box-shadow: 0 0 0 0 rgba(0, 0, 0, 0); opacity: 1; }
+          @keyframes scalePulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0,0,0,0.6); }
+            40% { transform: scale(1.06); box-shadow: 0 0 18px 8px rgba(0,0,0,0.25); }
+            70% { transform: scale(1.03); box-shadow: 0 0 10px 4px rgba(0,0,0,0.15); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0,0,0,0); }
           }
-          
+
           .action-btn {
             display: flex;
             align-items: center;
             justify-content: space-between;
             background: #000;
             color: #fff;
-            padding: 1.25rem 1.5rem;
-            font-weight: 700;
-            font-size: 1.1rem;
-            transition: all 0.3s ease;
-            animation: glowPulse 2s infinite;
-          }
-          .action-btn:hover {
-            transform: scale(1.04);
-            background: #222;
+            padding: 1.1rem 1.5rem;
+            font-weight: 800;
+            font-size: 1.05rem;
+            border-radius: 0;
+            border: none;
+            width: 100%;
+            cursor: pointer;
+            animation: scalePulse 1.6s ease-in-out infinite;
+            letter-spacing: 0.02em;
           }
 
           @media (min-width: 1024px) {
@@ -186,7 +187,7 @@ const BlogView = () => {
 
                       <div className="action-btn">
                         <span>স্টক আছে কিনা দেখুন</span>
-                        <ArrowRight size={20} />
+                        <ArrowRight size={18} />
                       </div>
                     </Link>
                   );
