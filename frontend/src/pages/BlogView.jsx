@@ -12,6 +12,34 @@ const BlogView = () => {
     fetchBlog();
   }, [slug]);
 
+  useEffect(() => {
+    // Disable right click
+    const handleContextMenu = (e) => {
+      e.preventDefault();
+    };
+
+    // Disable F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U, and Mac equivalents
+    const handleKeyDown = (e) => {
+      if (
+        e.key === 'F12' || 
+        (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) ||
+        (e.ctrlKey && (e.key === 'U' || e.key === 'u')) ||
+        (e.metaKey && e.altKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) ||
+        (e.metaKey && (e.key === 'U' || e.key === 'u'))
+      ) {
+        e.preventDefault();
+      }
+    };
+
+    document.addEventListener('contextmenu', handleContextMenu);
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('contextmenu', handleContextMenu);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+
   const fetchBlog = async () => {
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/api/blogs/${slug}`);
@@ -157,7 +185,7 @@ const BlogView = () => {
                       )}
 
                       <div className="action-btn">
-                        <span>অর্ডার করুন</span>
+                        <span>স্টক আছে কিনা দেখুন</span>
                         <ArrowRight size={20} />
                       </div>
                     </Link>
