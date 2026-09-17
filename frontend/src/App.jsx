@@ -18,6 +18,7 @@ import Login from './pages/Login';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import ProductDetails from './pages/ProductDetails';
+import ProductLanding from './pages/ProductLanding';
 import ThankYou from './pages/ThankYou';
 import DynamicPage from './pages/DynamicPage';
 import Profile from './pages/Profile';
@@ -40,7 +41,8 @@ import AdminLayout from './components/AdminLayout';
 import AdminAbandonedCarts from './pages/admin/AdminAbandonedCarts';
 import AdminUsers from './pages/admin/AdminUsers';
 import AdminPages from './pages/admin/AdminPages';
-
+import AdminBlogs from './pages/admin/AdminBlogs';
+import BlogView from './pages/BlogView';
 import Maintenance from './pages/Maintenance';
 
 const CustomerLayout = ({ children, maintenanceMode, maintenanceMessage, isAdmin }) => {
@@ -98,11 +100,13 @@ function App() {
         <Route path="/categories" element={<CustomerLayout maintenanceMode={maintenanceMode} maintenanceMessage={maintenanceMessage} isAdmin={isAdmin}><Categories /></CustomerLayout>} />
         <Route path="/search" element={<CustomerLayout maintenanceMode={maintenanceMode} maintenanceMessage={maintenanceMessage} isAdmin={isAdmin}><SearchResults /></CustomerLayout>} />
         <Route path="/product/:slug" element={<CustomerLayout maintenanceMode={maintenanceMode} maintenanceMessage={maintenanceMessage} isAdmin={isAdmin}><ProductDetails /></CustomerLayout>} />
+        <Route path="/blog/:slug" element={<CustomerLayout maintenanceMode={maintenanceMode} maintenanceMessage={maintenanceMessage} isAdmin={isAdmin}><BlogView /></CustomerLayout>} />
         <Route path="/pages/:slug" element={<CustomerLayout maintenanceMode={maintenanceMode} maintenanceMessage={maintenanceMessage} isAdmin={isAdmin}><DynamicPage /></CustomerLayout>} />
         <Route path="/login" element={<CustomerLayout maintenanceMode={maintenanceMode} maintenanceMessage={maintenanceMessage} isAdmin={isAdmin}><Login /></CustomerLayout>} />
         <Route path="/profile" element={<CustomerLayout maintenanceMode={maintenanceMode} maintenanceMessage={maintenanceMessage} isAdmin={isAdmin}><Profile /></CustomerLayout>} />
         <Route path="/cart" element={<CustomerLayout maintenanceMode={maintenanceMode} maintenanceMessage={maintenanceMessage} isAdmin={isAdmin}><Cart /></CustomerLayout>} />
         <Route path="/checkout" element={maintenanceMode && !isAdmin ? <Maintenance message={maintenanceMessage} /> : <Checkout />} />
+        <Route path="/l/:slug" element={maintenanceMode && !isAdmin ? <Maintenance message={maintenanceMessage} /> : <ProductLanding />} />
         <Route path="/thank-you/:id" element={<CustomerLayout maintenanceMode={maintenanceMode} maintenanceMessage={maintenanceMessage} isAdmin={isAdmin}><ThankYou /></CustomerLayout>} />
         
         {/* Admin Routes */}
@@ -127,6 +131,7 @@ function App() {
           <Route path="fraud-protection" element={<AdminFraudProtection />} />
           <Route path="users" element={<AdminUsers />} />
           <Route path="pages" element={<AdminPages />} />
+          <Route path="blogs" element={<AdminBlogs />} />
         </Route>
       </Routes>
       {(!maintenanceMode || isAdmin) && <MobileBottomNav />}

@@ -101,6 +101,7 @@ const AdminLayout = () => {
     { name: 'Customers', path: '/admin/customers', icon: <Users size={20} /> },
     { name: 'Abandoned Carts', path: '/admin/abandoned-carts', icon: <PackageX size={20} /> },
     { name: 'Pages', path: '/admin/pages', icon: <FileText size={20} /> },
+    { name: 'Blogs', path: '/admin/blogs', icon: <FileText size={20} /> },
     { name: 'Media Library', path: '/admin/media', icon: <ImageIcon size={20} /> },
     { 
       name: 'Settings', 
@@ -116,7 +117,7 @@ const AdminLayout = () => {
   ];
 
   if (role === 'manager') {
-    navItems = navItems.filter(item => ['Orders', 'Products', 'Bundles', 'Coupons', 'Media Library', 'Abandoned Carts', 'Pages'].includes(item.name));
+    navItems = navItems.filter(item => ['Orders', 'Products', 'Bundles', 'Coupons', 'Media Library', 'Abandoned Carts', 'Pages', 'Blogs'].includes(item.name));
   }
 
   if (role === 'superadmin' || role === 'admin') {

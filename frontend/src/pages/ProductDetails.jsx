@@ -1313,7 +1313,7 @@ const ProductDetails = () => {
                 return (
                   <div key={idx} className="reel-card">
                     <iframe 
-                      src={`https://www.youtube.com/embed/${videoId}?loop=1&playlist=${videoId}&autoplay=0&mute=0`} 
+                      src={`https://www.youtube-nocookie.com/embed/${videoId}?loop=1&playlist=${videoId}&autoplay=0&mute=0`} 
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                       allowFullScreen
                       title="YouTube Shorts Reel"

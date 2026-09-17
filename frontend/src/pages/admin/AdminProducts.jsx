@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Edit, Trash2, Eye, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Plus, Edit, Trash2, Eye, ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
 
 const AdminProducts = () => {
   const [products, setProducts] = useState([]);
@@ -198,6 +198,9 @@ const AdminProducts = () => {
               <button className="btn btn-secondary" style={{ flex: 1, padding: '0.5rem', fontSize: '0.9rem', display: 'flex', justifyContent: 'center', gap: '0.5rem' }} onClick={() => navigate(`/admin/products/edit/${product.id}`)}>
                 <Edit size={16} /> Edit
               </button>
+              <a href={`/l/${product.slug || product.id}`} target="_blank" rel="noreferrer" className="btn btn-secondary" style={{ flex: 1, padding: '0.5rem', fontSize: '0.9rem', display: 'flex', justifyContent: 'center', gap: '0.5rem' }}>
+                <ExternalLink size={16} /> Landing
+              </a>
               <button className="btn" style={{ flex: 1, background: '#fee2e2', color: '#ef4444', border: 'none', padding: '0.5rem', fontSize: '0.9rem', display: 'flex', justifyContent: 'center', gap: '0.5rem' }} onClick={() => handleDelete(product.id)}>
                 <Trash2 size={16} /> Delete
               </button>
@@ -262,6 +265,7 @@ const AdminProducts = () => {
                 <td style={{ padding: '1rem', textAlign: 'right' }}>
                   <button className="btn" onClick={() => navigate(`/admin/products/edit/${p.id}`)} style={{ padding: '0.5rem', marginRight: '0.5rem' }} title="Edit"><Edit size={16} /></button>
                   <a href={`/product/${p.slug || p.id}`} target="_blank" rel="noreferrer" className="btn" style={{ padding: '0.5rem', marginRight: '0.5rem', display: 'inline-flex', color: 'var(--text-secondary)' }} title="View on Store"><Eye size={16} /></a>
+                  <a href={`/l/${p.slug || p.id}`} target="_blank" rel="noreferrer" className="btn" style={{ padding: '0.5rem', marginRight: '0.5rem', display: 'inline-flex', color: 'var(--accent-primary)' }} title="Product Landing Page"><ExternalLink size={16} /></a>
                   <button className="btn" onClick={() => handleDelete(p.id)} style={{ padding: '0.5rem', color: '#ef4444' }} title="Delete"><Trash2 size={16} /></button>
                 </td>
               </tr>
