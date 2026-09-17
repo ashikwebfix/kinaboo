@@ -78,6 +78,29 @@ const BlogView = () => {
           .blog-content ul { padding-left: 1.5rem; margin-bottom: 1.5rem; }
           .blog-content li { margin-bottom: 0.5rem; color: #334155; font-size: 1.1rem; }
           
+          @keyframes glowPulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.5); opacity: 1; }
+            50% { box-shadow: 0 0 15px 5px rgba(0, 0, 0, 0.2); opacity: 0.9; }
+            100% { box-shadow: 0 0 0 0 rgba(0, 0, 0, 0); opacity: 1; }
+          }
+          
+          .action-btn {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #000;
+            color: #fff;
+            padding: 1.25rem 1.5rem;
+            font-weight: 700;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            animation: glowPulse 2s infinite;
+          }
+          .action-btn:hover {
+            transform: scale(1.04);
+            background: #222;
+          }
+
           @media (min-width: 1024px) {
             .blog-layout { flex-direction: row; gap: 4rem; }
             .blog-sidebar { position: sticky; top: 2rem; align-self: start; }
@@ -133,8 +156,8 @@ const BlogView = () => {
                         </div>
                       )}
 
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#000', color: '#fff', padding: '1.25rem 1.5rem', fontWeight: 600, transition: 'background 0.2s' }} onMouseOver={e => e.currentTarget.style.background = '#222'} onMouseOut={e => e.currentTarget.style.background = '#000'}>
-                        <span>CHECK AVAILABILITY</span>
+                      <div className="action-btn">
+                        <span>অর্ডার করুন</span>
                         <ArrowRight size={20} />
                       </div>
                     </Link>
