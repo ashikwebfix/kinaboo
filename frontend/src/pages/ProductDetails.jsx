@@ -369,7 +369,21 @@ const ProductDetails = () => {
     return price * (mixingQuantity || 1);
   };
 
-  const getBasePrice = () => Number(product?.sellPrice || product?.price || 0);
+  const getBasePrice = () => {
+    let base = Number(product?.sellPrice || product?.price || 0);
+    if (product?.variationCombinations && product.variationCombinations.length > 0) {
+      const sortedKeys = Object.keys(selectedVariations).sort();
+      // Ensure all variations are selected before checking combination price
+      if (sortedKeys.length === (product.variations?.length || 0)) {
+        const comboId = sortedKeys.map(k => `${k}:${selectedVariations[k]}`).join('|');
+        const combo = product.variationCombinations.find(vc => vc.id === comboId);
+        if (combo && combo.price !== undefined && combo.price !== null && combo.price !== '') {
+          base = Number(combo.price);
+        }
+      }
+    }
+    return base;
+  };
   const currentPrice = getBasePrice() + getConfiguratorPrice();
 
   const formatPrice = (amount) => {
@@ -764,55 +778,54 @@ const ProductDetails = () => {
 
         {/* Right: Product Details */}
         <div className="product-details-content">
-          {/* Header Badges & Reviews */}
-          <div className="product-meta-header">
-            {product.category && (
-              <span className="product-category-badge">{product.category}</span>
-            )}
-
-            <div className="product-reviews-badge">
-              <div className="star-rating">
-                {[...Array(5)].map((_, i) => (
-                  <Star 
-                    key={i} 
-                    fill={i < Math.round(rating) ? '#f59e0b' : '#e2e8f0'} 
-                    color={i < Math.round(rating) ? '#f59e0b' : '#cbd5e1'} 
-                    size={14} 
-                  />
-                ))}
-              </div>
-              <span className="review-score">{rating.toFixed(1)}</span>
-              <span className="review-count">({reviewsCount} Reviews)</span>
-            </div>
-          </div>
-
           <h1 className="product-main-title">{product.name}</h1>
           
           {/* Price Container */}
           <div className="product-price-container">
-            <div className="price-main-wrap">
-              <div className="price-current-group">
-                <span className="price-current">{formatPrice(currentPrice)}</span>
-                <span className="price-currency">BDT</span>
-              </div>
-              {product.sellPrice && Number(product.price) > Number(product.sellPrice) && !product.configurator?.enabled && (
-                <div className="price-savings-group">
-                  <span className="price-original">{formatPrice(product.price)} BDT</span>
-                  <span className="price-discount-tag">
-                    Save {Math.round(((Number(product.price) - Number(product.sellPrice)) / Number(product.price)) * 100)}%
-                  </span>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
+              <div className="price-main-wrap">
+                <div className="price-current-group">
+                  <span className="price-current">{formatPrice(currentPrice)}</span>
+                  <span className="price-currency">BDT</span>
                 </div>
-              )}
+                {product.sellPrice && Number(product.price) > Number(product.sellPrice) && !product.configurator?.enabled && (
+                  <div className="price-savings-group">
+                    <span className="price-original">{formatPrice(product.price)} BDT</span>
+                    <span className="price-discount-tag">
+                      Save {Math.round(((Number(product.price) - Number(product.sellPrice)) / Number(product.price)) * 100)}%
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              <div className="product-reviews-badge">
+                <div className="star-rating">
+                  {[...Array(5)].map((_, i) => (
+                    <Star 
+                      key={i} 
+                      fill={i < Math.round(rating) ? '#f59e0b' : '#e2e8f0'} 
+                      color={i < Math.round(rating) ? '#f59e0b' : '#cbd5e1'} 
+                      size={14} 
+                    />
+                  ))}
+                </div>
+                <span className="review-score">{rating.toFixed(1)}</span>
+                <span className="review-count">({reviewsCount} Reviews)</span>
+              </div>
             </div>
 
             {/* In Stock Badge directly below price */}
-            <div className="price-stock-row" style={{ marginTop: '0.55rem' }}>
+            <div className="price-stock-row" style={{ marginTop: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
               {product.stock > 0 || product.allowSellWithoutStock ? (
                 <span className="product-stock-badge in-stock">
                   <span className="stock-dot"></span> In Stock
                 </span>
               ) : (
                 <span className="product-stock-badge out-stock">Out of Stock</span>
+              )}
+              
+              {product.category && (
+                <span className="product-category-badge">{product.category}</span>
               )}
             </div>
           </div>
@@ -842,23 +855,40 @@ const ProductDetails = () => {
             <div key={idx} style={{ marginBottom: '1.5rem' }}>
               <label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem' }}>{v.name}</label>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                {v.options.map(opt => (
-                  <button 
-                    key={opt}
-                    onClick={() => setSelectedVariations({...selectedVariations, [v.name]: opt})}
-                    style={{
-                      padding: '0.5rem 1.5rem',
-                      borderRadius: '8px',
-                      border: selectedVariations[v.name] === opt ? '2px solid var(--accent-primary)' : '1px solid var(--border-color)',
-                      background: selectedVariations[v.name] === opt ? 'rgba(37, 99, 235, 0.1)' : '#fff',
-                      color: selectedVariations[v.name] === opt ? 'var(--accent-primary)' : 'var(--text-primary)',
-                      cursor: 'pointer',
-                      fontWeight: '500'
-                    }}
-                  >
-                    {opt}
-                  </button>
-                ))}
+                {v.options.map(opt => {
+                  const matchingCombo = product.variationCombinations?.find(vc => vc.options[v.name] === opt && vc.image);
+                  const optImage = matchingCombo?.image;
+
+                  return (
+                    <button 
+                      key={opt}
+                      onClick={() => {
+                        setSelectedVariations({...selectedVariations, [v.name]: opt});
+                        if (optImage) {
+                          setMainImage(optImage);
+                        }
+                      }}
+                      style={{
+                        padding: optImage ? '0.25rem 0.75rem 0.25rem 0.25rem' : '0.5rem 1.5rem',
+                        borderRadius: '8px',
+                        border: selectedVariations[v.name] === opt ? '2px solid var(--accent-primary)' : '1px solid var(--border-color)',
+                        background: selectedVariations[v.name] === opt ? 'rgba(37, 99, 235, 0.1)' : '#fff',
+                        color: selectedVariations[v.name] === opt ? 'var(--accent-primary)' : 'var(--text-primary)',
+                        cursor: 'pointer',
+                        fontWeight: '500',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        transition: 'all 0.2s'
+                      }}
+                    >
+                      {optImage && (
+                        <img src={optImage} alt={opt} style={{ width: '32px', height: '32px', borderRadius: '4px', objectFit: 'cover' }} />
+                      )}
+                      {opt}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           ))}

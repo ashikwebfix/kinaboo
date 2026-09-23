@@ -70,6 +70,10 @@ const Product = sequelize.define('Product', {
     type: DataTypes.JSON,
     allowNull: true,
   },
+  variationCombinations: {
+    type: DataTypes.JSON,
+    allowNull: true,
+  },
   longDescription: {
     type: DataTypes.TEXT,
     allowNull: true,

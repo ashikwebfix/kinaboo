@@ -28,6 +28,7 @@ const AdminProductForm = () => {
   const [images, setImages] = useState([]);
   const [keypoints, setKeypoints] = useState([]); 
   const [variations, setVariations] = useState([]);
+  const [variationCombinations, setVariationCombinations] = useState([]);
   const [faq, setFaq] = useState([]);
   const [reviews, setReviews] = useState([]);
   const [youtubeReels, setYoutubeReels] = useState([]);
@@ -80,6 +81,7 @@ const AdminProductForm = () => {
       setImages(product.images || []);
       setKeypoints(product.keypoints || []);
       setVariations(product.variations || []);
+      setVariationCombinations(product.variationCombinations || []);
       setFaq(product.faq || []);
       setReviews(product.reviews || []);
       setYoutubeReels(product.youtubeReels || []);
@@ -100,7 +102,7 @@ const AdminProductForm = () => {
     e.preventDefault();
     
     const parsedData = {
-      name, sku, category, price: Number(price), stock: Number(stock), allowSellWithoutStock, image, images, variations, faq, reviews, youtubeReels, description, longDescription, imageTextSections, tags, status, volumeBundles, configurator,
+      name, sku, category, price: Number(price), stock: Number(stock), allowSellWithoutStock, image, images, variations, variationCombinations, faq, reviews, youtubeReels, description, longDescription, imageTextSections, tags, status, volumeBundles, configurator,
       sellPrice: sellPrice ? Number(sellPrice) : null,
       keypoints: keypoints.map(s => s.trim()).filter(Boolean)
     };
@@ -132,6 +134,47 @@ const AdminProductForm = () => {
   };
 
   // --- Variation Handlers ---
+  useEffect(() => {
+    setVariationCombinations(prev => {
+      if (!variations || variations.length === 0) return [];
+      
+      const validVars = variations.filter(v => v.name && v.options.length > 0);
+      if (validVars.length === 0) return [];
+
+      const cartesian = (arrays) => arrays.reduce((a, b) => a.flatMap(d => b.map(e => [d, e].flat())));
+      const optionsArrays = validVars.map(v => v.options.map(opt => ({ [v.name]: opt })));
+      
+      let combinations = [];
+      if (optionsArrays.length === 1) {
+        combinations = optionsArrays[0].map(opt => [opt]);
+      } else {
+        combinations = cartesian(optionsArrays);
+      }
+
+      const newCombinations = combinations.map(comboArr => {
+        const optionsObj = comboArr.reduce((acc, curr) => ({...acc, ...curr}), {});
+        const sortedKeys = Object.keys(optionsObj).sort();
+        const id = sortedKeys.map(k => `${k}:${optionsObj[k]}`).join('|');
+        
+        const existing = prev.find(vc => vc.id === id);
+        return {
+          id,
+          options: optionsObj,
+          price: existing ? existing.price : '',
+          image: existing ? existing.image : ''
+        };
+      });
+
+      const currentIds = prev.map(vc => vc.id).sort().join(',');
+      const newIds = newCombinations.map(vc => vc.id).sort().join(',');
+      
+      if (currentIds === newIds && prev.length === newCombinations.length) {
+        return prev;
+      }
+      return newCombinations;
+    });
+  }, [variations]);
+
   const addVariation = () => setVariations([...variations, { name: '', options: [] }]);
   const removeVariation = (idx) => setVariations(variations.filter((_, i) => i !== idx));
   const updateVariationName = (idx, val) => {
@@ -427,6 +470,43 @@ const AdminProductForm = () => {
                   </div>
                 </div>
               ))}
+
+              {variationCombinations.length > 0 && (
+                <div style={{ marginTop: '1.5rem', background: '#f8fafc', padding: '1rem', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                  <h4 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '0.75rem', color: '#1e293b' }}>Variation Combinations Pricing</h4>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    {variationCombinations.map((vc, idx) => (
+                      <div key={vc.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem', background: '#fff', borderRadius: '6px', border: '1px solid #e5e7eb' }}>
+                        <div style={{ fontWeight: 500, color: '#334155', fontSize: '0.9rem' }}>
+                          {Object.entries(vc.options).map(([k, v]) => `${k}: ${v}`).join(' | ')}
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <span style={{ fontSize: '0.85rem', color: '#64748b' }}>Price:</span>
+                          <input 
+                            type="number" 
+                            className="input-field" 
+                            placeholder="Base Price"
+                            value={vc.price || ''}
+                            onChange={(e) => {
+                              setVariationCombinations(prev => prev.map(item => item.id === vc.id ? { ...item, price: e.target.value ? Number(e.target.value) : '' } : item));
+                            }}
+                            style={{ width: '120px', padding: '0.35rem 0.5rem' }} 
+                          />
+                          {vc.image && (
+                            <div style={{ position: 'relative' }}>
+                              <img src={vc.image} alt="combo" style={{ width: '32px', height: '32px', borderRadius: '4px', objectFit: 'cover' }} />
+                              <button type="button" onClick={() => setVariationCombinations(prev => prev.map(item => item.id === vc.id ? { ...item, image: '' } : item))} style={{ position:'absolute', top: -5, right: -5, background:'#fff', borderRadius:'50%', padding: 0, border:'none', cursor:'pointer' }}><XCircle size={14} color="#ef4444" /></button>
+                            </div>
+                          )}
+                          <button type="button" className="btn btn-secondary" onClick={() => setPickerType(`combo_${vc.id}`)} style={{ padding: '0.35rem 0.5rem', fontSize: '0.8rem' }} title="Add Image">
+                            <ImageIcon size={14} />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Volume Bundles Builder */}
@@ -740,6 +820,9 @@ const AdminProductForm = () => {
           } else if (pickerType?.startsWith('bundle_')) {
             const bIdx = parseInt(pickerType.split('_')[1]);
             updateVolumeBundle(bIdx, 'image', selection);
+          } else if (pickerType?.startsWith('combo_')) {
+            const cId = pickerType.substring(6); // remove 'combo_'
+            setVariationCombinations(prev => prev.map(item => item.id === cId ? { ...item, image: selection } : item));
           } else if (pickerType === 'jodit' && joditTargetRef.current) {
             const editor = joditTargetRef.current;
             editor.s.restore();
