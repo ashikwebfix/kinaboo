@@ -8390,3 +8390,10 @@ a.drawer-contact-row {
   }
 }
 
+/* Hide wishlist and cart on mobile header */
+@media (max-width: 992px) {
+  .header-actions .wishlist-action-btn,
+  .header-actions .cart-trigger-btn {
+    display: none !important;
+  }
+}
