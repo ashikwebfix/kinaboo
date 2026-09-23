@@ -161,6 +161,7 @@ const AdminProductForm = () => {
           id,
           options: optionsObj,
           price: existing ? existing.price : '',
+          originalPrice: existing ? existing.originalPrice : '',
           image: existing ? existing.image : ''
         };
       });
@@ -485,12 +486,23 @@ const AdminProductForm = () => {
                           <input 
                             type="number" 
                             className="input-field" 
-                            placeholder="Base Price"
+                            placeholder="Sell Price"
                             value={vc.price || ''}
                             onChange={(e) => {
                               setVariationCombinations(prev => prev.map(item => item.id === vc.id ? { ...item, price: e.target.value ? Number(e.target.value) : '' } : item));
                             }}
-                            style={{ width: '120px', padding: '0.35rem 0.5rem' }} 
+                            style={{ width: '90px', padding: '0.35rem 0.5rem' }} 
+                          />
+                          <span style={{ fontSize: '0.85rem', color: '#64748b' }}>Compare at:</span>
+                          <input 
+                            type="number" 
+                            className="input-field" 
+                            placeholder="Original"
+                            value={vc.originalPrice || ''}
+                            onChange={(e) => {
+                              setVariationCombinations(prev => prev.map(item => item.id === vc.id ? { ...item, originalPrice: e.target.value ? Number(e.target.value) : '' } : item));
+                            }}
+                            style={{ width: '90px', padding: '0.35rem 0.5rem' }} 
                           />
                           {vc.image && (
                             <div style={{ position: 'relative' }}>

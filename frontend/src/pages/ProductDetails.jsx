@@ -384,7 +384,24 @@ const ProductDetails = () => {
     }
     return base;
   };
+
+  const getOriginalPrice = () => {
+    let original = Number(product?.price || 0);
+    if (product?.variationCombinations && product.variationCombinations.length > 0) {
+      const sortedKeys = Object.keys(selectedVariations).sort();
+      if (sortedKeys.length === (product.variations?.length || 0)) {
+        const comboId = sortedKeys.map(k => `${k}:${selectedVariations[k]}`).join('|');
+        const combo = product.variationCombinations.find(vc => vc.id === comboId);
+        if (combo && combo.originalPrice !== undefined && combo.originalPrice !== null && combo.originalPrice !== '') {
+          original = Number(combo.originalPrice);
+        }
+      }
+    }
+    return original;
+  };
+
   const currentPrice = getBasePrice() + getConfiguratorPrice();
+  const currentOriginalPrice = getOriginalPrice() + getConfiguratorPrice();
 
   const formatPrice = (amount) => {
     const num = Number(amount || 0);
@@ -788,11 +805,11 @@ const ProductDetails = () => {
                   <span className="price-current">{formatPrice(currentPrice)}</span>
                   <span className="price-currency">BDT</span>
                 </div>
-                {product.sellPrice && Number(product.price) > Number(product.sellPrice) && !product.configurator?.enabled && (
+                {currentPrice > 0 && currentOriginalPrice > currentPrice && !product.configurator?.enabled && (
                   <div className="price-savings-group">
-                    <span className="price-original">{formatPrice(product.price)} BDT</span>
+                    <span className="price-original">{formatPrice(currentOriginalPrice)} BDT</span>
                     <span className="price-discount-tag">
-                      Save {Math.round(((Number(product.price) - Number(product.sellPrice)) / Number(product.price)) * 100)}%
+                      Save {Math.round(((currentOriginalPrice - currentPrice) / currentOriginalPrice) * 100)}%
                     </span>
                   </div>
                 )}
