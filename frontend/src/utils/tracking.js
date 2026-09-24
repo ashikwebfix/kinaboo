@@ -50,11 +50,10 @@ export const pushToDataLayer = (data) => {
 const getTargetPixels = (categoryName = null) => {
   if (typeof window === 'undefined') return [];
   const config = window.__TRACKING_CONFIG__ || {};
-  const globalPixelId = config.globalPixelId;
+  const globalPixels = config.globalPixels || [];
   const categoryPixelsMap = config.categoryPixels || {};
   
-  const pixels = [];
-  if (globalPixelId) pixels.push(globalPixelId);
+  const pixels = [...globalPixels];
   
   if (categoryName && categoryPixelsMap[categoryName]) {
     const catPixelId = categoryPixelsMap[categoryName];

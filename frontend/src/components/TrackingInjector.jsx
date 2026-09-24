@@ -34,8 +34,15 @@ const TrackingInjector = () => {
         }
 
         // Store config globally for tracking.js to use
+        let globalPixels = [];
+        if (trackingData?.fbPixels && trackingData.fbPixels.length > 0) {
+          globalPixels = trackingData.fbPixels.map(p => p.pixelId);
+        } else if (trackingData?.fbPixelId) {
+          globalPixels = [trackingData.fbPixelId];
+        }
+
         window.__TRACKING_CONFIG__ = {
-          globalPixelId: trackingData?.fbPixelId || null,
+          globalPixels: globalPixels,
           categoryPixels: categoryPixelsMap
         };
 
@@ -110,25 +117,31 @@ const TrackingInjector = () => {
     }
 
     // Inject Facebook Pixel
-    if (pixels.length > 0 && !document.getElementById('fb-pixel-script')) {
-      const script = document.createElement('script');
-      script.id = 'fb-pixel-script';
-      
-      // Build the init calls for all pixels
-      const initCalls = pixels.filter(p => p.pixelId).map(p => `fbq('init', '${p.pixelId}');`).join('\n        ');
-      
-      script.innerHTML = `
-        !function(f,b,e,v,n,t,s)
-        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-        n.queue=[];t=b.createElement(e);t.async=!0;
-        t.src=v;s=b.getElementsByTagName(e)[0];
-        s.parentNode.insertBefore(t,s)}(window, document,'script',
-        'https://connect.facebook.net/en_US/fbevents.js');
-        ${initCalls}
-      `;
-      document.head.appendChild(script);
+    if (pixels.length > 0) {
+      if (!document.getElementById('fb-pixel-script')) {
+        const script = document.createElement('script');
+        script.id = 'fb-pixel-script';
+        script.innerHTML = `
+          !function(f,b,e,v,n,t,s)
+          {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+          n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+          if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+          n.queue=[];t=b.createElement(e);t.async=!0;
+          t.src=v;s=b.getElementsByTagName(e)[0];
+          s.parentNode.insertBefore(t,s)}(window, document,'script',
+          'https://connect.facebook.net/en_US/fbevents.js');
+        `;
+        document.head.appendChild(script);
+      }
+
+      // Always call init for all pixels to handle updates
+      if (window.fbq) {
+        pixels.forEach(p => {
+          if (p.pixelId) {
+            window.fbq('init', p.pixelId);
+          }
+        });
+      }
     }
   }, [settings]);
 
