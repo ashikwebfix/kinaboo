@@ -3,6 +3,7 @@ import "../App.css";
 import ClientLayout from '../components/ClientLayout';
 
 export const metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:6711'),
   title: "Kinaboo",
   description: "Your trusted online shopping partner",
   openGraph: {
