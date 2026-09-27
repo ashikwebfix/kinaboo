@@ -77,7 +77,7 @@ const runMigrations = async () => {
   await safeAlter('AbandonedCarts', 'name', 'VARCHAR(255) NULL');
   
   // Sync new models
-  await Blog.sync({ alter: true });
+  await Blog.sync();
   console.log('[Migration] Synced Blog model.');
 
   console.log('[Migration] All migrations complete.');
