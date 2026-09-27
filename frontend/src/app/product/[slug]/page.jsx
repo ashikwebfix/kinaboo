@@ -21,12 +21,31 @@ export async function generateMetadata({ params }) {
     let image = product.image;
     if (product.images && product.images.length > 0) image = product.images[0];
     
-    // Make image URL absolute if it is relative
-    if (image && !image.startsWith('http')) {
-      const publicBaseUrl = process.env.NEXT_PUBLIC_API_URL && process.env.NEXT_PUBLIC_API_URL.startsWith('http') 
-        ? process.env.NEXT_PUBLIC_API_URL 
-        : 'https://api.kinaboo.com';
-      image = `${publicBaseUrl}${image.startsWith('/') ? '' : '/'}${image}`;
+    // Extract the local path for the image (e.g. /uploads/...)
+    let imagePath = image;
+    if (imagePath && imagePath.startsWith('http')) {
+      try {
+        imagePath = new URL(imagePath).pathname;
+      } catch(e) {}
+    }
+    if (imagePath && !imagePath.startsWith('/')) {
+      imagePath = '/' + imagePath;
+    }
+    
+    let ogImages = [];
+    if (imagePath) {
+      // Use Next.js image optimizer to ensure Facebook can read avif/webp as standard formats,
+      // and provide explicitly set dimensions for first-time scrapes.
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kinaboo.com';
+      const optimizedImageUrl = `${siteUrl}/_next/image?url=${encodeURIComponent(imagePath)}&w=1200&q=75`;
+      ogImages = [
+        {
+          url: optimizedImageUrl,
+          width: 1200,
+          height: 1200, // Or 630 depending on aspect ratio, but Facebook handles square/rectangle well if dimensions are provided.
+          alt: product.name,
+        }
+      ];
     }
 
     return {
@@ -35,13 +54,15 @@ export async function generateMetadata({ params }) {
       openGraph: {
         title: `${product.name} | kinaboo.com`,
         description: description,
-        images: image ? [image] : [],
+        url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://kinaboo.com'}/product/${slug}`,
+        images: ogImages,
+        type: 'website',
       },
       twitter: {
         card: "summary_large_image",
         title: `${product.name} | kinaboo.com`,
         description: description,
-        images: image ? [image] : [],
+        images: ogImages.map(img => img.url),
       }
     };
   } catch (error) {
