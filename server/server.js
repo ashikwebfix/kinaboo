@@ -127,5 +127,8 @@ app.use('/api', (req, res) => {
 const frontendDistPath = path.join(__dirname, '../frontend/dist/client');
 app.use(express.static(frontendDistPath, { index: false }));
 
-
 const PORT = process.env.PORT || 5005;
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
