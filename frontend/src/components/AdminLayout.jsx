@@ -7,7 +7,7 @@ import { requestForToken, onMessageListener, initFirebase } from '../firebase';
 import toast from 'react-hot-toast';
 import { Bell, LayoutDashboard, PackageSearch, Layers, Image as ImageIcon, Users, ShoppingCart, LogOut, Settings as SettingsIcon, Tag, PackagePlus, Shield, Activity, PackageX, FileText, Menu, X } from 'lucide-react';
 
-const AdminLayout = () => {
+const AdminLayout = ({ children }) => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -233,7 +233,7 @@ const AdminLayout = () => {
         </div>
       </aside>
       <main className="admin-content" style={{ padding: '1.5rem', width: '100%', boxSizing: 'border-box' }}>
-        <Outlet />
+        {children}
       </main>
 
       {/* Admin Mobile Bottom Nav */}
