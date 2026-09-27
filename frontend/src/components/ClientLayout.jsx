@@ -11,11 +11,12 @@ import ChatBot from './ChatBot';
 import SideCart from './SideCart';
 import Tracker from './Tracker';
 import Maintenance from '../views/Maintenance';
-
+import { usePathname } from 'next/navigation';
 export default function ClientLayout({ children }) {
   const [maintenanceMode, setMaintenanceMode] = React.useState(false);
   const [maintenanceMessage, setMaintenanceMessage] = React.useState('');
   const [mounted, setMounted] = React.useState(false);
+  const pathname = usePathname();
 
   React.useEffect(() => {
     setMounted(true);
@@ -46,21 +47,23 @@ export default function ClientLayout({ children }) {
     return <Maintenance message={maintenanceMessage} />;
   }
 
+  const isAdminRoute = pathname && pathname.startsWith('/admin');
+
   return (
     <HelmetProvider>
       <Suspense fallback={null}>
-        <ScrollToTop />
-        <ChatBot />
+        {!isAdminRoute && <ScrollToTop />}
+        {!isAdminRoute && <ChatBot />}
         <Tracker />
         <TrackingInjector />
         {mounted && <Toaster position="top-right" />}
         
-        <Navbar />
-        <div className="page-wrapper">{children}</div>
-        <Footer />
-        <SideCart />
+        {!isAdminRoute && <Navbar />}
+        <div className={isAdminRoute ? "" : "page-wrapper"}>{children}</div>
+        {!isAdminRoute && <Footer />}
+        {!isAdminRoute && <SideCart />}
         
-        {(!maintenanceMode || isAdmin) && <MobileBottomNav />}
+        {!isAdminRoute && (!maintenanceMode || isAdmin) && <MobileBottomNav />}
       </Suspense>
     </HelmetProvider>
   );
