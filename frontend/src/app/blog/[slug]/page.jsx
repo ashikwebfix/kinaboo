@@ -18,7 +18,10 @@ export async function generateMetadata({ params }) {
     
     // Make image URL absolute if it is relative
     if (image && !image.startsWith('http')) {
-      image = `${API_URL}${image.startsWith('/') ? '' : '/'}${image}`;
+      const publicBaseUrl = process.env.NEXT_PUBLIC_API_URL && process.env.NEXT_PUBLIC_API_URL.startsWith('http') 
+        ? process.env.NEXT_PUBLIC_API_URL 
+        : 'https://api.kinaboo.com';
+      image = `${publicBaseUrl}${image.startsWith('/') ? '' : '/'}${image}`;
     }
 
     return {
