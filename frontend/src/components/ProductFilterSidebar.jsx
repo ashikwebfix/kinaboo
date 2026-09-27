@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Filter, 
@@ -34,7 +35,7 @@ const ProductFilterSidebar = ({
   const [categorySearch, setCategorySearch] = useState('');
 
   useEffect(() => {
-    const apiUrl = import.meta.env.VITE_API_URL || '';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
     
     // Fetch products and categories in parallel
     Promise.all([

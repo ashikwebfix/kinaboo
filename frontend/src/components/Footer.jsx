@@ -1,5 +1,7 @@
+"use client";
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
+
 import { Mail, MapPin, Phone, Truck, ShieldCheck, RotateCcw, Headphones, ArrowRight, ChevronRight, Check } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -19,7 +21,7 @@ const Footer = () => {
   });
 
   useEffect(() => {
-    fetch((import.meta.env.VITE_API_URL || '') + '/api/settings/general_settings')
+    fetch((process.env.NEXT_PUBLIC_API_URL || '') + '/api/settings/general_settings')
       .then(res => res.ok ? res.json() : null)
       .then(data => {
         if (data && typeof data === 'object') {
@@ -100,7 +102,7 @@ const Footer = () => {
             
             {/* Column 1: Brand Info & Socials */}
             <div className="footer-brand-col">
-              <Link to="/" style={{ display: 'inline-block', textDecoration: 'none' }}>
+              <Link href="/" style={{ display: 'inline-block', textDecoration: 'none' }}>
                 <img src={footerInfo.footerLogo || "/logo-white.svg"} alt={footerInfo.siteName || "Kinaboo"} className="footer-brand-logo" />
               </Link>
               <p className="footer-brand-text">
@@ -131,11 +133,11 @@ const Footer = () => {
             <div>
               <h3 className="footer-col-title">কুইক লিংক</h3>
               <ul className="footer-nav-list">
-                <li><Link to="/" className="footer-nav-link"><ChevronRight size={14} /> হোম</Link></li>
-                <li><Link to="/shop" className="footer-nav-link"><ChevronRight size={14} /> শপ ও কালেকশন</Link></li>
-                <li><Link to="/shop?sort=discount" className="footer-nav-link"><ChevronRight size={14} /> স্পেশাল অফার ডিলস</Link></li>
-                <li><Link to="/pages/about-us" className="footer-nav-link"><ChevronRight size={14} /> আমাদের সম্পর্কে</Link></li>
-                <li><Link to="/pages/contact" className="footer-nav-link"><ChevronRight size={14} /> যোগাযোগ</Link></li>
+                <li><Link href="/" className="footer-nav-link"><ChevronRight size={14} /> হোম</Link></li>
+                <li><Link href="/shop" className="footer-nav-link"><ChevronRight size={14} /> শপ ও কালেকশন</Link></li>
+                <li><Link href="/shop?sort=discount" className="footer-nav-link"><ChevronRight size={14} /> স্পেশাল অফার ডিলস</Link></li>
+                <li><Link href="/pages/about-us" className="footer-nav-link"><ChevronRight size={14} /> আমাদের সম্পর্কে</Link></li>
+                <li><Link href="/pages/contact" className="footer-nav-link"><ChevronRight size={14} /> যোগাযোগ</Link></li>
               </ul>
             </div>
 
@@ -143,11 +145,11 @@ const Footer = () => {
             <div>
               <h3 className="footer-col-title">কাস্টমার সার্ভিস</h3>
               <ul className="footer-nav-list">
-                <li><Link to="/pages/order-tracking" className="footer-nav-link"><ChevronRight size={14} /> অর্ডার ট্র্যাকিং</Link></li>
-                <li><Link to="/pages/return-exchange" className="footer-nav-link"><ChevronRight size={14} /> রিটার্ন ও এক্সচেঞ্জ পলিসি</Link></li>
-                <li><Link to="/pages/shipping-info" className="footer-nav-link"><ChevronRight size={14} /> শিপিং ও ডেলিভারি তথ্য</Link></li>
-                <li><Link to="/pages/faq" className="footer-nav-link"><ChevronRight size={14} /> সাধারণ জিজ্ঞাসা (FAQ)</Link></li>
-                <li><Link to="/pages/privacy-policy" className="footer-nav-link"><ChevronRight size={14} /> প্রাইভেসি পলিসি</Link></li>
+                <li><Link href="/pages/order-tracking" className="footer-nav-link"><ChevronRight size={14} /> অর্ডার ট্র্যাকিং</Link></li>
+                <li><Link href="/pages/return-exchange" className="footer-nav-link"><ChevronRight size={14} /> রিটার্ন ও এক্সচেঞ্জ পলিসি</Link></li>
+                <li><Link href="/pages/shipping-info" className="footer-nav-link"><ChevronRight size={14} /> শিপিং ও ডেলিভারি তথ্য</Link></li>
+                <li><Link href="/pages/faq" className="footer-nav-link"><ChevronRight size={14} /> সাধারণ জিজ্ঞাসা (FAQ)</Link></li>
+                <li><Link href="/pages/privacy-policy" className="footer-nav-link"><ChevronRight size={14} /> প্রাইভেসি পলিসি</Link></li>
               </ul>
             </div>
 

@@ -1,7 +1,9 @@
+"use client";
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Truck, User, Phone, MapPin, Tag, CheckCircle2, ShieldCheck, Zap, Sparkles } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
+
 import { trackBeginCheckout, trackPurchase, getCookie } from '../utils/tracking';
 import useCartStore from '../store/useCartStore';
 
@@ -11,8 +13,8 @@ const defaultDeliveryOptions = [
 ];
 
 const ExpressCheckoutModal = ({ product, qty = 1, selectedVariations = {}, cartItems: propCartItems, onClose }) => {
-  const navigate = useNavigate();
-  const userInfo = JSON.parse(localStorage.getItem('userInfo') || 'null');
+  const router = useRouter();
+  const userInfo = JSON.parse((typeof window !== 'undefined' ? localStorage.getItem('userInfo') : null) || 'null');
   const clearCart = useCartStore((state) => state.clearCart);
 
   // Normalize items
@@ -77,7 +79,7 @@ const ExpressCheckoutModal = ({ product, qty = 1, selectedVariations = {}, cartI
   useEffect(() => {
     const fetchDeliveryMethods = async () => {
       try {
-        const dmRes = await fetch((import.meta.env.VITE_API_URL || '') + '/api/settings/delivery_methods');
+        const dmRes = await fetch((process.env.NEXT_PUBLIC_API_URL || '') + '/api/settings/delivery_methods');
         if (dmRes.ok) {
           const dmData = await dmRes.json();
           if (Array.isArray(dmData) && dmData.length > 0) {
@@ -113,7 +115,7 @@ const ExpressCheckoutModal = ({ product, qty = 1, selectedVariations = {}, cartI
             image: product.image || (product.images && product.images[0])
           }];
 
-          await fetch((import.meta.env.VITE_API_URL || '') + '/api/abandoned-carts/track', {
+          await fetch((process.env.NEXT_PUBLIC_API_URL || '') + '/api/abandoned-carts/track', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -154,7 +156,7 @@ const ExpressCheckoutModal = ({ product, qty = 1, selectedVariations = {}, cartI
     setValidatingCoupon(true);
     setCouponError('');
     try {
-      const res = await fetch((import.meta.env.VITE_API_URL || '') + '/api/coupons/validate', {
+      const res = await fetch((process.env.NEXT_PUBLIC_API_URL || '') + '/api/coupons/validate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -237,7 +239,7 @@ const ExpressCheckoutModal = ({ product, qty = 1, selectedVariations = {}, cartI
         headers['Authorization'] = `Bearer ${userInfo.token}`;
       }
 
-      const res = await fetch((import.meta.env.VITE_API_URL || '') + '/api/orders', {
+      const res = await fetch((process.env.NEXT_PUBLIC_API_URL || '') + '/api/orders', {
         method: 'POST',
         headers,
         body: JSON.stringify(orderData)
@@ -261,7 +263,7 @@ const ExpressCheckoutModal = ({ product, qty = 1, selectedVariations = {}, cartI
 
         onClose();
         // Redirect to Thank You invoice page
-        navigate(`/thank-you/${responseData.id}`);
+        router.push(`/thank-you/${responseData.id}`);
       } else {
         alert('অর্ডার সম্পন্ন করতে সমস্যা হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।');
       }

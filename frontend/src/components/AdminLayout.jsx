@@ -1,12 +1,17 @@
+"use client";
 import React from 'react';
-import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+
 import { requestForToken, onMessageListener, initFirebase } from '../firebase';
 import toast from 'react-hot-toast';
 import { Bell, LayoutDashboard, PackageSearch, Layers, Image as ImageIcon, Users, ShoppingCart, LogOut, Settings as SettingsIcon, Tag, PackagePlus, Shield, Activity, PackageX, FileText, Menu, X } from 'lucide-react';
 
 const AdminLayout = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const location = { pathname, search: searchParams.toString() ? "?" + searchParams.toString() : "" };
   const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => {
@@ -19,10 +24,10 @@ const AdminLayout = () => {
 
   const handleLogout = () => {
     localStorage.removeItem('userInfo');
-    navigate('/login');
+    router.push('/login');
   };
 
-  const userInfo = JSON.parse(localStorage.getItem('userInfo')) || {};
+  const userInfo = JSON.parse((typeof window !== 'undefined' ? localStorage.getItem('userInfo') : null)) || {};
   const role = userInfo.role || (userInfo.isAdmin ? 'admin' : 'customer');
 
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
@@ -31,7 +36,7 @@ const AdminLayout = () => {
   const [isTokenFound, setTokenFound] = React.useState(false);
 
   React.useEffect(() => {
-    const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+    const userInfo = JSON.parse((typeof window !== 'undefined' ? localStorage.getItem('userInfo') : null) || '{}');
     initFirebase(userInfo.token).then(initialized => {
       if (initialized) {
         onMessageListener(payload => {
@@ -43,7 +48,7 @@ const AdminLayout = () => {
 
   const enableNotifications = async () => {
     try {
-      const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+      const userInfo = JSON.parse((typeof window !== 'undefined' ? localStorage.getItem('userInfo') : null) || '{}');
       const initialized = await initFirebase(userInfo.token);
       if (!initialized) {
         toast.error('Firebase is not configured in Settings.');
@@ -53,7 +58,7 @@ const AdminLayout = () => {
       if (token) {
         setTokenFound(true);
         // Send token to backend
-        const res = await fetch(import.meta.env.VITE_API_URL + '/api/users/fcm-token', {
+        const res = await fetch(process.env.NEXT_PUBLIC_API_URL + '/api/users/fcm-token', {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -187,7 +192,7 @@ const AdminLayout = () => {
                         return (
                           <Link 
                             key={subItem.path}
-                            to={subItem.path}
+                            href={subItem.path}
                             style={{
                               display: 'block', padding: '0.5rem 0.75rem', borderRadius: '6px',
                               color: isActive ? 'var(--accent-primary)' : 'var(--text-secondary)',
@@ -205,7 +210,7 @@ const AdminLayout = () => {
                 </>
               ) : (
                 <Link 
-                  to={item.path} 
+                  href={item.path} 
                   style={{
                     display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem 1rem', borderRadius: '8px',
                     color: (item.path === '/admin' ? location.pathname === item.path : location.pathname.startsWith(item.path)) ? 'var(--accent-primary)' : 'var(--text-primary)',
@@ -233,19 +238,19 @@ const AdminLayout = () => {
 
       {/* Admin Mobile Bottom Nav */}
             <nav className="admin-bottom-nav">
-        <Link to="/admin" className={`admin-bottom-nav-item ${location.pathname === '/admin' ? 'active' : ''}`}>
+        <Link href="/admin" className={`admin-bottom-nav-item ${location.pathname === '/admin' ? 'active' : ''}`}>
           <Activity size={20} />
           <span>Analytics</span>
         </Link>
-        <Link to="/admin/orders" className={`admin-bottom-nav-item ${location.pathname.startsWith('/admin/orders') ? 'active' : ''}`}>
+        <Link href="/admin/orders" className={`admin-bottom-nav-item ${location.pathname.startsWith('/admin/orders') ? 'active' : ''}`}>
           <ShoppingCart size={20} />
           <span>Orders</span>
         </Link>
-        <Link to="/admin/abandoned-carts" className={`admin-bottom-nav-item ${location.pathname.startsWith('/admin/abandoned-carts') ? 'active' : ''}`}>
+        <Link href="/admin/abandoned-carts" className={`admin-bottom-nav-item ${location.pathname.startsWith('/admin/abandoned-carts') ? 'active' : ''}`}>
           <PackageX size={20} />
           <span>Carts</span>
         </Link>
-        <Link to="/admin/customers" className={`admin-bottom-nav-item ${location.pathname.startsWith('/admin/customers') ? 'active' : ''}`}>
+        <Link href="/admin/customers" className={`admin-bottom-nav-item ${location.pathname.startsWith('/admin/customers') ? 'active' : ''}`}>
           <Users size={20} />
           <span>Customers</span>
         </Link>

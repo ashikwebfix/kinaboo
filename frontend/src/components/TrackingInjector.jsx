@@ -1,16 +1,20 @@
+"use client";
 import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { usePathname, useSearchParams } from 'next/navigation';
+
 import { trackPageView } from '../utils/tracking';
 
 const TrackingInjector = () => {
   const [settings, setSettings] = useState(null);
-  const location = useLocation();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const location = { pathname, search: searchParams.toString() ? "?" + searchParams.toString() : "" };
 
   useEffect(() => {
     // Fetch tracking settings and categories from backend
     const fetchSettingsAndCategories = async () => {
       try {
-        const apiUrl = import.meta.env.VITE_API_URL || '';
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
         
         // Fetch tracking settings
         const resSettings = await fetch(`${apiUrl}/api/settings/tracking_settings`);

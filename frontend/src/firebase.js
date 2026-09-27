@@ -8,7 +8,7 @@ let vapidKey = '';
 export const initFirebase = async (token) => {
   if (app) return true;
   try {
-    const res = await fetch(import.meta.env.VITE_API_URL + '/api/settings/firebase_settings', {
+    const res = await fetch(process.env.NEXT_PUBLIC_API_URL + '/api/settings/firebase_settings', {
       headers: { Authorization: `Bearer ${token}` }
     });
     if (res.ok) {

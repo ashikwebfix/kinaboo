@@ -17,7 +17,7 @@ export const getCookie = (name) => {
 
 const sendCAPI = async (eventName, eventData, eventId, categoryNames = []) => {
   try {
-    const apiUrl = import.meta.env.VITE_API_URL || '';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
     await fetch(`${apiUrl}/api/analytics/capi`, {
       method: 'POST',
       headers: {

@@ -1,5 +1,8 @@
+"use client";
 import React, { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+
 import * as Icons from 'lucide-react';
 import useCartStore from '../store/useCartStore';
 import useFavoritesStore from '../store/useFavoritesStore';
@@ -25,8 +28,10 @@ const Navbar = () => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
 
-  const navigate = useNavigate();
-  const location = useLocation();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const location = { pathname, search: searchParams.toString() ? "?" + searchParams.toString() : "" };
   const searchContainerRef = useRef(null);
   const userMenuRef = useRef(null);
   const categoryMenuRef = useRef(null);
@@ -35,7 +40,7 @@ const Navbar = () => {
   useEffect(() => {
     setMounted(true);
     try {
-      const stored = localStorage.getItem('userInfo');
+      const stored = (typeof window !== 'undefined' ? localStorage.getItem('userInfo') : null);
       if (stored) setUserInfo(JSON.parse(stored));
     } catch {
       setUserInfo(null);
@@ -76,7 +81,7 @@ const Navbar = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const apiUrl = import.meta.env.VITE_API_URL || '';
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
         const [menuRes, catRes, genRes, prodRes] = await Promise.all([
           fetch(apiUrl + '/api/settings/header_menu').catch(() => null),
           fetch(apiUrl + '/api/categories').catch(() => null),
@@ -119,7 +124,7 @@ const Navbar = () => {
       setIsSearching(true);
       const delayDebounceFn = setTimeout(async () => {
         try {
-          const res = await fetch(`${import.meta.env.VITE_API_URL}/api/products?search=${encodeURIComponent(searchQuery)}`);
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products?search=${encodeURIComponent(searchQuery)}`);
           if (res.ok) {
             const data = await res.json();
             setLiveResults(Array.isArray(data) ? data.slice(0, 6) : []);
@@ -144,7 +149,7 @@ const Navbar = () => {
     if (searchQuery.trim()) {
       setShowDropdown(false);
       setIsMobileSearchOpen(false);
-      navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
+      router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
     }
   };
 
@@ -152,7 +157,7 @@ const Navbar = () => {
     localStorage.removeItem('userInfo');
     setUserInfo(null);
     setIsUserMenuOpen(false);
-    navigate('/login');
+    router.push('/login');
   };
 
   if (!mounted) return null;
@@ -179,7 +184,7 @@ const Navbar = () => {
               </p>
             </div>
             <div className="top-bar-right">
-              <Link to="/shipping" className="top-bar-link">
+              <Link href="/shipping" className="top-bar-link">
                 <Icons.Truck size={13} />
                 <span>{generalSettings?.trackOrderLabel || 'Track Order'}</span>
               </Link>
@@ -189,7 +194,7 @@ const Navbar = () => {
                 <span>{generalSettings?.phone || '01354-557477'}</span>
               </a>
               <span className="top-bar-separator"></span>
-              <Link to="/profile" className="top-bar-link">
+              <Link href="/profile" className="top-bar-link">
                 <Icons.HelpCircle size={13} />
                 <span>{generalSettings?.helpCenterLabel || 'Help Center'}</span>
               </Link>
@@ -212,7 +217,7 @@ const Navbar = () => {
           </button>
 
           {/* Logo */}
-          <Link to="/" className="brand-logo-link">
+          <Link href="/" className="brand-logo-link">
             <img src={generalSettings?.headerLogo || "/logo.svg"} alt={generalSettings?.siteName || "Kinaboo"} className="brand-logo-img" style={{ maxHeight: '40px' }} />
           </Link>
 
@@ -271,7 +276,7 @@ const Navbar = () => {
                         return (
                           <Link
                             key={product.id || product._id}
-                            to={`/product/${product.slug || product.id}`}
+                            href={`/product/${product.slug || product.id}`}
                             className="search-result-item"
                             onClick={() => setShowDropdown(false)}
                           >
@@ -297,7 +302,7 @@ const Navbar = () => {
                         );
                       })}
                       <Link
-                        to={`/search?q=${encodeURIComponent(searchQuery)}`}
+                        href={`/search?q=${encodeURIComponent(searchQuery)}`}
                         className="search-view-all-btn"
                         onClick={() => setShowDropdown(false)}
                       >
@@ -330,7 +335,7 @@ const Navbar = () => {
                             className="search-trend-chip"
                             onClick={() => {
                               setSearchQuery(tag);
-                              navigate(`/search?q=${encodeURIComponent(tag)}`);
+                              router.push(`/search?q=${encodeURIComponent(tag)}`);
                               setShowDropdown(false);
                             }}
                           >
@@ -358,7 +363,7 @@ const Navbar = () => {
                             return (
                               <Link
                                 key={`sug-${product.id || product._id}`}
-                                to={`/product/${product.slug || product.id}`}
+                                href={`/product/${product.slug || product.id}`}
                                 className="search-result-item"
                                 onClick={() => setShowDropdown(false)}
                               >
@@ -405,7 +410,7 @@ const Navbar = () => {
 
             {/* Wishlist */}
             <Link
-              to={userInfo ? "/profile?tab=wishlist" : "/login"}
+              href={userInfo ? "/profile?tab=wishlist" : "/login"}
               className="action-btn wishlist-action-btn"
               title="My Wishlist"
             >
@@ -446,20 +451,20 @@ const Navbar = () => {
                         <p className="user-dropdown-email">{userInfo.email || userInfo.phone || ''}</p>
                       </div>
                       <div className="user-dropdown-divider"></div>
-                      <Link to="/profile" className="user-dropdown-item" onClick={() => setIsUserMenuOpen(false)}>
+                      <Link href="/profile" className="user-dropdown-item" onClick={() => setIsUserMenuOpen(false)}>
                         <Icons.User size={16} />
                         <span>My Profile</span>
                       </Link>
-                      <Link to="/profile?tab=orders" className="user-dropdown-item" onClick={() => setIsUserMenuOpen(false)}>
+                      <Link href="/profile?tab=orders" className="user-dropdown-item" onClick={() => setIsUserMenuOpen(false)}>
                         <Icons.Package size={16} />
                         <span>My Orders</span>
                       </Link>
-                      <Link to="/profile?tab=wishlist" className="user-dropdown-item" onClick={() => setIsUserMenuOpen(false)}>
+                      <Link href="/profile?tab=wishlist" className="user-dropdown-item" onClick={() => setIsUserMenuOpen(false)}>
                         <Icons.Heart size={16} />
                         <span>Wishlist</span>
                       </Link>
                       {userInfo.role === 'admin' && (
-                        <Link to="/admin" className="user-dropdown-item admin-item" onClick={() => setIsUserMenuOpen(false)}>
+                        <Link href="/admin" className="user-dropdown-item admin-item" onClick={() => setIsUserMenuOpen(false)}>
                           <Icons.ShieldCheck size={16} />
                           <span>Admin Panel</span>
                         </Link>
@@ -473,7 +478,7 @@ const Navbar = () => {
                   )}
                 </>
               ) : (
-                <Link to="/login" className="action-btn" title="Sign In">
+                <Link href="/login" className="action-btn" title="Sign In">
                   <div className="action-icon-wrap">
                     <Icons.User size={22} />
                   </div>
@@ -563,7 +568,7 @@ const Navbar = () => {
                     {categories.slice(0, 10).map((cat) => (
                       <Link
                         key={cat.id || cat._id}
-                        to={`/shop?category=${encodeURIComponent(cat.title || cat.name)}`}
+                        href={`/shop?category=${encodeURIComponent(cat.title || cat.name)}`}
                         className="category-menu-item"
                         onClick={() => setIsCategoryMenuOpen(false)}
                       >
@@ -579,7 +584,7 @@ const Navbar = () => {
                       </Link>
                     ))}
                     <Link
-                      to="/categories"
+                      href="/categories"
                       className="category-menu-view-all"
                       onClick={() => setIsCategoryMenuOpen(false)}
                     >
@@ -589,16 +594,16 @@ const Navbar = () => {
                   </div>
                 ) : (
                   <div className="category-menu-grid">
-                    <Link to="/shop" className="category-menu-item" onClick={() => setIsCategoryMenuOpen(false)}>
+                    <Link href="/shop" className="category-menu-item" onClick={() => setIsCategoryMenuOpen(false)}>
                       <Icons.Smartphone size={16} /> <span>Electronics & Gadgets</span>
                     </Link>
-                    <Link to="/shop" className="category-menu-item" onClick={() => setIsCategoryMenuOpen(false)}>
+                    <Link href="/shop" className="category-menu-item" onClick={() => setIsCategoryMenuOpen(false)}>
                       <Icons.Shirt size={16} /> <span>Men's & Women's Fashion</span>
                     </Link>
-                    <Link to="/shop" className="category-menu-item" onClick={() => setIsCategoryMenuOpen(false)}>
+                    <Link href="/shop" className="category-menu-item" onClick={() => setIsCategoryMenuOpen(false)}>
                       <Icons.Home size={16} /> <span>Home & Living</span>
                     </Link>
-                    <Link to="/shop" className="category-menu-item" onClick={() => setIsCategoryMenuOpen(false)}>
+                    <Link href="/shop" className="category-menu-item" onClick={() => setIsCategoryMenuOpen(false)}>
                       <Icons.Sparkles size={16} /> <span>Beauty & Health</span>
                     </Link>
                   </div>
@@ -615,7 +620,7 @@ const Navbar = () => {
               return (
                 <Link
                   key={item.id}
-                  to={item.url}
+                  href={item.url}
                   className={`sub-nav-link ${isActive ? 'active' : ''}`}
                 >
                   {IconComp && <IconComp size={16} />}
@@ -627,7 +632,7 @@ const Navbar = () => {
 
           {/* Right Highlight Promo Tag */}
           <div className="header-sub-promo">
-            <Link to="/shop?sort=discount" className="flash-deals-badge-link">
+            <Link href="/shop?sort=discount" className="flash-deals-badge-link">
               <span className="flash-flame-icon">🔥</span>
               <span className="flash-deals-text">Flash Deals</span>
               <span className="flash-deals-chip">Up to 60% Off</span>
@@ -645,7 +650,7 @@ const Navbar = () => {
 
       <div className={`mobile-drawer-panel ${isMobileMenuOpen ? 'open' : ''}`}>
         <div className="mobile-drawer-header">
-          <Link to="/" onClick={() => setIsMobileMenuOpen(false)}>
+          <Link href="/" onClick={() => setIsMobileMenuOpen(false)}>
             <img src={generalSettings?.headerLogo || "/logo.svg"} alt={generalSettings?.siteName || "Kinaboo"} style={{ height: '34px' }} />
           </Link>
           <button
@@ -667,7 +672,7 @@ const Navbar = () => {
               <div className="drawer-user-details">
                 <p className="drawer-user-name">{userInfo.name || 'Customer'}</p>
                 <Link 
-                  to="/profile" 
+                  href="/profile" 
                   className="drawer-user-profile-link" 
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
@@ -682,7 +687,7 @@ const Navbar = () => {
                 <p className="drawer-guest-sub">Sign in for a tailored experience</p>
               </div>
               <Link
-                to="/login"
+                href="/login"
                 className="drawer-login-cta-btn"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
@@ -701,7 +706,7 @@ const Navbar = () => {
               return (
                 <Link
                   key={item.id}
-                  to={item.url}
+                  href={item.url}
                   className="drawer-nav-item"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
@@ -716,7 +721,7 @@ const Navbar = () => {
               );
             })}
             <Link
-              to="/shop?sort=discount"
+              href="/shop?sort=discount"
               className="drawer-nav-item highlight-deals"
               onClick={() => setIsMobileMenuOpen(false)}
             >
@@ -738,7 +743,7 @@ const Navbar = () => {
                 {categories.slice(0, 6).map((cat) => (
                   <Link
                     key={cat.id || cat._id}
-                    to={`/shop?category=${encodeURIComponent(cat.title || cat.name)}`}
+                    href={`/shop?category=${encodeURIComponent(cat.title || cat.name)}`}
                     className="drawer-cat-pill"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >

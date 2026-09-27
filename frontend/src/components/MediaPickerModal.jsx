@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Upload, CheckCircle2 } from 'lucide-react';
@@ -13,7 +14,7 @@ const MediaPickerModal = ({ isOpen, onClose, onSelect, multiSelect = false, curr
   const initialSelection = Array.isArray(currentSelection) ? currentSelection : (currentSelection ? [currentSelection] : []);
   const [selected, setSelected] = useState(initialSelection);
   
-  const token = JSON.parse(localStorage.getItem('userInfo') || '{}').token;
+  const token = JSON.parse((typeof window !== 'undefined' ? localStorage.getItem('userInfo') : null) || '{}').token;
 
   const isVideo = (url) => /\.(mp4|webm|mkv|avi)$/i.test(url);
 
@@ -30,7 +31,7 @@ const MediaPickerModal = ({ isOpen, onClose, onSelect, multiSelect = false, curr
 
   const fetchMedia = async () => {
     try {
-      const res = await fetch(import.meta.env.VITE_API_URL + '/api/upload', {
+      const res = await fetch(process.env.NEXT_PUBLIC_API_URL + '/api/upload', {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
@@ -52,7 +53,7 @@ const MediaPickerModal = ({ isOpen, onClose, onSelect, multiSelect = false, curr
 
     setUploading(true);
     try {
-      await fetch(import.meta.env.VITE_API_URL + '/api/upload', {
+      await fetch(process.env.NEXT_PUBLIC_API_URL + '/api/upload', {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
         body: formData

@@ -1,6 +1,8 @@
+"use client";
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
+
 import { X, Trash2, Plus, Minus, ShoppingBag, ArrowRight, ShieldCheck, Truck, Sparkles } from 'lucide-react';
 import useCartStore from '../store/useCartStore';
 import ExpressCheckoutModal from './ExpressCheckoutModal';
@@ -8,7 +10,7 @@ import ExpressCheckoutModal from './ExpressCheckoutModal';
 const SideCart = () => {
   const { cartItems, isCartOpen, setIsCartOpen, removeFromCart, updateCartQuantity, getCartTotal } = useCartStore();
   const [showExpressModal, setShowExpressModal] = useState(false);
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const handleOverlayClick = (e) => {
     if (e.target.classList.contains('sidecart-overlay')) {
@@ -22,7 +24,7 @@ const SideCart = () => {
 
   const handleViewCart = () => {
     setIsCartOpen(false);
-    navigate('/cart');
+    router.push('/cart');
   };
 
   if (!isCartOpen && !showExpressModal) return null;
@@ -84,7 +86,7 @@ const SideCart = () => {
                   <p className="sidecart-empty-text">আপনার পছন্দের প্রোডাক্টগুলো কার্টে যোগ করুন।</p>
                   <button 
                     type="button"
-                    onClick={() => { setIsCartOpen(false); navigate('/shop'); }} 
+                    onClick={() => { setIsCartOpen(false); router.push('/shop'); }} 
                     className="btn btn-primary"
                     style={{ borderRadius: '10px', padding: '0.75rem 1.75rem' }}
                   >

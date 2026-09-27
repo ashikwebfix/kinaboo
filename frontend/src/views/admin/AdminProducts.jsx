@@ -1,0 +1,306 @@
+"use client";
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+
+import { Plus, Edit, Trash2, Eye, ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
+
+const AdminProducts = () => {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(20);
+  const [selectedProductIds, setSelectedProductIds] = useState([]);
+  const [filterStatus, setFilterStatus] = useState('published');
+  const router = useRouter();
+
+  const token = JSON.parse((typeof window !== 'undefined' ? localStorage.getItem('userInfo') : null) || '{}').token;
+
+  useEffect(() => {
+    if (!token) router.push('/login');
+    fetchProducts();
+  }, [navigate, token]);
+
+  const fetchProducts = async () => {
+    try {
+      const res = await fetch(process.env.NEXT_PUBLIC_API_URL + '/api/products/admin', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (res.ok && Array.isArray(data)) {
+        setProducts(data);
+      } else {
+        console.error("API error or invalid data:", data);
+        setProducts([]);
+      }
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      setProducts([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this product?')) {
+      try {
+        await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products/${id}`, {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        fetchProducts();
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    }
+  };
+
+  const handleSelectAll = (e) => {
+    if (e.target.checked) {
+      setSelectedProductIds(paginatedProducts.map(p => p.id));
+    } else {
+      setSelectedProductIds([]);
+    }
+  };
+
+  const handleSelectProduct = (id) => {
+    setSelectedProductIds(prev => 
+      prev.includes(id) ? prev.filter(pid => pid !== id) : [...prev, id]
+    );
+  };
+
+  const handleBulkDelete = async () => {
+    if (window.confirm(`Are you sure you want to delete ${selectedProductIds.length} products?`)) {
+      try {
+        await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products/bulk`, {
+          method: 'DELETE',
+          headers: { 
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}` 
+          },
+          body: JSON.stringify({ ids: selectedProductIds })
+        });
+        setSelectedProductIds([]);
+        fetchProducts();
+      } catch (error) {
+        console.error("Error bulk deleting:", error);
+      }
+    }
+  };
+
+  const handleBulkStatusUpdate = async (status) => {
+    if (window.confirm(`Are you sure you want to mark ${selectedProductIds.length} products as ${status}?`)) {
+      try {
+        await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products/bulk/status`, {
+          method: 'PUT',
+          headers: { 
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}` 
+          },
+          body: JSON.stringify({ ids: selectedProductIds, status })
+        });
+        setSelectedProductIds([]);
+        fetchProducts();
+      } catch (error) {
+        console.error("Error bulk updating status:", error);
+      }
+    }
+  };
+
+  const filteredProducts = products.filter(p => filterStatus === 'all' || (p.status || 'published') === filterStatus);
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+  const paginatedProducts = filteredProducts.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  if (loading) return <div>Loading...</div>;
+
+  return (
+    <div className="animate-fade-in">
+      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
+        <h1 className="heading-lg">Products Management</h1>
+        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+          <select 
+            className="input-field" 
+            style={{ width: 'auto', marginBottom: 0, padding: '0.5rem 1rem' }} 
+            value={filterStatus} 
+            onChange={(e) => { setFilterStatus(e.target.value); setCurrentPage(1); }}
+          >
+            <option value="all">All Products</option>
+            <option value="published">Published</option>
+            <option value="draft">Drafts</option>
+          </select>
+          <button className="btn btn-primary" onClick={() => router.push('/admin/products/new')}>
+            <Plus size={18} /> Add Product
+          </button>
+        </div>
+      </header>
+
+      {selectedProductIds.length > 0 && (
+        <div style={{ background: 'rgba(37, 99, 235, 0.1)', border: '1px solid var(--accent-primary)', padding: '1rem', borderRadius: '8px', marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{ fontWeight: 600, color: 'var(--accent-primary)' }}>{selectedProductIds.length} items selected</span>
+          <div style={{ display: 'flex', gap: '1rem' }}>
+            <button className="btn" style={{ background: '#fff' }} onClick={() => handleBulkStatusUpdate('published')}>Publish Selected</button>
+            <button className="btn" style={{ background: '#fff' }} onClick={() => handleBulkStatusUpdate('draft')}>Unpublish Selected</button>
+            <button className="btn" style={{ background: '#ef4444', color: '#fff', border: 'none' }} onClick={handleBulkDelete}>Delete Selected</button>
+          </div>
+        </div>
+      )}
+
+
+      {/* MOBILE APP STYLE CARDS */}
+      <div className="hide-on-desktop">
+        {paginatedProducts.length > 0 ? paginatedProducts.map(product => (
+          <div key={product.id} className="admin-mobile-card">
+            <div className="admin-mobile-card-header" style={{ alignItems: 'flex-start' }}>
+              <div style={{ display: 'flex', gap: '0.75rem', flex: 1 }}>
+                <input 
+                  type="checkbox" 
+                  checked={selectedProductIds.includes(product.id)} 
+                  onChange={() => handleSelectProduct(product.id)}
+                  style={{ cursor: 'pointer', marginTop: '0.25rem' }}
+                />
+                <img 
+                  src={product.images && product.images.length > 0 ? product.images[0] : '/placeholder.png'} 
+                  alt={product.name} 
+                  style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '8px' }} 
+                  onError={(e) => { e.target.onerror = null; e.target.src = '/placeholder.png' }}
+                />
+                <div>
+                  <div style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: '0.95rem' }}>{product.name}</div>
+                  <div style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', marginTop: '0.25rem' }}>SKU: {product.sku || 'N/A'}</div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="admin-mobile-card-body">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Price</span>
+                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                  {product.comparePrice > product.sellPrice && (
+                    <span style={{ textDecoration: 'line-through', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>{product.comparePrice} BDT</span>
+                  )}
+                  <span style={{ fontWeight: 600, color: 'var(--accent-primary)' }}>{product.sellPrice || product.price} BDT</span>
+                </div>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Stock</span>
+                <span>{product.trackQuantity ? product.quantity : 'Not Tracked'}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Status</span>
+                <span style={{ 
+                  background: product.status === 'published' ? 'rgba(34, 197, 94, 0.1)' : 'rgba(234, 179, 8, 0.1)',
+                  color: product.status === 'published' ? '#16a34a' : '#ca8a04',
+                  padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 600, textTransform: 'capitalize' 
+                }}>
+                  {product.status || 'draft'}
+                </span>
+              </div>
+            </div>
+            
+            <div className="admin-mobile-card-footer" style={{ gap: '0.5rem' }}>
+              <button className="btn btn-secondary" style={{ flex: 1, padding: '0.5rem', fontSize: '0.9rem', display: 'flex', justifyContent: 'center', gap: '0.5rem' }} onClick={() => router.push(`/admin/products/edit/${product.id}`)}>
+                <Edit size={16} /> Edit
+              </button>
+              <a href={`/l/${product.slug || product.id}`} target="_blank" rel="noreferrer" className="btn btn-secondary" style={{ flex: 1, padding: '0.5rem', fontSize: '0.9rem', display: 'flex', justifyContent: 'center', gap: '0.5rem' }}>
+                <ExternalLink size={16} /> Landing
+              </a>
+              <button className="btn" style={{ flex: 1, background: '#fee2e2', color: '#ef4444', border: 'none', padding: '0.5rem', fontSize: '0.9rem', display: 'flex', justifyContent: 'center', gap: '0.5rem' }} onClick={() => handleDelete(product.id)}>
+                <Trash2 size={16} /> Delete
+              </button>
+            </div>
+          </div>
+        )) : (
+          <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-secondary)', background: '#fff', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+            No products found.
+          </div>
+        )}
+      </div>
+
+      {/* DESKTOP TABLE */}
+      <div className="hide-on-mobile" style={{ background: 'var(--bg-secondary)', borderRadius: '12px', border: '1px solid var(--border-color)', overflowX: "auto" }}>
+
+        <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "800px" }}>
+          <thead style={{ background: '#f9fafb', borderBottom: '1px solid var(--border-color)', textAlign: 'left' }}>
+            <tr>
+              <th style={{ padding: '1rem', width: '40px' }}>
+                <input 
+                  type="checkbox" 
+                  checked={paginatedProducts.length > 0 && selectedProductIds.length === paginatedProducts.length} 
+                  onChange={handleSelectAll} 
+                  style={{ cursor: 'pointer' }}
+                />
+              </th>
+              <th style={{ padding: '1rem' }}>Product</th>
+              <th style={{ padding: '1rem' }}>Price</th>
+              <th style={{ padding: '1rem' }}>Category</th>
+              <th style={{ padding: '1rem' }}>Stock</th>
+              <th style={{ padding: '1rem' }}>Status</th>
+              <th style={{ padding: '1rem', textAlign: 'right' }}>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {paginatedProducts.map(p => (
+              <tr key={p.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                <td style={{ padding: '1rem' }}>
+                  <input 
+                    type="checkbox" 
+                    checked={selectedProductIds.includes(p.id)} 
+                    onChange={() => handleSelectProduct(p.id)}
+                    style={{ cursor: 'pointer' }}
+                  />
+                </td>
+                <td style={{ padding: '1rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                  <img src={p.image || 'https://placehold.co/400x400?text=No+Image'} alt={p.name} onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/400x400?text=No+Image'; }} style={{ width: '40px', height: '40px', borderRadius: '4px', objectFit: 'cover' }} />
+                  <span style={{ fontWeight: '500' }}>{p.name}</span>
+                </td>
+                <td style={{ padding: '1rem' }}>{Number(p.price).toFixed(2)} BDT</td>
+                <td style={{ padding: '1rem' }}>{p.category}</td>
+                <td style={{ padding: '1rem' }}>{p.stock}</td>
+                <td style={{ padding: '1rem' }}>
+                  <span style={{ 
+                    padding: '0.25rem 0.5rem', borderRadius: '16px', fontSize: '0.85rem', 
+                    background: p.status === 'published' ? '#d1fae5' : '#fef3c7',
+                    color: p.status === 'published' ? '#065f46' : '#92400e'
+                  }}>
+                    {p.status || 'published'}
+                  </span>
+                </td>
+                <td style={{ padding: '1rem', textAlign: 'right' }}>
+                  <button className="btn" onClick={() => router.push(`/admin/products/edit/${p.id}`)} style={{ padding: '0.5rem', marginRight: '0.5rem' }} title="Edit"><Edit size={16} /></button>
+                  <a href={`/product/${p.slug || p.id}`} target="_blank" rel="noreferrer" className="btn" style={{ padding: '0.5rem', marginRight: '0.5rem', display: 'inline-flex', color: 'var(--text-secondary)' }} title="View on Store"><Eye size={16} /></a>
+                  <a href={`/l/${p.slug || p.id}`} target="_blank" rel="noreferrer" className="btn" style={{ padding: '0.5rem', marginRight: '0.5rem', display: 'inline-flex', color: 'var(--accent-primary)' }} title="Product Landing Page"><ExternalLink size={16} /></a>
+                  <button className="btn" onClick={() => handleDelete(p.id)} style={{ padding: '0.5rem', color: '#ef4444' }} title="Delete"><Trash2 size={16} /></button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      
+      {/* Pagination UI */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1.5rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <span className="text-muted">Items per page:</span>
+          <select 
+            className="input-field" 
+            style={{ width: 'auto', padding: '0.25rem 0.5rem', minHeight: 'auto' }} 
+            value={itemsPerPage} 
+            onChange={(e) => { setItemsPerPage(Number(e.target.value)); setCurrentPage(1); }}
+          >
+            <option value={20}>20</option>
+            <option value={50}>50</option>
+            <option value={100}>100</option>
+          </select>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <span className="text-muted">Page {currentPage} of {totalPages || 1}</span>
+          <div style={{ display: 'flex', gap: '0.25rem' }}>
+            <button className="btn" disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)} style={{ padding: '0.5rem' }}><ChevronLeft size={16}/></button>
+            <button className="btn" disabled={currentPage === totalPages || totalPages === 0} onClick={() => setCurrentPage(p => p + 1)} style={{ padding: '0.5rem' }}><ChevronRight size={16}/></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default AdminProducts;

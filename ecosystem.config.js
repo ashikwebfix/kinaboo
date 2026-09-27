@@ -18,7 +18,7 @@ module.exports = {
       name: 'kinaboo-frontend',
       script: 'npm',
       args: 'run start',
-      cwd: './frontend',
+      cwd: './update-frontend',
       env_production: {
         NODE_ENV: 'production',
         PORT: 6711

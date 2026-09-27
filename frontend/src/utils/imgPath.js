@@ -3,7 +3,7 @@ export const getImgUrl = (url) => {
   
   let fullUrl = url;
   if (!url.startsWith('http')) {
-    const baseUrl = import.meta.env.VITE_API_URL || window.location.origin;
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || window.location.origin;
     const cleanUrl = url.startsWith('/') ? url : `/${url}`;
     fullUrl = `${baseUrl}${cleanUrl}`;
   }

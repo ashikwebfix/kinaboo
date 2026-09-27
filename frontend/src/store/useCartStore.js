@@ -3,13 +3,19 @@ import { trackAddToCart } from '../utils/tracking';
 
 // Try to load cart from local storage on initial load
 const loadCartFromStorage = () => {
-  const storedCart = localStorage.getItem('cartItems');
-  return storedCart ? JSON.parse(storedCart) : [];
+  if (typeof window !== 'undefined') {
+    const storedCart = (typeof window !== 'undefined' ? localStorage.getItem('cartItems') : null);
+    return storedCart ? JSON.parse(storedCart) : [];
+  }
+  return [];
 };
 
 const loadShippingFromStorage = () => {
-  const storedShipping = localStorage.getItem('shippingAddress');
-  return storedShipping ? JSON.parse(storedShipping) : {};
+  if (typeof window !== 'undefined') {
+    const storedShipping = (typeof window !== 'undefined' ? localStorage.getItem('shippingAddress') : null);
+    return storedShipping ? JSON.parse(storedShipping) : {};
+  }
+  return {};
 };
 
 const useCartStore = create((set, get) => ({

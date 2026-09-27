@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { trackAddToWishlist } from '../utils/tracking';
 
 const useFavoritesStore = create((set, get) => ({
-  favorites: JSON.parse(localStorage.getItem('favorites')) || [],
+  favorites: JSON.parse((typeof window !== 'undefined' ? localStorage.getItem('favorites') : null)) || [],
   
   toggleFavorite: (product) => {
     const currentFavorites = get().favorites;

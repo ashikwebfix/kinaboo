@@ -1,16 +1,21 @@
+"use client";
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { usePathname, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+
 import { Home, ShoppingBag, Heart, ShoppingCart, User } from 'lucide-react';
 import useCartStore from '../store/useCartStore';
 import useFavoritesStore from '../store/useFavoritesStore';
 
 const MobileBottomNav = () => {
-  const location = useLocation();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const location = { pathname, search: searchParams.toString() ? "?" + searchParams.toString() : "" };
   const cartItems = useCartStore((state) => state.cartItems);
   const cartItemCount = cartItems.reduce((acc, item) => acc + item.qty, 0);
   const favorites = useFavoritesStore((state) => state.favorites);
   const setIsCartOpen = useCartStore((state) => state.setIsCartOpen);
-  const userInfo = JSON.parse(localStorage.getItem('userInfo') || 'null');
+  const userInfo = JSON.parse((typeof window !== 'undefined' ? localStorage.getItem('userInfo') : null) || 'null');
 
   const [mounted, setMounted] = React.useState(false);
   React.useEffect(() => {
@@ -27,14 +32,14 @@ const MobileBottomNav = () => {
 
   return (
     <nav className="mobile-bottom-nav" aria-label="Mobile Navigation">
-      <Link to="/" className={`nav-item ${isActive('/') ? 'active' : ''}`}>
+      <Link href="/" className={`nav-item ${isActive('/') ? 'active' : ''}`}>
         <div className="nav-icon-wrapper">
           <Home size={21} strokeWidth={isActive('/') ? 2.4 : 1.9} />
         </div>
         <span className="nav-label">Home</span>
       </Link>
 
-      <Link to="/shop" className={`nav-item ${isActive('/shop') ? 'active' : ''}`}>
+      <Link href="/shop" className={`nav-item ${isActive('/shop') ? 'active' : ''}`}>
         <div className="nav-icon-wrapper">
           <ShoppingBag size={21} strokeWidth={isActive('/shop') ? 2.4 : 1.9} />
         </div>
@@ -42,7 +47,7 @@ const MobileBottomNav = () => {
       </Link>
 
       <Link 
-        to={userInfo && userInfo.token ? "/profile" : "/login"} 
+        href={userInfo && userInfo.token ? "/profile" : "/login"} 
         className={`nav-item ${isActive('/favorites') ? 'active' : ''}`}
       >
         <div className="nav-icon-wrapper">
@@ -75,7 +80,7 @@ const MobileBottomNav = () => {
       </button>
 
       <Link 
-        to={userInfo && userInfo.token ? "/profile" : "/login"} 
+        href={userInfo && userInfo.token ? "/profile" : "/login"} 
         className={`nav-item ${isActive('/profile') || isActive('/login') ? 'active' : ''}`}
       >
         <div className="nav-icon-wrapper">

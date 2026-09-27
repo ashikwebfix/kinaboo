@@ -1,5 +1,7 @@
+"use client";
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
+
 import { ShoppingBag, Heart, Zap, Star, Check } from 'lucide-react';
 import useCartStore from '../store/useCartStore';
 import useFavoritesStore from '../store/useFavoritesStore';
@@ -107,7 +109,7 @@ const ProductCard = ({ product = {}, showRating = false }) => {
 
         {/* Product Link Image */}
         <Link 
-          to={`/product/${product.slug || productId}`} 
+          href={`/product/${product.slug || productId}`} 
           className="product-card-media"
         >
           <img
@@ -129,7 +131,7 @@ const ProductCard = ({ product = {}, showRating = false }) => {
         </span>
 
         <Link 
-          to={`/product/${product.slug || productId}`} 
+          href={`/product/${product.slug || productId}`} 
           className="product-card-title"
           title={product.name}
         >

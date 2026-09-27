@@ -1,5 +1,7 @@
+"use client";
 import { useEffect, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
+import { usePathname, useSearchParams } from 'next/navigation';
+
 
 const generateUUID = () => {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -9,10 +11,13 @@ const generateUUID = () => {
 };
 
 const Tracker = () => {
-  const location = useLocation();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const location = { pathname, search: searchParams.toString() ? "?" + searchParams.toString() : "" };
   const clickQueue = useRef([]);
   const sessionInitialized = useRef(false);
-  const sessionId = useRef(sessionStorage.getItem('analytics_session_id'));
+  const sessionId = useRef(typeof window !== 'undefined' ? sessionStorage.getItem('analytics_session_id') : null);
+  const initPromise = useRef(null);
 
   useEffect(() => {
     if (!sessionId.current) {
@@ -24,7 +29,7 @@ const Tracker = () => {
       if (sessionInitialized.current) return;
       sessionInitialized.current = true;
       try {
-        await fetch(import.meta.env.VITE_API_URL + '/api/analytics/init', {
+        await fetch(process.env.NEXT_PUBLIC_API_URL + '/api/analytics/init', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
@@ -36,7 +41,10 @@ const Tracker = () => {
         console.error('Tracker Init Error', error);
       }
     };
-    initTracker();
+    
+    if (!initPromise.current) {
+      initPromise.current = initTracker();
+    }
 
     // Click tracking
     const handleClick = (e) => {
@@ -58,7 +66,7 @@ const Tracker = () => {
         const payload = [...clickQueue.current];
         clickQueue.current = [];
         
-        fetch(import.meta.env.VITE_API_URL + '/api/analytics/click', {
+        fetch(process.env.NEXT_PUBLIC_API_URL + '/api/analytics/click', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -80,15 +88,23 @@ const Tracker = () => {
   useEffect(() => {
     if (location.pathname.startsWith('/admin')) return;
 
-    fetch(import.meta.env.VITE_API_URL + '/api/analytics/pageview', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        sessionId: sessionId.current,
-        pageUrl: location.pathname,
-        referrer: document.referrer
-      })
-    }).catch(e => console.error('Tracker Pageview Error', e));
+    const track = async () => {
+      if (initPromise.current) {
+        await initPromise.current;
+      }
+      
+      fetch(process.env.NEXT_PUBLIC_API_URL + '/api/analytics/pageview', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sessionId: sessionId.current,
+          pageUrl: location.pathname,
+          referrer: document.referrer
+        })
+      }).catch(e => console.error('Tracker Pageview Error', e));
+    };
+
+    track();
   }, [location.pathname]);
 
   return null; // Silent component

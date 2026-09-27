@@ -1,5 +1,8 @@
+"use client";
 import React, { useState, useEffect, useRef } from 'react';
-import { useLocation, Link } from 'react-router-dom';
+import { usePathname, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+
 import { 
   MessageSquare, 
   X, 
@@ -17,7 +20,9 @@ import {
 } from 'lucide-react';
 
 const ChatBot = () => {
-  const location = useLocation();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const location = { pathname, search: searchParams.toString() ? "?" + searchParams.toString() : "" };
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
@@ -27,7 +32,7 @@ const ChatBot = () => {
 
   // Fetch general settings for dynamic phone / email / site name
   useEffect(() => {
-    const apiUrl = import.meta.env.VITE_API_URL || '';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
     fetch(`${apiUrl}/api/settings/general_settings`)
       .then(res => res.ok ? res.json() : null)
       .then(data => {
@@ -233,7 +238,7 @@ ${siteName} হলো বাংলাদেশের একটি বিশ্�
       if (line.includes('[সব প্রোডাক্ট দেখুন](/shop)')) {
         return (
           <div key={lineIdx} className="chat-action-link-container">
-            <Link to="/shop" className="chat-action-link-btn" onClick={() => setIsOpen(false)}>
+            <Link href="/shop" className="chat-action-link-btn" onClick={() => setIsOpen(false)}>
               <ShoppingBag size={15} /> <span>সব প্রোডাক্ট দেখুন</span> <ArrowRight size={14} />
             </Link>
           </div>
@@ -242,7 +247,7 @@ ${siteName} হলো বাংলাদেশের একটি বিশ্�
       if (line.includes('[রিটার্ন পলিসি পেজ](/pages/return-exchange)')) {
         return (
           <div key={lineIdx} className="chat-action-link-container">
-            <Link to="/pages/return-exchange" className="chat-action-link-btn" onClick={() => setIsOpen(false)}>
+            <Link href="/pages/return-exchange" className="chat-action-link-btn" onClick={() => setIsOpen(false)}>
               <ShieldCheck size={15} /> <span>রিটার্ন পলিসি বিস্তারিত</span> <ArrowRight size={14} />
             </Link>
           </div>

@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useMemo } from 'react';
 import { X, Search, Check } from 'lucide-react';
 import { createPortal } from 'react-dom';
