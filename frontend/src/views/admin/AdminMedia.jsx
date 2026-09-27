@@ -16,7 +16,7 @@ const AdminMedia = () => {
   useEffect(() => {
     if (!token) router.push('/login');
     fetchMedia();
-  }, [navigate, token]);
+  }, [router, token]);
 
   const fetchMedia = async () => {
     try {

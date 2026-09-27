@@ -78,7 +78,7 @@ const AdminSettings = () => {
   useEffect(() => {
     if (!token) router.push('/login');
     fetchSettings();
-  }, [navigate, token]);
+  }, [router, token]);
 
   const fetchSettings = async () => {
     try {

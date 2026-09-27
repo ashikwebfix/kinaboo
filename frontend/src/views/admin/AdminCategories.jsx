@@ -27,7 +27,7 @@ const AdminCategories = () => {
   useEffect(() => {
     if (!token) router.push('/login');
     fetchCategories();
-  }, [navigate, token]);
+  }, [router, token]);
 
   const fetchCategories = async () => {
     try {

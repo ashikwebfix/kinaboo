@@ -51,7 +51,7 @@ const AdminOrderDetails = () => {
   useEffect(() => {
     if (!token) router.push('/admin/login');
     fetchOrder();
-  }, [id, token, navigate]);
+  }, [id, token, router]);
 
   const fetchOrder = async () => {
     try {

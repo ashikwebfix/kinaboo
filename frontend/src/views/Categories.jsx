@@ -49,7 +49,7 @@ const Categories = () => {
       if (inStockOnly) params.set('inStock', 'true');
       router.push(`/shop?${params.toString()}`);
     }
-  }, [selectedCategories, selectedTags, maxPrice, inStockOnly, filterSearchQuery, navigate]);
+  }, [selectedCategories, selectedTags, maxPrice, inStockOnly, filterSearchQuery, router]);
 
   // Extract unique categories and map them to their first product's image
   const categoriesList = useMemo(() => {

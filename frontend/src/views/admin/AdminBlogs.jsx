@@ -44,7 +44,7 @@ const AdminBlogs = () => {
     }
     fetchBlogs();
     fetchProducts();
-  }, [navigate, token]);
+  }, [router, token]);
 
   const fetchBlogs = async () => {
     try {

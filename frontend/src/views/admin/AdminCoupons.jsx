@@ -35,7 +35,7 @@ const AdminCoupons = () => {
     fetchCoupons();
     fetchProducts();
     fetchCategories();
-  }, [navigate, token]);
+  }, [router, token]);
 
   const fetchProducts = async () => {
     try {

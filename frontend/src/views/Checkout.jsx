@@ -48,7 +48,7 @@ const Checkout = () => {
       const itemsPrice = cartItems.reduce((acc, item) => acc + (item.sellPrice || item.price) * item.qty, 0);
       trackBeginCheckout(cartItems, itemsPrice);
     }
-  }, [navigate, cartItems, apiUrl]);
+  }, [router, cartItems, apiUrl]);
 
   useEffect(() => {
     // Abandoned Cart Tracking

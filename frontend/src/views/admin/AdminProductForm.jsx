@@ -54,7 +54,7 @@ const AdminProductForm = () => {
     if (isEditing) {
       fetchProduct();
     }
-  }, [id, navigate, token]);
+  }, [id, router, token]);
 
   const fetchCategories = async () => {
     try {

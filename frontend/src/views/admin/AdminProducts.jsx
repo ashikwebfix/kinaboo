@@ -18,7 +18,7 @@ const AdminProducts = () => {
   useEffect(() => {
     if (!token) router.push('/login');
     fetchProducts();
-  }, [navigate, token]);
+  }, [router, token]);
 
   const fetchProducts = async () => {
     try {

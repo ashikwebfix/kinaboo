@@ -13,7 +13,7 @@ const AdminCustomers = () => {
   useEffect(() => {
     if (!token) router.push('/login');
     fetchCustomers();
-  }, [navigate, token]);
+  }, [router, token]);
 
   const fetchCustomers = async () => {
     try {

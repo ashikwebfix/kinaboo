@@ -15,7 +15,7 @@ const PlaceOrder = () => {
     if (!shippingAddress.address) {
       router.push('/shipping');
     }
-  }, [shippingAddress, navigate]);
+  }, [shippingAddress, router]);
 
   const placeOrderHandler = async () => {
     try {

@@ -32,7 +32,7 @@ const Profile = () => {
     }
     fetchProfile();
     fetchMyOrders();
-  }, [navigate, token]);
+  }, [router, token]);
 
   const fetchProfile = async () => {
     try {

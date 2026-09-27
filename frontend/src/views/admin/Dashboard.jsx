@@ -62,7 +62,7 @@ const Dashboard = () => {
     };
 
     fetchStats();
-  }, [navigate]);
+  }, [router]);
 
   return (
     <div className="animate-fade-in">

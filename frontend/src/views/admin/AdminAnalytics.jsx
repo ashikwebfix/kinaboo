@@ -30,7 +30,7 @@ const AdminAnalytics = () => {
     // Poll for live users every 30s
     const interval = setInterval(fetchStats, 30000);
     return () => clearInterval(interval);
-  }, [navigate, token]);
+  }, [router, token]);
 
   const fetchStats = async () => {
     try {
