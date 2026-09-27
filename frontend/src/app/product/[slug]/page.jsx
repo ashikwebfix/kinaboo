@@ -1,13 +1,17 @@
 import View from '../../../views/ProductDetails';
 
 export async function generateMetadata({ params }) {
-  const { slug } = params;
+  const { slug } = await params;
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:6710';
   
   try {
     const res = await fetch(`${API_URL}/api/products/${slug}`, { next: { revalidate: 60 } });
-    if (!res.ok) throw new Error('Failed to fetch product');
+    if (!res.ok) {
+      console.error('generateMetadata fetch failed with status:', res.status, res.statusText);
+      throw new Error('Failed to fetch product');
+    }
     const product = await res.json();
+    console.log('generateMetadata fetched product:', product.name);
     
     // Strip HTML from description for excerpt
     const stripHtml = (html) => html ? html.replace(/<[^>]*>?/gm, '') : '';
@@ -38,6 +42,7 @@ export async function generateMetadata({ params }) {
       }
     };
   } catch (error) {
+    console.error('generateMetadata error:', error);
     return {
       title: 'Product | kinaboo.com',
     };

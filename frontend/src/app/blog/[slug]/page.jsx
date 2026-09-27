@@ -1,7 +1,7 @@
 import View from '../../../views/BlogView';
 
 export async function generateMetadata({ params }) {
-  const { slug } = params;
+  const { slug } = await params;
   const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:6710';
   
   try {
