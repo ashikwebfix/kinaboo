@@ -163,11 +163,16 @@ const Navbar = () => {
   if (!mounted) return null;
 
   // Default menu fallback if no API items set
-  const displayMenuItems = menuItems.length > 0 ? menuItems : [
+  let displayMenuItems = menuItems.length > 0 ? menuItems : [
     { id: '1', label: 'Home', url: '/', icon: 'Home' },
     { id: '2', label: 'Shop All', url: '/shop', icon: 'ShoppingBag' },
     { id: '3', label: 'Categories', url: '/categories', icon: 'Grid' },
   ];
+
+  // Ensure Blog is in the menu
+  if (!displayMenuItems.find(item => item.url === '/blog')) {
+    displayMenuItems = [...displayMenuItems, { id: 'blog', label: 'Blog', url: '/blog', icon: 'BookOpen' }];
+  }
 
   return (
     <header className={`modern-header ${isScrolled ? 'is-scrolled' : ''}`}>

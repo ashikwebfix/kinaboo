@@ -10,3 +10,4 @@ HOW_TO_RUN.md
 *.log
 package-lock.json
 yarn.lock
+next_build.tar.gz
