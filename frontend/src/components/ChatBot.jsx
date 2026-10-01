@@ -42,7 +42,7 @@ const ChatBot = () => {
   }, []);
 
   const siteName = generalSettings?.siteName || "Kinaboo";
-  const phone = generalSettings?.phone || "+880 1700-000000";
+  const phone = generalSettings?.phone || "০১৩৫৪-৫৫৭৪৭৭";
 
   // Initialize greeting messages on first open
   useEffect(() => {

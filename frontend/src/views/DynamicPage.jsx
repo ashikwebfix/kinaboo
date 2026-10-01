@@ -359,7 +359,7 @@ const RichTextSection = ({ data }) => {
    ========================================================================== */
 const FullFaqPageSection = ({ data, generalSettings }) => {
   const siteName = generalSettings?.siteName || "Kinaboo";
-  const phone = generalSettings?.phone || "+880 1700-000000";
+  const phone = generalSettings?.phone || "০১৩৫৪-৫৫৭৪৭৭";
   const email = generalSettings?.email || "support@kinaboo.com";
 
   const [activeCategory, setActiveCategory] = useState('all');
@@ -710,7 +710,7 @@ const FullFaqPageSection = ({ data, generalSettings }) => {
 const ContactFormSection = ({ data, generalSettings }) => {
   const [submitted, setSubmitted] = useState(false);
 
-  const phone = data?.phone || generalSettings?.phone || "+880 1700-000000";
+  const phone = data?.phone || generalSettings?.phone || "০১৩৫৪-৫৫৭৪৭৭";
   const email = data?.email || generalSettings?.email || "support@kinaboo.com";
   const address = data?.address || generalSettings?.address || "ঢাকা, বাংলাদেশ";
 
@@ -803,7 +803,7 @@ const ContactFormSection = ({ data, generalSettings }) => {
    ========================================================================== */
 const ReturnExchangeSection = ({ generalSettings }) => {
   const siteName = generalSettings?.siteName || "Kinaboo";
-  const phone = generalSettings?.phone || "+880 1700-000000";
+  const phone = generalSettings?.phone || "০১৩৫৪-৫৫৭৪৭৭";
   const email = generalSettings?.email || "support@kinaboo.com";
   const [openFaq, setOpenFaq] = useState(0);
 
