@@ -501,6 +501,20 @@ const AdminSettings = () => {
                       </div>
                     </div>
                   </div>
+
+                  {/* Favicon */}
+                  <div style={{ marginTop: '1rem' }}>
+                    <label style={{ display: 'block', marginBottom: '0.4rem', fontWeight: 500, fontSize: '0.9rem' }}>Favicon</label>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                      <div style={{ width: '50px', height: '50px', background: '#fff', border: '1px dashed #cbd5e1', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                        {generalSettings.favicon ? <img src={generalSettings.favicon} alt="Favicon" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} /> : <ImageIcon size={20} color="#9ca3af" />}
+                      </div>
+                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                        <input className="input-field" placeholder="Favicon URL" value={generalSettings.favicon || ''} onChange={(e) => setGeneralSettings({ ...generalSettings, favicon: e.target.value })} style={{ width: '100%', background: '#fff' }} />
+                        <button className="btn btn-secondary" onClick={() => setPickerType('favicon')} style={{ padding: '0.4rem', fontSize: '0.85rem' }}>Select Media</button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -1002,6 +1016,8 @@ const AdminSettings = () => {
             setGeneralSettings(prev => ({ ...prev, headerLogo: selection }));
           } else if (pickerType === 'footer_logo') {
             setGeneralSettings(prev => ({ ...prev, footerLogo: selection }));
+          } else if (pickerType === 'favicon') {
+            setGeneralSettings(prev => ({ ...prev, favicon: selection }));
           }
           setPickerType(null);
         }}
