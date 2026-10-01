@@ -255,7 +255,13 @@ const trackOrder = async (req, res) => {
     const { orderId } = req.body;
     if (!orderId) return res.status(400).json({ message: 'Order ID is required' });
 
-    const order = await Order.findByPk(orderId, {
+    const { Op } = require('sequelize');
+    const order = await Order.findOne({
+      where: {
+        id: {
+          [Op.like]: `${orderId.toLowerCase()}%`
+        }
+      },
       attributes: ['id', 'status', 'statusLogs', 'courierName', 'trackingNumber', 'createdAt', 'totalPrice', 'paymentMethod', 'name']
     });
 
