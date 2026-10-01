@@ -230,7 +230,7 @@ const AdminAbandonedCarts = () => {
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Value</span>
-                    <span style={{ fontWeight: 700, color: 'var(--accent-primary)', fontSize: '1.1rem' }}>${Number(cart.totalValue).toFixed(2)}</span>
+                    <span style={{ fontWeight: 700, color: 'var(--accent-primary)', fontSize: '1.1rem' }}>৳{Number(cart.totalValue).toFixed(2)}</span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Updated</span>
@@ -319,7 +319,7 @@ const AdminAbandonedCarts = () => {
                     </div>
                   </td>
                   <td style={{ padding: '1rem', fontWeight: '600', color: 'var(--text-primary)' }}>
-                    ${Number(cart.totalValue).toFixed(2)}
+                    ৳{Number(cart.totalValue).toFixed(2)}
                   </td>
                   <td style={{ padding: '1rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
