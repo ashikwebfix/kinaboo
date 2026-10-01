@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { addOrderItems, getMyOrders, getOrders, updateOrderStatus, updateOrderShipping, updateOrderItems, getOrderById, bulkUpdateOrderStatus, bulkDeleteOrders, deleteOrder } = require('../controllers/orderController');
+const { addOrderItems, getMyOrders, getOrders, updateOrderStatus, updateOrderShipping, updateOrderItems, getOrderById, bulkUpdateOrderStatus, bulkDeleteOrders, deleteOrder, trackOrder } = require('../controllers/orderController');
 const { protect, admin, optionalAuth, requireRole } = require('../middleware/authMiddleware');
 
 router.route('/')
@@ -9,6 +9,8 @@ router.route('/')
   
 router.route('/bulk/status').put(protect, requireRole(['superadmin', 'admin', 'manager']), bulkUpdateOrderStatus);
 router.route('/bulk').delete(protect, requireRole(['superadmin', 'admin', 'manager']), bulkDeleteOrders);
+
+router.route('/track').post(trackOrder);
 
 router.route('/myorders').get(protect, getMyOrders);
 router.route('/:id')

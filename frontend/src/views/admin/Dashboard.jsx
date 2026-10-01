@@ -75,7 +75,7 @@ const Dashboard = () => {
         
         <div className="glass" style={{ padding: '2rem', borderRadius: '16px', display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
           <div style={{ padding: '1rem', background: 'rgba(59, 130, 246, 0.2)', borderRadius: '12px', color: '#60a5fa' }}>
-            <DollarSign size={32} />
+            <span style={{ fontSize: '32px', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '32px', height: '32px' }}>TK</span>
           </div>
           <div>
             <p className="text-muted" style={{ fontSize: '0.9rem', marginBottom: '0.25rem' }}>Total Revenue</p>

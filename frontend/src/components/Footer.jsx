@@ -145,7 +145,7 @@ const Footer = () => {
             <div>
               <h3 className="footer-col-title">কাস্টমার সার্ভিস</h3>
               <ul className="footer-nav-list">
-                <li><Link href="/pages/order-tracking" className="footer-nav-link"><ChevronRight size={14} /> অর্ডার ট্র্যাকিং</Link></li>
+                <li><Link href="/track-order" className="footer-nav-link"><ChevronRight size={14} /> অর্ডার ট্র্যাকিং</Link></li>
                 <li><Link href="/pages/return-exchange" className="footer-nav-link"><ChevronRight size={14} /> রিটার্ন ও এক্সচেঞ্জ পলিসি</Link></li>
                 <li><Link href="/pages/shipping-info" className="footer-nav-link"><ChevronRight size={14} /> শিপিং ও ডেলিভারি তথ্য</Link></li>
                 <li><Link href="/pages/faq" className="footer-nav-link"><ChevronRight size={14} /> সাধারণ জিজ্ঞাসা (FAQ)</Link></li>

@@ -250,6 +250,55 @@ const addOrderItems = async (req, res) => {
   }
 };
 
+const trackOrder = async (req, res) => {
+  try {
+    const { orderId } = req.body;
+    if (!orderId) return res.status(400).json({ message: 'Order ID is required' });
+
+    const order = await Order.findByPk(orderId, {
+      attributes: ['id', 'status', 'statusLogs', 'courierName', 'trackingNumber', 'createdAt', 'totalPrice', 'paymentMethod', 'name']
+    });
+
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    let pathaoTracking = null;
+    if (order.courierName === 'Pathao' && order.trackingNumber) {
+      const Setting = require('../models/Setting');
+      const axios = require('axios');
+      try {
+        const setting = await Setting.findOne({ where: { key: 'pathao_settings' } });
+        if (setting && setting.value && setting.value.clientId) {
+          const config = setting.value;
+          const authPayload = {
+            client_id: config.clientId,
+            client_secret: config.clientSecret,
+            grant_type: (config.username && config.password) ? 'password' : 'client_credentials'
+          };
+          if (config.username && config.password) {
+            authPayload.username = config.username;
+            authPayload.password = config.password;
+          }
+          const authRes = await axios.post(`${config.baseUrl}/aladdin/api/v1/issue-token`, authPayload);
+          const token = authRes.data.access_token;
+          
+          const trackRes = await axios.get(`${config.baseUrl}/aladdin/api/v1/orders/${order.trackingNumber}/tracking`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          pathaoTracking = trackRes.data.data;
+        }
+      } catch (e) {
+        console.error('Failed to fetch Pathao tracking internally', e.message);
+      }
+    }
+
+    res.json({ order, pathaoTracking });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 const getMyOrders = async (req, res) => {
   try {
     const orders = await Order.findAll({ 
@@ -529,4 +578,4 @@ const deleteOrder = async (req, res) => {
   }
 };
 
-module.exports = { addOrderItems, getMyOrders, getOrders, updateOrderStatus, getOrderById, bulkUpdateOrderStatus, bulkDeleteOrders, updateOrderShipping, updateOrderItems, deleteOrder };
+module.exports = { addOrderItems, getMyOrders, getOrders, updateOrderStatus, getOrderById, bulkUpdateOrderStatus, bulkDeleteOrders, updateOrderShipping, updateOrderItems, deleteOrder, trackOrder };

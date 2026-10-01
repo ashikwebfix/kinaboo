@@ -9,6 +9,7 @@ const AdminAbandonedCarts = () => {
   const [carts, setCarts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('active');
   const router = useRouter();
   
   // Transfer Modal State
@@ -104,10 +105,40 @@ const AdminAbandonedCarts = () => {
     }
   };
 
-  const filteredCarts = carts.filter(c => 
-    c.phone.includes(searchTerm) || 
-    (c.name && c.name.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  const handleRemoveClick = async (cart) => {
+    if (!window.confirm(`Are you sure you want to remove ${cart.phone}'s cart?`)) return;
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/abandoned-carts/${cart.id}/remove`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${userInfo.token}`
+        }
+      });
+      if (res.ok) {
+        toast.success('Cart removed successfully');
+        fetchCarts();
+      } else {
+        toast.error('Failed to remove cart');
+      }
+    } catch (err) {
+      toast.error('Server error removing cart');
+    }
+  };
+
+  const filteredCarts = carts.filter(c => {
+    const matchesSearch = c.phone.includes(searchTerm) || (c.name && c.name.toLowerCase().includes(searchTerm.toLowerCase()));
+    
+    let matchesStatus = true;
+    if (statusFilter === 'active') {
+      matchesStatus = c.status === 'abandoned';
+    } else if (statusFilter === 'transfered') {
+      matchesStatus = c.status === 'transferred' || c.status === 'recovered';
+    } else if (statusFilter === 'removed') {
+      matchesStatus = c.status === 'removed';
+    }
+    
+    return matchesSearch && matchesStatus;
+  });
 
   return (
     <div>
@@ -120,7 +151,17 @@ const AdminAbandonedCarts = () => {
           <p style={{ color: 'var(--text-secondary)', marginTop: '0.25rem' }}>Recover lost sales by contacting customers who left without buying.</p>
         </div>
         
-        <div style={{ display: 'flex', gap: '1rem' }}>
+        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+          <select 
+            value={statusFilter} 
+            onChange={e => setStatusFilter(e.target.value)}
+            className="input-field"
+            style={{ padding: '0.5rem 1rem', borderRadius: '8px' }}
+          >
+            <option value="active">Active</option>
+            <option value="transfered">Transferred</option>
+            <option value="removed">Removed</option>
+          </select>
           <div style={{ position: 'relative' }}>
             <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
             <input 
@@ -152,9 +193,14 @@ const AdminAbandonedCarts = () => {
             let bg = 'rgba(239, 68, 68, 0.1)';
             let color = '#dc2626';
 
-            if (cart.status === 'recovered') {
+            if (cart.status === 'recovered' || cart.status === 'transferred') {
+              displayStatus = 'TRANSFERRED';
               bg = 'rgba(34, 197, 94, 0.1)';
               color = '#16a34a';
+            } else if (cart.status === 'removed') {
+              displayStatus = 'REMOVED';
+              bg = 'rgba(100, 116, 139, 0.1)';
+              color = '#64748b';
             } else if (cart.status === 'abandoned') {
               const minsSinceUpdate = (Date.now() - new Date(cart.updatedAt).getTime()) / (1000 * 60);
               if (minsSinceUpdate < 20) {
@@ -210,6 +256,12 @@ const AdminAbandonedCarts = () => {
                     style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', background: 'var(--accent-primary)', color: 'white', padding: '0.75rem', borderRadius: '8px', border: 'none', fontWeight: 600, fontSize: '0.9rem' }}
                   >
                     <ShoppingCart size={16} /> Transfer
+                  </button>
+                  <button
+                    onClick={() => handleRemoveClick(cart)}
+                    style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', background: '#ef4444', color: 'white', padding: '0.75rem', borderRadius: '8px', border: 'none', fontWeight: 600, fontSize: '0.9rem' }}
+                  >
+                    <X size={16} /> Remove
                   </button>
                   <a 
                     href={`https://wa.me/${cart.phone.replace(/[^0-9]/g, '')}?text=Hi%20${cart.name || ''},%20we%20noticed%20you%20left%20some%20items%20in%20your%20cart!%20Need%20any%20help?`}
@@ -281,9 +333,14 @@ const AdminAbandonedCarts = () => {
                       let bg = 'rgba(239, 68, 68, 0.1)';
                       let color = '#dc2626';
 
-                      if (cart.status === 'recovered') {
+                      if (cart.status === 'recovered' || cart.status === 'transferred') {
+                        displayStatus = 'TRANSFERRED';
                         bg = 'rgba(34, 197, 94, 0.1)';
                         color = '#16a34a';
+                      } else if (cart.status === 'removed') {
+                        displayStatus = 'REMOVED';
+                        bg = 'rgba(100, 116, 139, 0.1)';
+                        color = '#64748b';
                       } else if (cart.status === 'abandoned') {
                         const minsSinceUpdate = (Date.now() - new Date(cart.updatedAt).getTime()) / (1000 * 60);
                         if (minsSinceUpdate < 20) {
@@ -331,6 +388,27 @@ const AdminAbandonedCarts = () => {
                       >
                         <ShoppingCart size={16} />
                         Transfer
+                      </button>
+                      <button
+                        onClick={() => handleRemoveClick(cart)}
+                        title="Remove Cart"
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '0.25rem',
+                          background: '#ef4444',
+                          color: 'white',
+                          padding: '0.5rem 1rem',
+                          borderRadius: '6px',
+                          border: 'none',
+                          cursor: 'pointer',
+                          fontWeight: '600',
+                          fontSize: '0.875rem'
+                        }}
+                      >
+                        <X size={16} />
+                        Remove
                       </button>
                       <a 
                         href={`https://wa.me/${cart.phone.replace(/[^0-9]/g, '')}?text=Hi%20${cart.name || ''},%20we%20noticed%20you%20left%20some%20items%20in%20your%20cart!%20Need%20any%20help?`}

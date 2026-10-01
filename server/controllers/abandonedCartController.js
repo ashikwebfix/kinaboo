@@ -64,7 +64,6 @@ const trackCart = async (req, res) => {
 const getAbandonedCarts = async (req, res) => {
   try {
     const carts = await AbandonedCart.findAll({
-      where: { status: 'abandoned' },
       order: [['updatedAt', 'DESC']]
     });
     res.status(200).json(carts);
@@ -256,8 +255,9 @@ const transferToOrder = async (req, res) => {
       console.error('FB CAPI Error on transfer:', fbError.message);
     }
 
-    // After successfully creating order and doing tracking, destroy the abandoned cart
-    await cart.destroy();
+    // After successfully creating order and doing tracking, update the abandoned cart status
+    cart.status = 'transferred';
+    await cart.save();
 
     res.status(201).json({ message: 'Cart transferred to order successfully', order });
   } catch (error) {
@@ -266,8 +266,25 @@ const transferToOrder = async (req, res) => {
   }
 };
 
+const removeCart = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const cart = await AbandonedCart.findByPk(id);
+    if (!cart) {
+      return res.status(404).json({ message: 'Cart not found' });
+    }
+    cart.status = 'removed';
+    await cart.save();
+    res.status(200).json({ message: 'Cart removed successfully' });
+  } catch (error) {
+    console.error('Error removing cart:', error);
+    res.status(500).json({ message: 'Failed to remove cart' });
+  }
+};
+
 module.exports = {
   trackCart,
   getAbandonedCarts,
-  transferToOrder
+  transferToOrder,
+  removeCart
 };
