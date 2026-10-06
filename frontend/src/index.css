@@ -4856,7 +4856,7 @@ a {
 
 /* Mobile Search Toggle & Expand */
 .mobile-search-toggle {
-  display: none;
+  display: none !important;
 }
 
 .mobile-search-expand-bar {
@@ -5501,7 +5501,7 @@ a.drawer-contact-row {
   }
 
   .mobile-search-toggle {
-    display: inline-flex;
+    display: inline-flex !important;
   }
 
   .mobile-search-expand-bar {
