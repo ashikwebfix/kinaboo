@@ -205,7 +205,7 @@ const Footer = () => {
             <div className="footer-payment-badges" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
               <img src="/payments/bkash.svg" alt="bKash" style={{ height: '28px', width: 'auto', objectFit: 'contain', background: '#fff', padding: '2px 4px', borderRadius: '4px' }} />
               <img src="/payments/nagad.svg" alt="Nagad" style={{ height: '28px', width: 'auto', objectFit: 'contain', background: '#fff', padding: '2px 4px', borderRadius: '4px' }} />
-              <img src="/payments/rocket.svg" alt="Rocket" style={{ height: '28px', width: 'auto', objectFit: 'contain', background: '#fff', padding: '2px 4px', borderRadius: '4px' }} />
+              <img src="/payments/rocket.png" alt="Rocket" style={{ height: '28px', width: 'auto', objectFit: 'contain', background: '#fff', padding: '2px 4px', borderRadius: '4px' }} />
               <img src="/payments/visa.svg" alt="Visa" style={{ height: '28px', width: 'auto', objectFit: 'contain', background: '#fff', padding: '2px 4px', borderRadius: '4px' }} />
               <img src="/payments/mastercard.svg" alt="Mastercard" style={{ height: '28px', width: 'auto', objectFit: 'contain', background: '#fff', padding: '2px 4px', borderRadius: '4px' }} />
               <span style={{ fontSize: '11px', fontWeight: 'bold', background: '#fff', color: '#000', padding: '0 8px', borderRadius: '4px', display: 'flex', alignItems: 'center', height: '28px' }}>COD</span>
