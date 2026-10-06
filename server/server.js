@@ -68,6 +68,8 @@ const runMigrations = async () => {
   await safeAlter('Products', 'reviews', 'JSON NULL');
   await safeAlter('Products', 'youtubeReels', 'JSON NULL');
   await safeAlter('Products', 'variationCombinations', 'JSON NULL');
+  await safeAlter('Products', 'unitText', 'VARCHAR(255) NULL');
+  await safeAlter('Products', 'singleBundle', 'JSON NULL');
   await safeAlter('Users', 'phone', 'VARCHAR(255) NULL');
   await safeAlter('Users', 'address', 'TEXT NULL');
   await safeAlter('AbandonedCarts', 'fbp', 'VARCHAR(255) NULL');

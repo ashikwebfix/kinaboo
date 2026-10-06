@@ -42,6 +42,12 @@ const AdminProductForm = () => {
     enableMixingQuantity: true,
     ingredients: []
   });
+  const [singleBundle, setSingleBundle] = useState({
+    enabled: true,
+    comboTitle: '',
+    text: '',
+    image: ''
+  });
 
   const token = JSON.parse(localStorage.getItem('userInfo') || '{}').token;
 
@@ -91,6 +97,7 @@ const AdminProductForm = () => {
       setStatus(product.status || 'published');
       setVolumeBundles(product.volumeBundles || []);
       setConfigurator(product.configurator || { enabled: false, enableMixingQuantity: true, ingredients: [] });
+      setSingleBundle(product.singleBundle || { enabled: true, comboTitle: '', text: '', image: '' });
     } catch (error) {
       console.error("Error fetching product:", error);
     } finally {
@@ -102,7 +109,7 @@ const AdminProductForm = () => {
     e.preventDefault();
     
     const parsedData = {
-      name, sku, category, price: Number(price), stock: Number(stock), allowSellWithoutStock, image, images, variations, variationCombinations, faq, reviews, youtubeReels, description, longDescription, imageTextSections, tags, status, volumeBundles, configurator,
+      name, sku, category, price: Number(price), stock: Number(stock), allowSellWithoutStock, image, images, variations, variationCombinations, faq, reviews, youtubeReels, description, longDescription, imageTextSections, tags, status, volumeBundles, configurator, singleBundle,
       sellPrice: sellPrice ? Number(sellPrice) : null,
       keypoints: keypoints.map(s => s.trim()).filter(Boolean)
     };
@@ -214,7 +221,7 @@ const AdminProductForm = () => {
 
   // --- Volume Bundles Handlers ---
   const addVolumeBundle = () => {
-    setVolumeBundles([...volumeBundles, { qty: 2, discountType: 'percentage', discountValue: 0, text: '', image: '' }]);
+    setVolumeBundles([...volumeBundles, { qty: 2, discountType: 'percentage', discountValue: 0, text: '', image: '', comboTitle: '' }]);
   };
   const removeVolumeBundle = (idx) => {
     setVolumeBundles(volumeBundles.filter((_, i) => i !== idx));
@@ -345,12 +352,12 @@ const AdminProductForm = () => {
             
             {/* Basic Info */}
             <div style={{ padding: '1.5rem', border: '1px solid var(--border-color)', borderRadius: '8px', background: '#fff' }}>
-              <div className="form-grid-2-1" style={{ marginBottom: "1rem" }}>
-                <div>
+              <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
+                <div style={{ flex: 1, minWidth: '250px' }}>
                   <label style={{display:'block',marginBottom:'.5rem',fontWeight:600}}>Title</label>
                   <input required className="input-field" value={name} onChange={e => setName(e.target.value)} />
                 </div>
-                <div>
+                <div style={{ width: '250px', flexShrink: 0 }}>
                   <label style={{display:'block',marginBottom:'.5rem',fontWeight:600}}>SKU (Optional)</label>
                   <input className="input-field" value={sku} onChange={e => setSku(e.target.value)} placeholder="e.g. PROD-123" />
                 </div>
@@ -521,6 +528,31 @@ const AdminProductForm = () => {
               )}
             </div>
 
+            {/* Single Item (Base Option) */}
+            <div style={{ padding: '1.5rem', border: '1px solid var(--border-color)', borderRadius: '8px', background: '#fff' }}>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 600, margin: '0 0 1rem 0' }}>Single Item (Base Option)</h3>
+              <div style={{ background: '#f9fafb', padding: '1rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+                <div style={{ marginBottom: '1rem' }}>
+                  <label style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontWeight: 500, fontSize: '0.9rem' }}>
+                    <input type="checkbox" checked={singleBundle.enabled} onChange={e => setSingleBundle({ ...singleBundle, enabled: e.target.checked })} style={{ width: '16px', height: '16px', accentColor: 'var(--accent-primary)' }} />
+                    Enable Single Item Option (1 Qty)
+                  </label>
+                </div>
+                {singleBundle.enabled && (
+                  <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                    <div style={{ flex: 1, minWidth: '150px' }}>
+                      <label style={{display:'block',marginBottom:'.25rem',fontWeight:500, fontSize:'0.9rem'}}>Combo Title (Optional)</label>
+                      <input type="text" className="input-field" value={singleBundle.comboTitle || ''} onChange={e => setSingleBundle({ ...singleBundle, comboTitle: e.target.value })} placeholder={`e.g. 1 পিস কিনুন`} />
+                    </div>
+                    <div style={{ flex: 1, minWidth: '150px' }}>
+                      <label style={{display:'block',marginBottom:'.25rem',fontWeight:500, fontSize:'0.9rem'}}>Badge Text (Optional)</label>
+                      <input type="text" className="input-field" value={singleBundle.text || ''} onChange={e => setSingleBundle({ ...singleBundle, text: e.target.value })} placeholder="e.g. Single Pack" />
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
             {/* Volume Bundles Builder */}
             <div style={{ padding: '1.5rem', border: '1px solid var(--border-color)', borderRadius: '8px', background: '#fff' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
@@ -550,9 +582,13 @@ const AdminProductForm = () => {
                       <input type="number" step="0.01" className="input-field" value={b.discountValue} onChange={e => updateVolumeBundle(bIdx, 'discountValue', Number(e.target.value))} />
                     </div>
                   </div>
-                  <div style={{ display: 'flex', gap: '1rem' }}>
-                    <div style={{ flex: 1 }}>
-                      <label style={{display:'block',marginBottom:'.25rem',fontWeight:500, fontSize:'0.9rem'}}>Title / Badge Text (Optional)</label>
+                  <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                    <div style={{ flex: 1, minWidth: '150px' }}>
+                      <label style={{display:'block',marginBottom:'.25rem',fontWeight:500, fontSize:'0.9rem'}}>Combo Title (Optional)</label>
+                      <input type="text" className="input-field" value={b.comboTitle || ''} onChange={e => updateVolumeBundle(bIdx, 'comboTitle', e.target.value)} placeholder={`e.g. ${b.qty} পিস কিনুন`} />
+                    </div>
+                    <div style={{ flex: 1, minWidth: '150px' }}>
+                      <label style={{display:'block',marginBottom:'.25rem',fontWeight:500, fontSize:'0.9rem'}}>Badge Text (Optional)</label>
                       <input type="text" className="input-field" value={b.text || ''} onChange={e => updateVolumeBundle(bIdx, 'text', e.target.value)} placeholder="e.g. Most Popular!" />
                     </div>
                     <div>

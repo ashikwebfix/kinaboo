@@ -169,8 +169,6 @@ const ProductDetails = () => {
   const [deliveryMethods, setDeliveryMethods] = useState([]);
   const [selectedMethodId, setSelectedMethodId] = useState('');
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
-  const [isHoverZooming, setIsHoverZooming] = useState(false);
-  const [zoomPosition, setZoomPosition] = useState({ x: 50, y: 50 });
   
   // Bundle States
   const [bundles, setBundles] = useState([]);
@@ -294,10 +292,16 @@ const ProductDetails = () => {
         setMainImage(data.images && data.images.length > 0 ? data.images[0] : (data.image || 'https://placehold.co/400x400?text=No+Image'));
         trackViewContent(data);
 
-        // Default to first bundle tier if available
-        if (data.volumeBundles && data.volumeBundles.length > 0) {
+        // Default to first bundle tier if single item is disabled
+        const isSingleEnabled = !data.singleBundle || data.singleBundle.enabled !== false;
+        
+        if (isSingleEnabled) {
+          setQty(1);
+        } else if (data.volumeBundles && data.volumeBundles.length > 0) {
           const sortedTiers = [...data.volumeBundles].sort((a, b) => a.qty - b.qty);
           setQty(sortedTiers[0].qty);
+        } else {
+          setQty(1);
         }
 
         // Initialize variations
@@ -670,29 +674,7 @@ const ProductDetails = () => {
         {/* Left: Images */}
         <div className="desktop-sticky">
           <div 
-            className={`product-main-image-container ${isHoverZooming ? 'zooming' : ''}`}
-            onMouseEnter={(e) => {
-              if (e.target.closest('.product-gallery-arrow') || e.target.closest('.product-gallery-counter')) return;
-              setIsHoverZooming(true);
-            }}
-            onMouseLeave={() => {
-              setIsHoverZooming(false);
-              setZoomPosition({ x: 50, y: 50 });
-            }}
-            onMouseMove={(e) => {
-              if (e.target.closest('.product-gallery-arrow') || e.target.closest('.product-gallery-counter')) {
-                if (isHoverZooming) setIsHoverZooming(false);
-                return;
-              }
-              if (!isHoverZooming) setIsHoverZooming(true);
-              const rect = e.currentTarget.getBoundingClientRect();
-              const x = ((e.clientX - rect.left) / rect.width) * 100;
-              const y = ((e.clientY - rect.top) / rect.height) * 100;
-              setZoomPosition({
-                x: Math.max(0, Math.min(100, x)),
-                y: Math.max(0, Math.min(100, y))
-              });
-            }}
+            className="product-main-image-container"
             style={{ 
               position: 'relative',
               width: '100%', 
@@ -706,8 +688,7 @@ const ProductDetails = () => {
               padding: '1rem',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center',
-              cursor: isHoverZooming ? 'crosshair' : 'default'
+              justifyContent: 'center'
             }}
           >
             <img 
@@ -718,25 +699,16 @@ const ProductDetails = () => {
                 width: '100%', 
                 height: '100%', 
                 objectFit: 'contain', 
-                transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%`,
-                transform: isHoverZooming ? 'scale(2.3)' : 'scale(1)',
-                transition: isHoverZooming ? 'transform-origin 0.04s ease-out, transform 0.2s ease-out' : 'transform 0.3s ease-out, opacity 0.2s ease',
+                transition: 'opacity 0.2s ease',
                 pointerEvents: 'none'
               }} 
             />
-
-            {/* Quick Zoom Indicator Badge */}
-            <div className={`product-zoom-hint ${isHoverZooming ? 'hidden' : ''}`}>
-              <ZoomIn size={16} />
-            </div>
 
             {imagesList.length > 1 && (
               <>
                 <button
                   type="button"
                   onClick={handlePrevImage}
-                  onMouseEnter={(e) => { e.stopPropagation(); setIsHoverZooming(false); }}
-                  onMouseMove={(e) => { e.stopPropagation(); setIsHoverZooming(false); }}
                   className="product-gallery-arrow prev-arrow"
                   aria-label="Previous image"
                 >
@@ -746,19 +718,13 @@ const ProductDetails = () => {
                 <button
                   type="button"
                   onClick={handleNextImage}
-                  onMouseEnter={(e) => { e.stopPropagation(); setIsHoverZooming(false); }}
-                  onMouseMove={(e) => { e.stopPropagation(); setIsHoverZooming(false); }}
                   className="product-gallery-arrow next-arrow"
                   aria-label="Next image"
                 >
                   <ChevronRight size={22} strokeWidth={2.4} />
                 </button>
 
-                <div 
-                  className="product-gallery-counter"
-                  onMouseEnter={(e) => { e.stopPropagation(); setIsHoverZooming(false); }}
-                  onMouseMove={(e) => { e.stopPropagation(); setIsHoverZooming(false); }}
-                >
+                <div className="product-gallery-counter">
                   {(imagesList.indexOf(mainImage) >= 0 ? imagesList.indexOf(mainImage) : 0) + 1} / {imagesList.length}
                 </div>
               </>
@@ -985,7 +951,8 @@ const ProductDetails = () => {
               <label style={{ display: 'block', fontWeight: '600', marginBottom: '1rem', fontSize: '1.1rem' }}>পরিমাণ নির্বাচন করুন (Combo Offer)</label>
               <div style={{ display: 'grid', gap: '0.75rem' }}>
                 
-                {/* Default Buy 1 Row */}
+                {/* Base Option */}
+                {(!product.singleBundle || product.singleBundle.enabled !== false) && (
                 <label 
                   style={{ 
                     display: 'flex', alignItems: 'center', justifyContent: 'space-between', 
@@ -999,13 +966,21 @@ const ProductDetails = () => {
                     <input type="radio" name="qtySelect" checked={qty === 1} onChange={() => setQty(1)} style={{ accentColor: 'var(--accent-primary)', width: '18px', height: '18px', flexShrink: 0 }} />
                     <img src={mainImage} alt={product.name} style={{ width: '44px', height: '44px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #e2e8f0', flexShrink: 0 }} />
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
-                      <span style={{ fontWeight: 600 }}>1 পিস কিনুন</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                        <span style={{ fontWeight: 600 }}>{product.singleBundle?.comboTitle || `1 পিস কিনুন`}</span>
+                        {product.singleBundle?.text && (
+                          <span style={{ background: '#ef4444', color: '#fff', fontSize: '0.7rem', padding: '0.1rem 0.4rem', borderRadius: '4px', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                            {product.singleBundle.text}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
                   <div style={{ textAlign: 'right' }}>
                     <div style={{ fontWeight: 700, fontSize: '1.1rem', color: 'var(--accent-primary)' }}>{formatPrice(currentPrice)} BDT</div>
                   </div>
                 </label>
+                )}
 
                 {/* Bundle Rows */}
                 {[...product.volumeBundles].sort((a,b) => a.qty - b.qty).map((tier, idx) => {
@@ -1037,7 +1012,7 @@ const ProductDetails = () => {
                         )}
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
-                            <span style={{ fontWeight: 600 }}>{tier.qty} পিস কিনুন</span>
+                            <span style={{ fontWeight: 600 }}>{tier.comboTitle || `${tier.qty} পিস কিনুন`}</span>
                             {tier.text && (
                               <span style={{ background: '#ef4444', color: '#fff', fontSize: '0.7rem', padding: '0.1rem 0.4rem', borderRadius: '4px', fontWeight: 600, whiteSpace: 'nowrap' }}>
                                 {tier.text}
@@ -1215,6 +1190,76 @@ const ProductDetails = () => {
         </div>
       </div>
 
+      {/* YouTube Reels (Moved here) */}
+      {product.youtubeReels && product.youtubeReels.length > 0 && (
+        <div style={{ marginBottom: '4rem', marginTop: '2rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', padding: '0 0.5rem' }}>
+            <h2 className="heading-lg" style={{ margin: 0 }}>Product Videos</h2>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <button type="button" onClick={() => scrollReels('left')} style={{ background: '#fff', border: '1px solid var(--border-color)', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
+                <ChevronLeft size={20} />
+              </button>
+              <button type="button" onClick={() => scrollReels('right')} style={{ background: '#fff', border: '1px solid var(--border-color)', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
+                <ChevronRight size={20} />
+              </button>
+            </div>
+          </div>
+          <style>{`
+            .reels-carousel::-webkit-scrollbar {
+              display: none;
+            }
+            .reel-card {
+              flex: 0 0 250px;
+              scroll-snap-align: start;
+              border-radius: 12px;
+              overflow: hidden;
+              box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+              aspect-ratio: 9/16;
+              background: #000;
+            }
+            .reel-card iframe {
+              width: 100%;
+              height: 100%;
+              border: none;
+            }
+          `}</style>
+          <div ref={reelsCarouselRef} className="reels-carousel" style={{ 
+            display: 'flex', 
+            overflowX: 'auto', 
+            scrollSnapType: 'x mandatory', 
+            gap: '1.5rem', 
+            paddingBottom: '1rem',
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none'
+          }}>
+            {product.youtubeReels.map((url, idx) => {
+              // Extract video ID from youtube shorts URL
+              let videoId = '';
+              if (url.includes('shorts/')) {
+                videoId = url.split('shorts/')[1]?.split('?')[0];
+              } else if (url.includes('v=')) {
+                videoId = url.split('v=')[1]?.split('&')[0];
+              } else if (url.includes('youtu.be/')) {
+                videoId = url.split('youtu.be/')[1]?.split('?')[0];
+              }
+              
+              if (!videoId) return null;
+              
+              return (
+                <div key={idx} className="reel-card">
+                  <iframe 
+                    src={`https://www.youtube-nocookie.com/embed/${videoId}?loop=1&playlist=${videoId}&autoplay=0&mute=0`} 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowFullScreen
+                    title="YouTube Shorts Reel"
+                  />
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       <hr style={{ border: 'none', borderTop: '1px solid var(--border-color)', margin: '4rem 0' }} />
 
       {/* Bottom Section */}
@@ -1292,75 +1337,7 @@ const ProductDetails = () => {
           }
         })}
 
-        {/* YouTube Reels */}
-        {product.youtubeReels && product.youtubeReels.length > 0 && (
-          <div style={{ marginBottom: '4rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', padding: '0 0.5rem' }}>
-              <h2 className="heading-lg" style={{ margin: 0 }}>Product Videos</h2>
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <button type="button" onClick={() => scrollReels('left')} style={{ background: '#fff', border: '1px solid var(--border-color)', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
-                  <ChevronLeft size={20} />
-                </button>
-                <button type="button" onClick={() => scrollReels('right')} style={{ background: '#fff', border: '1px solid var(--border-color)', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
-                  <ChevronRight size={20} />
-                </button>
-              </div>
-            </div>
-            <style>{`
-              .reels-carousel::-webkit-scrollbar {
-                display: none;
-              }
-              .reel-card {
-                flex: 0 0 250px;
-                scroll-snap-align: start;
-                border-radius: 12px;
-                overflow: hidden;
-                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-                aspect-ratio: 9/16;
-                background: #000;
-              }
-              .reel-card iframe {
-                width: 100%;
-                height: 100%;
-                border: none;
-              }
-            `}</style>
-            <div ref={reelsCarouselRef} className="reels-carousel" style={{ 
-              display: 'flex', 
-              overflowX: 'auto', 
-              scrollSnapType: 'x mandatory', 
-              gap: '1.5rem', 
-              paddingBottom: '1rem',
-              scrollbarWidth: 'none',
-              msOverflowStyle: 'none'
-            }}>
-              {product.youtubeReels.map((url, idx) => {
-                // Extract video ID from youtube shorts URL
-                let videoId = '';
-                if (url.includes('shorts/')) {
-                  videoId = url.split('shorts/')[1]?.split('?')[0];
-                } else if (url.includes('v=')) {
-                  videoId = url.split('v=')[1]?.split('&')[0];
-                } else if (url.includes('youtu.be/')) {
-                  videoId = url.split('youtu.be/')[1]?.split('?')[0];
-                }
-                
-                if (!videoId) return null;
-                
-                return (
-                  <div key={idx} className="reel-card">
-                    <iframe 
-                      src={`https://www.youtube-nocookie.com/embed/${videoId}?loop=1&playlist=${videoId}&autoplay=0&mute=0`} 
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                      allowFullScreen
-                      title="YouTube Shorts Reel"
-                    />
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
+
 
         {/* Manual Product Reviews */}
         {product.reviews && product.reviews.length > 0 && (

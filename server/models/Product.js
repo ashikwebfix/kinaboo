@@ -107,6 +107,14 @@ const Product = sequelize.define('Product', {
     type: DataTypes.JSON,
     allowNull: true,
   },
+  unitText: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  singleBundle: {
+    type: DataTypes.JSON,
+    allowNull: true,
+  },
 });
 
 module.exports = Product;
