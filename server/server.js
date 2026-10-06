@@ -45,6 +45,7 @@ const fs = require('fs');
 const Product = require('./models/Product');
 const Category = require('./models/Category');
 const Blog = require('./models/Blog');
+const Subscriber = require('./models/Subscriber');
 
 const { migrateProductSlugs } = require('./controllers/productController');
 
@@ -82,6 +83,9 @@ const runMigrations = async () => {
   // Sync new models
   await Blog.sync();
   console.log('[Migration] Synced Blog model.');
+  
+  await Subscriber.sync();
+  console.log('[Migration] Synced Subscriber model.');
 
   console.log('[Migration] All migrations complete.');
 };

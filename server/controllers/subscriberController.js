@@ -11,14 +11,13 @@ const addSubscriber = async (req, res) => {
       return res.status(400).json({ message: 'Email is required' });
     }
 
-    const existingSubscriber = await Subscriber.findOne({ email: email.toLowerCase() });
+    const existingSubscriber = await Subscriber.findOne({ where: { email: email.toLowerCase() } });
     
     if (existingSubscriber) {
       return res.status(400).json({ message: 'Email is already subscribed' });
     }
 
-    const subscriber = new Subscriber({ email });
-    await subscriber.save();
+    const subscriber = await Subscriber.create({ email: email.toLowerCase() });
 
     res.status(201).json({ message: 'Successfully subscribed!', subscriber });
   } catch (error) {
@@ -31,7 +30,7 @@ const addSubscriber = async (req, res) => {
 // @access  Admin
 const getSubscribers = async (req, res) => {
   try {
-    const subscribers = await Subscriber.find().sort({ createdAt: -1 });
+    const subscribers = await Subscriber.findAll({ order: [['createdAt', 'DESC']] });
     res.json(subscribers);
   } catch (error) {
     res.status(500).json({ message: 'Server Error', error: error.message });
@@ -43,13 +42,13 @@ const getSubscribers = async (req, res) => {
 // @access  Admin
 const deleteSubscriber = async (req, res) => {
   try {
-    const subscriber = await Subscriber.findById(req.params.id);
+    const subscriber = await Subscriber.findByPk(req.params.id);
     
     if (!subscriber) {
       return res.status(404).json({ message: 'Subscriber not found' });
     }
 
-    await subscriber.deleteOne();
+    await subscriber.destroy();
     res.json({ message: 'Subscriber removed' });
   } catch (error) {
     res.status(500).json({ message: 'Server Error', error: error.message });
