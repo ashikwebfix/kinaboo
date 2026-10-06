@@ -34,16 +34,23 @@ const Footer = () => {
       .catch(() => {});
   }, []);
 
-  const handleNewsletterSubmit = (e) => {
+  const handleNewsletterSubmit = async (e) => {
     e.preventDefault();
     if (!email || !email.includes('@')) {
       toast.error('সঠিক ইমেইল এড্রেস প্রদান করুন');
       return;
     }
-    setSubscribed(true);
-    toast.success('সাবস্ক্রিপশন সফল হয়েছে! ধন্যবাদ।', { icon: '🎉' });
-    setEmail('');
-    setTimeout(() => setSubscribed(false), 4000);
+    
+    try {
+      setSubscribed(true);
+      await axios.post('/api/subscribers', { email });
+      toast.success('সাবস্ক্রিপশন সফল হয়েছে! ধন্যবাদ।', { icon: '🎉' });
+      setEmail('');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'সাবস্ক্রাইব করতে সমস্যা হয়েছে।');
+    } finally {
+      setTimeout(() => setSubscribed(false), 4000);
+    }
   };
 
   return (

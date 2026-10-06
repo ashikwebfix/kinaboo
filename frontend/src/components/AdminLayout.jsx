@@ -5,7 +5,7 @@ import Link from 'next/link';
 
 import { requestForToken, onMessageListener, initFirebase } from '../firebase';
 import toast from 'react-hot-toast';
-import { Bell, LayoutDashboard, PackageSearch, Layers, Image as ImageIcon, Users, ShoppingCart, LogOut, Settings as SettingsIcon, Tag, PackagePlus, Shield, Activity, PackageX, FileText, Menu, X } from 'lucide-react';
+import { Bell, LayoutDashboard, PackageSearch, Layers, Image as ImageIcon, Users, ShoppingCart, LogOut, Settings as SettingsIcon, Tag, PackagePlus, Shield, Activity, PackageX, FileText, Menu, X, Mail } from 'lucide-react';
 
 const AdminLayout = ({ children }) => {
   const router = useRouter();
@@ -104,6 +104,7 @@ const AdminLayout = ({ children }) => {
     { name: 'Coupons', path: '/admin/coupons', icon: <Tag size={20} /> },
     { name: 'Analytics', path: '/admin/analytics', icon: <Activity size={20} /> },
     { name: 'Customers', path: '/admin/customers', icon: <Users size={20} /> },
+    { name: 'Subscribers', path: '/admin/subscribers', icon: <Mail size={20} /> },
     { name: 'Abandoned Carts', path: '/admin/abandoned-carts', icon: <PackageX size={20} /> },
     { name: 'Pages', path: '/admin/pages', icon: <FileText size={20} /> },
     { name: 'Blogs', path: '/admin/blogs', icon: <FileText size={20} /> },

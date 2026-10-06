@@ -40,6 +40,7 @@ const analyticsRoutes = require('./routes/analyticsRoutes');
 const abandonedCartRoutes = require('./routes/abandonedCartRoutes');
 const pageRoutes = require('./routes/pageRoutes');
 const blogRoutes = require('./routes/blogRoutes');
+const subscriberRoutes = require('./routes/subscriberRoutes');
 const fs = require('fs');
 const Product = require('./models/Product');
 const Category = require('./models/Category');
@@ -119,6 +120,7 @@ app.use('/api/analytics', analyticsRoutes);
 app.use('/api/abandoned-carts', abandonedCartRoutes);
 app.use('/api/pages', pageRoutes);
 app.use('/api/blogs', blogRoutes);
+app.use('/api/subscribers', subscriberRoutes);
 
 // API Fallback (Optional - send 404 for unknown API routes)
 app.use('/api', (req, res) => {
