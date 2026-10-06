@@ -1,5 +1,5 @@
+"use client";
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { toast } from 'react-hot-toast';
 import { Mail, Trash2 } from 'lucide-react';
 
@@ -16,14 +16,18 @@ const AdminSubscribers = () => {
     try {
       setLoading(true);
       const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-      const config = {
-        headers: { Authorization: `Bearer ${userInfo.token}` }
-      };
       
-      const { data } = await axios.get('/api/subscribers', config);
+      const res = await fetch('/api/subscribers', {
+        headers: { Authorization: `Bearer ${userInfo.token}` }
+      });
+      
+      const data = await res.json();
+      
+      if (!res.ok) throw new Error(data.message || 'Failed to load subscribers');
+      
       setSubscribers(data);
     } catch (err) {
-      setError(err.response?.data?.message || err.message);
+      setError(err.message);
       toast.error('Failed to load subscribers');
     } finally {
       setLoading(false);
@@ -34,15 +38,21 @@ const AdminSubscribers = () => {
     if (window.confirm('Are you sure you want to delete this subscriber?')) {
       try {
         const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-        const config = {
-          headers: { Authorization: `Bearer ${userInfo.token}` }
-        };
 
-        await axios.delete(`/api/subscribers/${id}`, config);
-        setSubscribers(subscribers.filter(sub => sub._id !== id));
+        const res = await fetch(`/api/subscribers/${id}`, {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${userInfo.token}` }
+        });
+        
+        if (!res.ok) {
+          const data = await res.json();
+          throw new Error(data.message || 'Failed to delete subscriber');
+        }
+
+        setSubscribers(subscribers.filter(sub => sub.id !== id));
         toast.success('Subscriber deleted');
       } catch (err) {
-        toast.error(err.response?.data?.message || err.message);
+        toast.error(err.message);
       }
     }
   };
@@ -105,13 +115,13 @@ const AdminSubscribers = () => {
                 </tr>
               ) : (
                 subscribers.map((sub) => (
-                  <tr key={sub._id}>
+                  <tr key={sub.id}>
                     <td>{sub.email}</td>
                     <td>{new Date(sub.createdAt).toLocaleString()}</td>
                     <td>
                       <button 
                         className="admin-btn-danger" 
-                        onClick={() => handleDelete(sub._id)}
+                        onClick={() => handleDelete(sub.id)}
                         title="Delete Subscriber"
                       >
                         <Trash2 size={16} />

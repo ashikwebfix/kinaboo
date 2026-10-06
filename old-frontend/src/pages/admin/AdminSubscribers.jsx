@@ -39,7 +39,7 @@ const AdminSubscribers = () => {
         };
 
         await axios.delete(`/api/subscribers/${id}`, config);
-        setSubscribers(subscribers.filter(sub => sub._id !== id));
+        setSubscribers(subscribers.filter(sub => sub.id !== id));
         toast.success('Subscriber deleted');
       } catch (err) {
         toast.error(err.response?.data?.message || err.message);
@@ -105,13 +105,13 @@ const AdminSubscribers = () => {
                 </tr>
               ) : (
                 subscribers.map((sub) => (
-                  <tr key={sub._id}>
+                  <tr key={sub.id}>
                     <td>{sub.email}</td>
                     <td>{new Date(sub.createdAt).toLocaleString()}</td>
                     <td>
                       <button 
                         className="admin-btn-danger" 
-                        onClick={() => handleDelete(sub._id)}
+                        onClick={() => handleDelete(sub.id)}
                         title="Delete Subscriber"
                       >
                         <Trash2 size={16} />
